@@ -1,0 +1,18 @@
+{
+  "name": "trialbyfire",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/engine",
+    "packages/contracts",
+    "packages/frontend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "trial": "npm run trial -w packages/engine"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
