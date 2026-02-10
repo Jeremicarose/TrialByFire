@@ -1,3 +1,7 @@
+import { OpenAIClient } from "./openai.js";
+import { AnthropicClient } from "./anthropic.js";
+import { MockLLMClient } from "./mock.js";
+
 export interface LLMRequest {
   systemPrompt: string;
   userPrompt: string;
@@ -16,19 +20,17 @@ export interface LLMClient {
   call(request: LLMRequest): Promise<LLMResponse>;
 }
 
-export { OpenAIClient } from "./openai.js";
-export { AnthropicClient } from "./anthropic.js";
-export { MockLLMClient } from "./mock.js";
+export { OpenAIClient, AnthropicClient, MockLLMClient };
 
 export function createLLMClient(
   provider: "openai" | "anthropic" | "mock"
 ): LLMClient {
   switch (provider) {
     case "openai":
-      return new (require("./openai.js") as typeof import("./openai.js")).OpenAIClient();
+      return new OpenAIClient();
     case "anthropic":
-      return new (require("./anthropic.js") as typeof import("./anthropic.js")).AnthropicClient();
+      return new AnthropicClient();
     case "mock":
-      return new (require("./mock.js") as typeof import("./mock.js")).MockLLMClient();
+      return new MockLLMClient();
   }
 }
