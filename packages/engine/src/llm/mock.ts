@@ -256,32 +256,31 @@ export class MockLLMClient implements LLMClient {
     await new Promise((r) => setTimeout(r, 200));
 
     // Detect what type of call this is by inspecting the system prompt.
-    // The advocate prompts contain "advocate" and "YES"/"NO",
-    // while the judge prompt contains "adjudicator" or "judge".
+    // IMPORTANT: Check for "advocate" FIRST because advocate prompts
+    // mention "judge" in passing ("credibility with the judge"), but
+    // judge prompts never contain "advocate". Order matters here.
     const prompt = request.systemPrompt.toLowerCase();
     const isAdvocate = prompt.includes("advocate");
-    const isJudge =
-      prompt.includes("adjudicator") || prompt.includes("judge");
-    const isYes = prompt.includes("yes");
+    const isYes = prompt.includes("position is: yes");
 
     let content: string;
 
-    if (isJudge) {
-      content =
-        this.scenario === "close"
-          ? MOCK_JUDGE_RULING_CLOSE
-          : MOCK_JUDGE_RULING;
-    } else if (isAdvocate && isYes) {
+    if (isAdvocate && isYes) {
       content =
         this.scenario === "close"
           ? MOCK_ADVOCATE_YES_CLOSE
           : MOCK_ADVOCATE_YES;
-    } else {
-      // Default to NO advocate for any other advocate call
+    } else if (isAdvocate) {
       content =
         this.scenario === "close"
           ? MOCK_ADVOCATE_NO_CLOSE
           : MOCK_ADVOCATE_NO;
+    } else {
+      // Judge or any other call type
+      content =
+        this.scenario === "close"
+          ? MOCK_JUDGE_RULING_CLOSE
+          : MOCK_JUDGE_RULING;
     }
 
     return {
