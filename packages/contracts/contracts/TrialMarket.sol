@@ -9,5 +9,6 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * @notice A subjective prediction market resolved by adversarial AI debate.
  * 
  * Lifecycle:
- *  1. createMarket()       - Post a subjective question with rubic
+ *  1. createMarket()       - Post a subjective question with rubric + deadline
+ *  
  */
