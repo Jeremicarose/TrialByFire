@@ -8,4 +8,6 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * @title TrialMarket
  * @notice A subjective prediction market resolved by adversarial AI debate.
  * 
+ * Lifecycle:
+ *  1. createMarket()       - Post a subjective question with rubic
  */
