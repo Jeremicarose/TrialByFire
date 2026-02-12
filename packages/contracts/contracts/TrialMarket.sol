@@ -15,5 +15,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  *  4. settle() /escalate() - Engine writes verdict or escalates for human review 
  *  5. claimWinnings()      - Winners withdraw proportional payouts
  * 
- * settlement is owner-gated (deployer = authorized setteler for the )
+ * settlement is owner-gated (deployer = authorized setteler for the hackathon).
+ * In production, the owner would be the CRE Forwarder contract address,
+ * 
  */
