@@ -13,5 +13,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  *  2. takePosition()       - Stake ETH on YES or NO
  *  3. requestSettlement()  - After deadline, emit event to trigger CRE workflow
  *  4. settle() /escalate() - Engine writes verdict or escalates for human review 
- *  5. claimWinnings
+ *  5. claimWinnings()      - Winners withdraw proportional payouts
+ * 
+ * settlement is owner
  */
