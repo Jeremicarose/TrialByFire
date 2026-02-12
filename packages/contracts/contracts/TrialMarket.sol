@@ -15,5 +15,5 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  *  4. settle() /escalate() - Engine writes verdict or escalates for human review 
  *  5. claimWinnings()      - Winners withdraw proportional payouts
  * 
- * settlement is owner
+ * settlement is owner-gated (deployer = auth)
  */
