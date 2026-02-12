@@ -11,5 +11,5 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * Lifecycle:
  *  1. createMarket()       - Post a subjective question with rubric + deadline
  *  2. takePosition()       - Stake ETH on YES or NO
- *  3. requestSettlement()  -
+ *  3. requestSettlement()  - After deadline, 
  */
