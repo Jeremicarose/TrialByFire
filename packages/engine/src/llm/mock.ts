@@ -255,12 +255,12 @@ export class MockLLMClient implements LLMClient {
     // Simulate realistic API latency (200ms)
     await new Promise((r) => setTimeout(r, 200));
 
-    // Detect what type of call this is by inspecting the system prompt.
-    // IMPORTANT: Check for "advocate" FIRST because advocate prompts
-    // mention "judge" in passing ("credibility with the judge"), but
-    // judge prompts never contain "advocate". Order matters here.
+    // Detect call type via unique strings in each system prompt.
+    // "your assigned position is:" only appears in advocate prompts,
+    // not in the judge prompt (which mentions "advocates" but as a noun).
+    // This avoids false matches between advocate and judge prompts.
     const prompt = request.systemPrompt.toLowerCase();
-    const isAdvocate = prompt.includes("advocate");
+    const isAdvocate = prompt.includes("your assigned position is:");
     const isYes = prompt.includes("position is: yes");
 
     let content: string;
