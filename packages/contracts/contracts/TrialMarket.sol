@@ -5,5 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
- * @title Trial
+ * @title TrialMarket
+ * @notice A subjective prediction market resolved by adversarial AI debate.
+ * 
  */
