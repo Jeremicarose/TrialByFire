@@ -10,5 +10,5 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * 
  * Lifecycle:
  *  1. createMarket()       - Post a subjective question with rubric + deadline
- *  
+ *  2. takePosition()       - St
  */
