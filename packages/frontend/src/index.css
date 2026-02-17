@@ -1,0 +1,267 @@
+/*
+ * TRIALBYFIRE — Judicial Dark Terminal Theme
+ *
+ * Design system built on CSS custom properties (variables).
+ * Every visual decision is centralized here so the 4 dashboard
+ * components (MarketView, TrialTranscript, JudgeScorecard,
+ * SettlementStatus) share a consistent visual language.
+ *
+ * Color palette:
+ *   - Deep obsidian slate backgrounds (layered for depth)
+ *   - Oxidized copper accents (avoids generic AI purple)
+ *   - Cold blue for YES/prosecution side
+ *   - Muted crimson for NO/defense side
+ *   - Green for RESOLVE, amber for ESCALATE
+ *
+ * Typography:
+ *   - Lora (serif): headings — legal document authority
+ *   - JetBrains Mono: data/scores — terminal precision
+ *   - DM Sans: body text — clean readability
+ */
+
+:root {
+  /* Background layers — darkest to lightest, creating depth */
+  --bg-deep: #0a0c10;
+  --bg-primary: #0f1118;
+  --bg-elevated: #161a24;
+  --bg-surface: #1c2130;
+  --bg-surface-hover: #232839;
+
+  /* Border hierarchy — subtle for structure, strong for emphasis */
+  --border-subtle: #1e2333;
+  --border-medium: #2a3044;
+  --border-strong: #3a4060;
+
+  /* Text hierarchy — 4 levels from prominent to barely visible */
+  --text-primary: #e8e6e1;
+  --text-secondary: #9a978f;
+  --text-tertiary: #65635d;
+  --text-muted: #4a483f;
+
+  /* Accent — oxidized copper, used for highlights and interactive elements */
+  --accent: #c48038;
+  --accent-dim: #8b5a24;
+  --accent-glow: #c4803830;
+
+  /* YES advocate — cold prosecution blue */
+  --yes-primary: #4a90d9;
+  --yes-dim: #2a5a8f;
+  --yes-bg: #4a90d910;
+  --yes-border: #4a90d930;
+
+  /* NO advocate — muted defense crimson */
+  --no-primary: #c45050;
+  --no-dim: #8b3030;
+  --no-bg: #c4505010;
+  --no-border: #c4505030;
+
+  /* Settlement outcomes */
+  --resolve-primary: #3daa6d;
+  --resolve-bg: #3daa6d15;
+  --resolve-border: #3daa6d40;
+  --escalate-primary: #d4944a;
+  --escalate-bg: #d4944a15;
+  --escalate-border: #d4944a40;
+  --warning-primary: #d44a4a;
+  --warning-bg: #d44a4a12;
+
+  /* Font stacks */
+  --font-serif: 'Lora', Georgia, serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Spacing scale — consistent 8px grid */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+}
+
+/* ── Reset — normalize browser defaults ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;  /* Smoother text on macOS */
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/*
+ * Noise texture overlay — a barely-visible fractal noise SVG
+ * layered over the entire page. This adds analog grain to the
+ * digital interface, preventing the flat "AI dashboard" look.
+ * pointer-events: none ensures it doesn't block clicks.
+ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── App Container — max width prevents ultra-wide readability issues ── */
+.app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+/* ── Header — centered with a copper accent line below ── */
+.app-header {
+  text-align: center;
+  padding: var(--space-3xl) 0 var(--space-2xl);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-2xl);
+  position: relative;
+}
+
+/* The glowing copper line under the header */
+.app-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 1px;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.app-header__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--space-md);
+}
+
+.app-header__title {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.app-header__subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: var(--space-sm) auto 0;
+}
+
+/* ── Section Labels — monospace uppercase with a short accent line ── */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.section-label::before {
+  content: '';
+  width: 12px;
+  height: 1px;
+  background: var(--accent-dim);
+}
+
+/*
+ * Stage Indicator — shows current pipeline stage during trial.
+ * The pulsing dot animates while running, goes solid green on complete.
+ */
+.stage-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-xl);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  min-height: 48px;
+}
+
+.stage-indicator__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.stage-indicator--idle .stage-indicator__dot {
+  background: var(--text-tertiary);
+  animation: none;
+}
+
+.stage-indicator--complete .stage-indicator__dot {
+  background: var(--resolve-primary);
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--accent-glow); }
+  50% { opacity: 0.5; box-shadow: 0 0 0 6px transparent; }
+}
+
+/*
+ * Reveal Animation — elements fade up when they appear.
+ * Used with delay classes for staggered reveals (e.g. advocate
+ * arguments appearing one by one like testimony being read).
+ */
+@keyframes slideReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal { animation: slideReveal 0.5s ease-out both; }
+.reveal-delay-1 { animation-delay: 0.1s; }
+.reveal-delay-2 { animation-delay: 0.2s; }
+.reveal-delay-3 { animation-delay: 0.3s; }
+.reveal-delay-4 { animation-delay: 0.4s; }
+
+/* ── Loading Skeleton — shimmer effect while waiting for data ── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-surface-hover) 50%, var(--bg-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-line { height: 14px; margin-bottom: var(--space-sm); }
+.skeleton-line--short { width: 60%; }
+.skeleton-line--medium { width: 80%; }
+.skeleton-line--full { width: 100%; }
