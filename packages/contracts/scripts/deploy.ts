@@ -12,5 +12,8 @@ import { ethers } from "hardhat";
  * would be transferred to the CRE Forwarder address.
  */
 async function main() {
-  const [deployer] = await
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying TrialMarket with account:", deployer.address)
+
+  
 }
