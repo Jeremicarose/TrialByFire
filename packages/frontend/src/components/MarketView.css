@@ -1,0 +1,251 @@
+/*
+ * MarketView Styles
+ *
+ * The market card uses the "elevated surface" background layer
+ * to visually separate it from the page background. The rubric
+ * criteria use a darker inset to create depth.
+ */
+
+.market-view {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.market-view__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+/* Serif font for the question gives it legal-document gravitas */
+.market-view__question {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+/* Status badge — small pill with color-coded dot */
+.market-view__status {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: 20px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Color-coded dot before each status label */
+.market-view__status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status--open {
+  color: var(--resolve-primary);
+  background: var(--resolve-bg);
+  border: 1px solid var(--resolve-border);
+}
+.status--open::before { background: var(--resolve-primary); }
+
+.status--pending {
+  color: var(--escalate-primary);
+  background: var(--escalate-bg);
+  border: 1px solid var(--escalate-border);
+}
+.status--pending::before {
+  background: var(--escalate-primary);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status--resolved {
+  color: var(--resolve-primary);
+  background: var(--resolve-bg);
+  border: 1px solid var(--resolve-border);
+}
+.status--resolved::before { background: var(--resolve-primary); }
+
+.status--escalated {
+  color: var(--escalate-primary);
+  background: var(--escalate-bg);
+  border: 1px solid var(--escalate-border);
+}
+.status--escalated::before { background: var(--escalate-primary); }
+
+/* ── Rubric Section ── */
+.market-view__rubric {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.market-view__rubric-title {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-md);
+}
+
+.market-view__criteria {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.criterion {
+  padding: var(--space-sm) 0;
+}
+
+.criterion__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.criterion__name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Monospace weight number — reads as data, not decoration */
+.criterion__weight {
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+.criterion__desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ── Pool Split Bar ── */
+.market-view__pools {
+  margin-bottom: var(--space-lg);
+}
+
+.pool-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.pool-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.pool-label--yes { color: var(--yes-primary); }
+.pool-label--no { color: var(--no-primary); }
+
+/*
+ * The split bar: two divs side by side inside a flex container.
+ * Width percentages are set inline via the style prop.
+ * 2px gap between them creates a clean visual split.
+ */
+.pool-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  gap: 2px;
+  background: var(--bg-deep);
+}
+
+.pool-bar__yes {
+  background: linear-gradient(90deg, var(--yes-dim), var(--yes-primary));
+  border-radius: 4px 0 0 4px;
+  transition: width 0.5s ease;
+}
+
+.pool-bar__no {
+  background: linear-gradient(90deg, var(--no-primary), var(--no-dim));
+  border-radius: 0 4px 4px 0;
+  transition: width 0.5s ease;
+}
+
+.pool-total {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  text-align: center;
+  margin-top: var(--space-sm);
+}
+
+/* ── Footer: meta info + Run button ── */
+.market-view__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.market-view__meta {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.meta-item {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+}
+
+/* ── Run Trial Button ── */
+.run-trial-btn {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: var(--space-sm) var(--space-xl);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.run-trial-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--bg-deep);
+}
+
+.run-trial-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Spinning indicator inside the button during trial execution */
+.run-trial-btn__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--accent-glow);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
