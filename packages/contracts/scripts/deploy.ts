@@ -21,5 +21,5 @@ async function main() {
 
   const address = await market.getAddress();
   console.log("TrialMarket deployed to:", address);
-  console.log
+  console.log 
 }
