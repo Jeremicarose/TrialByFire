@@ -16,5 +16,8 @@ async function main() {
   console.log("Deploying TrialMarket with account:", deployer.address)
 
   const TrialMarket = await ethers.getContractFactory("TrialMarket");
-  const market = await TrialMarket
+  const market = await TrialMarket.deploy();
+  await market.waitForDeployment();
+
+  const
 }
