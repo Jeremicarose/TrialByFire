@@ -16,5 +16,6 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  *  5. claimWinnings()          - Winners withdraw proportional payouts
  * 
  * settlement is owner-gated (deployer = authorized setteler for the hackathon).
- * In production, the 
+ * In production, the owner would be the CRE Forwarder contract address,
+ * ensuring only the decentralized oracle network can settle
  */
