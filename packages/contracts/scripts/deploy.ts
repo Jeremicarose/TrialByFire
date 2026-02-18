@@ -9,5 +9,8 @@ import { ethers } from "hardhat";
  * 
  * The deployer address become the contract owner, which is the
  * authorized settler for the hackathon demo. In production this
- * 
+ * would be transferred to the CRE Forwarder address.
  */
+async function main() {
+  const [deployer] = await
+}
