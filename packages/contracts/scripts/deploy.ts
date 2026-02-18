@@ -19,5 +19,6 @@ async function main() {
   const market = await TrialMarket.deploy();
   await market.waitForDeployment();
 
-  const
+  const address = await market.getAddress();
+  
 }
