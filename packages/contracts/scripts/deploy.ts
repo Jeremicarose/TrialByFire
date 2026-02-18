@@ -1,5 +1,8 @@
 import { ethers } from "hardhat";
 
 /**
- * Deploy Trial
+ * Deploy TrialMarket to the configured network.
+ * 
+ * Usage:
+ *  npx hardhat run scripts/deploy.ts --network hardhat   
  */
