@@ -1,0 +1,158 @@
+/*
+ * SettlementStatus Styles
+ *
+ * Two visual states with distinct color treatments:
+ *   RESOLVE — Green tones: "the trial concluded successfully"
+ *   ESCALATE — Amber/orange: "caution, human review needed"
+ *
+ * The card uses a subtle gradient background to create visual weight,
+ * making the outcome impossible to miss at the bottom of the page.
+ */
+
+.settlement {
+  margin-bottom: var(--space-xl);
+}
+
+.settlement__card {
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  border: 1px solid;
+  position: relative;
+  overflow: hidden;
+}
+
+/*
+ * Resolve state: green gradient background
+ * The radial gradient creates a subtle glow effect
+ * emanating from the top-left corner.
+ */
+.settlement--resolve .settlement__card {
+  background: linear-gradient(135deg, #0d1f15 0%, var(--bg-elevated) 60%);
+  border-color: var(--resolve-border);
+}
+
+/*
+ * Escalate state: amber gradient background
+ * Warmer tones convey "caution" without panic.
+ */
+.settlement--escalate .settlement__card {
+  background: linear-gradient(135deg, #1f1a0d 0%, var(--bg-elevated) 60%);
+  border-color: var(--escalate-border);
+}
+
+/* ── Action Badge ── */
+.settlement__action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: 20px;
+  margin-bottom: var(--space-lg);
+}
+
+.settlement--resolve .settlement__action {
+  color: var(--resolve-primary);
+  background: var(--resolve-bg);
+  border: 1px solid var(--resolve-border);
+}
+
+.settlement--escalate .settlement__action {
+  color: var(--escalate-primary);
+  background: var(--escalate-bg);
+  border: 1px solid var(--escalate-border);
+}
+
+/* Colored dot inside the badge */
+.settlement__action-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.settlement--resolve .settlement__action-dot {
+  background: var(--resolve-primary);
+}
+
+.settlement--escalate .settlement__action-dot {
+  background: var(--escalate-primary);
+}
+
+/* ── Verdict / Escalated Text ── */
+.settlement__verdict {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--resolve-primary);
+  margin-bottom: var(--space-md);
+}
+
+.settlement__escalated-text {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--escalate-primary);
+  margin-bottom: var(--space-md);
+}
+
+/* Reason explanation */
+.settlement__reason {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-xl);
+  max-width: 700px;
+}
+
+/* ── Metrics Row ── */
+.settlement__metrics {
+  display: flex;
+  gap: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.settlement__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settlement__metric-label {
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.settlement__metric-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Green for pass, red for fail on the margin check */
+.metric--pass { color: var(--resolve-primary); }
+.metric--fail { color: var(--warning-primary); }
+
+/* ── Etherscan Transaction Link ── */
+.settlement__tx-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  font-size: 0.7rem;
+  color: var(--accent);
+  text-decoration: none;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s ease;
+}
+
+.settlement__tx-link:hover {
+  border-color: var(--accent);
+}
