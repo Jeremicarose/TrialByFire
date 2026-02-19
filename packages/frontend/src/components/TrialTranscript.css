@@ -1,0 +1,256 @@
+/*
+ * TrialTranscript Styles
+ *
+ * Two-column adversarial layout with a vertical divider.
+ * YES column uses blue tones (prosecution), NO uses crimson (defense).
+ * The argument cards have inset backgrounds to create depth
+ * within each column.
+ */
+
+.transcript {
+  margin-bottom: var(--space-xl);
+}
+
+/* Two columns with a narrow divider in between */
+.transcript__columns {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+}
+
+/* The vertical "VS" divider between columns */
+.transcript__divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 80px var(--space-md) 0;
+}
+
+.transcript__vs {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  position: relative;
+}
+
+/* Vertical line extending from the VS badge */
+.transcript__divider::before {
+  content: '';
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, var(--border-medium));
+}
+
+.transcript__divider::after {
+  content: '';
+  width: 1px;
+  flex: 1;
+  background: linear-gradient(to bottom, var(--border-medium), transparent);
+}
+
+/* ── Advocate Column ── */
+.advocate {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+/*
+ * Each side gets a subtle top border accent in its color.
+ * This is the strongest color signal for which side is which,
+ * since the rest of the card is mostly neutral.
+ */
+.advocate--yes {
+  border-top: 2px solid var(--yes-primary);
+}
+
+.advocate--no {
+  border-top: 2px solid var(--no-primary);
+}
+
+.advocate__header {
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Side label: "YES Advocate" or "NO Advocate" */
+.advocate__side {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-sm);
+}
+
+.advocate--yes .advocate__side { color: var(--yes-primary); }
+.advocate--no .advocate__side { color: var(--no-primary); }
+
+.advocate__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.advocate__model {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+}
+
+.advocate__confidence {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.advocate--yes .advocate__confidence { color: var(--yes-primary); }
+.advocate--no .advocate__confidence { color: var(--no-primary); }
+
+/* ── Argument Cards ── */
+.advocate__arguments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.argument-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+/* Criterion name at the top of each card */
+.argument-card__criterion {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-sm);
+}
+
+/* The main argument text */
+.argument-card__claim {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+/* ── Evidence citation tags ── */
+.argument-card__citations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+/*
+ * Citation tags: small pills showing which evidence items
+ * this argument relies on. The monospace font reinforces
+ * that these are data references, not prose.
+ */
+.citation-tag {
+  font-size: 0.6rem;
+  padding: 2px var(--space-sm);
+  border-radius: 3px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-medium);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ── Strength bar ── */
+.argument-card__strength {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.strength-label {
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* The bar container */
+.strength-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-deep);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/*
+ * The fill color matches the advocate's side color.
+ * Width is set inline via style prop in the component.
+ * Transition makes it animate smoothly when the component mounts.
+ */
+.strength-bar__fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.8s ease-out;
+}
+
+.advocate--yes .strength-bar__fill {
+  background: linear-gradient(90deg, var(--yes-dim), var(--yes-primary));
+}
+
+.advocate--no .strength-bar__fill {
+  background: linear-gradient(90deg, var(--no-dim), var(--no-primary));
+}
+
+.strength-value {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 24px;
+  text-align: right;
+}
+
+/* ── Weaknesses Section ── */
+.advocate__weaknesses {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.advocate__weaknesses-title {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-sm);
+}
+
+.advocate__weaknesses-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.advocate__weaknesses-list li {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding-left: var(--space-md);
+  position: relative;
+  line-height: 1.5;
+}
+
+/* Small dash bullet instead of default list disc */
+.advocate__weaknesses-list li::before {
+  content: '\2014'; /* em dash */
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
+}
