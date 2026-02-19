@@ -1,30 +1,21 @@
-import { ethers } from "hardhat";
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
- * Deploy TrialMarket to the configured network.
- *
- * Usage:
- *   npx hardhat run scripts/deploy.ts --network hardhat   (local)
- *   npx hardhat run scripts/deploy.ts --network sepolia   (testnet)
- *
- * The deployer address becomes the contract owner, which is the
- * authorized settler for the hackathon demo. In production this
- * would be transferred to the CRE Forwarder address.
+ * @title TrialMarket
+ * @notice A subjective prediction market resolved by adversarial AI debate.
+ * 
+ * Lifecycle:
+ *  1. createMarket()           - Post a subjective question with rubric + deadline
+ *  2. takePosition()           - Stake ETH on YES or NO
+ *  3. requestSettlement()      - After deadline, emit event to trigger CRE workflow
+ *  4. settle() /escalate()     - Engine writes verdict or escalates for human review
+ *  5. claimWinnings()          - Winners withdraw proportional payouts
+ * 
+ * settlement is owner-gated (deployer = authorized setteler for the hackathon).
+ * In production, the owner would be the CRE Forwarder contract address,
+ * ensuring only the decentralized oracle network can settle
  */
-async function main() {
-  const [deployer] = await ethers.getSigners();
-  console.log("Deploying TrialMarket with account:", deployer.address);
-
-  const TrialMarket = await ethers.getContractFactory("TrialMarket");
-  const market = await TrialMarket.deploy();
-  await market.waitForDeployment();
-
-  const address = await market.getAddress();
-  console.log("TrialMarket deployed to:", address);
-  console.log("Owner (authorized settler):", deployer.address);
-}
-
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
