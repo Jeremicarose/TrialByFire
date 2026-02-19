@@ -21,5 +21,9 @@ async function main() {
 
   const address = await market.getAddress();
   console.log("TrialMarket deployed to:", address);
-  console.log 
 }
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
