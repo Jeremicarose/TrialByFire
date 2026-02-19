@@ -217,7 +217,7 @@ async function runDemo() {
 
   // Same setup flow: create market, take positions, request settlement
   step("Creating market...");
-  const deadlineB = Math.floor(Date.now() / 1000) + 5;
+  const deadlineB = Math.floor(Date.now() / 1000) + 10;
   const createTxB = await contract.createMarket(
     "Did the EU AI Act implementation improve industry compliance by Q1 2026?",
     "QmDemoRubricHash2",
