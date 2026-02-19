@@ -137,9 +137,10 @@ async function runDemo() {
 
   log("SCENARIO A: Clear Margin with Hallucination Detection");
 
-  // Step 1: Create market with deadline 5 seconds from now
+  // Step 1: Create market with deadline 10 seconds from now
+  // Extra time ensures position-taking TXs confirm before deadline
   step("Creating market...");
-  const deadline = Math.floor(Date.now() / 1000) + 5;
+  const deadline = Math.floor(Date.now() / 1000) + 10;
   const createTx = await contract.createMarket(
     DEMO_QUESTION.question,
     "QmDemoRubricHash",
