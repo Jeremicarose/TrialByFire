@@ -241,7 +241,7 @@ async function runDemo() {
   })).wait();
 
   step("Waiting for deadline...");
-  await new Promise((r) => setTimeout(r, 6000));
+  await new Promise((r) => setTimeout(r, 11000));
 
   step("Requesting settlement...");
   await (await contract.requestSettlement(marketIdB)).wait();
