@@ -167,7 +167,7 @@ async function runDemo() {
   })).wait();
 
   step("Bob bets 0.5 ETH on NO...");
-  await (await contract.connect(bob).takePosition(marketIdA, 2, {
+  await (await bobContract.takePosition(marketIdA, 2, {
     value: ethers.parseEther("0.5"),
   })).wait();
 
@@ -235,7 +235,7 @@ async function runDemo() {
   })).wait();
 
   step("Bob bets 0.7 ETH on NO...");
-  await (await contract.connect(bob).takePosition(marketIdB, 2, {
+  await (await bobContract.takePosition(marketIdB, 2, {
     value: ethers.parseEther("0.7"),
   })).wait();
 
