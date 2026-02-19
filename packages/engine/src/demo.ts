@@ -162,7 +162,7 @@ async function runDemo() {
 
   // Step 2: Take positions — Alice bets YES, Bob bets NO
   step("Alice bets 1 ETH on YES...");
-  await (await contract.connect(alice).takePosition(marketIdA, 1, {
+  await (await aliceContract.takePosition(marketIdA, 1, {
     value: ethers.parseEther("1.0"),
   })).wait();
 
@@ -230,7 +230,7 @@ async function runDemo() {
   console.log(`  Market created: ID=${marketIdB}`);
 
   step("Alice bets 0.8 ETH on YES...");
-  await (await contract.connect(alice).takePosition(marketIdB, 1, {
+  await (await aliceContract.takePosition(marketIdB, 1, {
     value: ethers.parseEther("0.8"),
   })).wait();
 
