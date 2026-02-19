@@ -122,6 +122,13 @@ async function runDemo() {
   );
 
   const contract = new ethers.Contract(CONTRACT_ADDRESS, SETUP_ABI, signer);
+  /*
+   * Create separate contract instances for Alice and Bob.
+   * In ethers v6, contract.connect() returns BaseContract which
+   * loses method type info. Creating new instances avoids this.
+   */
+  const aliceContract = new ethers.Contract(CONTRACT_ADDRESS, SETUP_ABI, alice);
+  const bobContract = new ethers.Contract(CONTRACT_ADDRESS, SETUP_ABI, bob);
   const settler = createOnchainSettler(RPC_URL, CONTRACT_ADDRESS, privateKey);
 
   // ════════════════════════════════════════════════════════════════
