@@ -1,0 +1,301 @@
+/*
+ * JudgeScorecard Styles
+ *
+ * The scorecard uses a center-split bar visualization where
+ * YES scores extend left (blue) and NO scores extend right (red).
+ * This creates an intuitive "tug of war" visual that shows
+ * which side won each criterion at a glance.
+ */
+
+.scorecard {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+/* ── Verdict Header Row ── */
+.scorecard__verdict-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/*
+ * The verdict badge: a large colored pill showing YES or NO.
+ * Uses the side's color for immediate recognition.
+ */
+.scorecard__verdict-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-md);
+  border: 1px solid;
+}
+
+.scorecard__verdict-badge--yes {
+  background: var(--yes-bg);
+  border-color: var(--yes-border);
+}
+
+.scorecard__verdict-badge--no {
+  background: var(--no-bg);
+  border-color: var(--no-border);
+}
+
+.scorecard__verdict-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.scorecard__verdict-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.scorecard__verdict-badge--yes .scorecard__verdict-value { color: var(--yes-primary); }
+.scorecard__verdict-badge--no .scorecard__verdict-value { color: var(--no-primary); }
+
+/* Aggregate scores display */
+.scorecard__aggregate {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+.scorecard__score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.scorecard__score-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--text-tertiary);
+}
+
+.scorecard__score-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.scorecard__score--yes .scorecard__score-value { color: var(--yes-primary); }
+.scorecard__score--no .scorecard__score-value { color: var(--no-primary); }
+
+.scorecard__margin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+}
+
+.scorecard__margin-label {
+  font-size: 0.55rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.1em;
+}
+
+.scorecard__margin-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ── Per-Criterion Score Bars ── */
+.scorecard__criteria {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.score-row {
+  padding: var(--space-md);
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.score-row__header {
+  text-align: center;
+  margin-bottom: var(--space-sm);
+}
+
+.score-row__criterion {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/*
+ * Dual bar layout: YES value + bar | center line | bar + NO value
+ * The YES bar container uses flex-direction: row-reverse so the
+ * bar "grows" from right to left (toward the center outward).
+ */
+.score-row__bars {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: var(--space-sm);
+}
+
+.score-row__bar-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* YES side: value on left, bar grows right-to-left toward center */
+.score-row__bar-container--yes {
+  flex-direction: row-reverse;
+}
+
+.score-row__bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-deep);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* YES fill: right-aligned (grows from right edge toward left) */
+.score-row__bar-container--yes .score-row__bar-track {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.score-row__bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease-out;
+}
+
+.score-row__bar-fill--yes {
+  background: linear-gradient(90deg, var(--yes-dim), var(--yes-primary));
+}
+
+.score-row__bar-fill--no {
+  background: linear-gradient(90deg, var(--no-primary), var(--no-dim));
+}
+
+.score-row__bar-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 28px;
+}
+
+.score-row__bar-container--yes .score-row__bar-value {
+  color: var(--yes-primary);
+  text-align: right;
+}
+
+.score-row__bar-container--no .score-row__bar-value {
+  color: var(--no-primary);
+  text-align: left;
+}
+
+/* Thin vertical line between the two bar sides */
+.score-row__center-line {
+  width: 1px;
+  height: 20px;
+  background: var(--border-medium);
+  flex-shrink: 0;
+}
+
+/* Judge's reasoning text below each criterion's bars */
+.score-row__reasoning {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ── Written Ruling (blockquote) ── */
+.scorecard__ruling {
+  padding: var(--space-lg);
+  background: var(--bg-surface);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin-bottom: var(--space-lg);
+}
+
+.scorecard__ruling-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-sm);
+}
+
+/* Serif italic for the ruling — feels like a legal opinion */
+.scorecard__ruling-text {
+  font-size: 0.9rem;
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.scorecard__ruling-model {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  font-style: normal;
+}
+
+/*
+ * Hallucinations section: warning styling in red.
+ * This is the safety mechanism that triggers ESCALATE.
+ * Visually distinct so hackathon judges notice it immediately.
+ */
+.scorecard__hallucinations {
+  padding: var(--space-md);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-primary);
+  border-radius: var(--radius-md);
+}
+
+.scorecard__hallucinations-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--warning-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.scorecard__hallucinations-list {
+  list-style: none;
+}
+
+.scorecard__hallucinations-list li {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  padding-left: var(--space-md);
+  position: relative;
+}
+
+.scorecard__hallucinations-list li::before {
+  content: '!';
+  position: absolute;
+  left: 0;
+  color: var(--warning-primary);
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
