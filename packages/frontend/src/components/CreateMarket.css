@@ -1,0 +1,212 @@
+/*
+ * CreateMarket — "Filing a Case" form aesthetic.
+ *
+ * The form feels like submitting a legal brief:
+ * dark recessed inputs, copper focus rings, monospace labels.
+ * A dashed border top evokes a tear-off form.
+ */
+
+.create-market {
+  margin-bottom: var(--space-2xl);
+  animation: slideReveal 0.5s ease-out both;
+}
+
+.create-market__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: none;
+  border: 1px dashed var(--accent-dim);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.create-market__toggle:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.create-market__toggle-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.create-market__form {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin-top: var(--space-md);
+  animation: slideReveal 0.3s ease-out both;
+}
+
+.create-market__form-title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px dashed var(--border-subtle);
+}
+
+/* ── Form Fields ── */
+.form-field {
+  margin-bottom: var(--space-lg);
+}
+
+.form-field__label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-sm);
+}
+
+.form-field__input,
+.form-field__textarea {
+  width: 100%;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  padding: var(--space-md);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.form-field__input:focus,
+.form-field__textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.form-field__textarea {
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.form-field__input::placeholder,
+.form-field__textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Rubric Criteria Grid ── */
+.rubric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.rubric-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.rubric-item__name {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.rubric-item__desc {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-sm);
+  line-height: 1.4;
+}
+
+.rubric-item__weight-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.rubric-item__weight-input {
+  width: 52px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  padding: var(--space-xs) var(--space-sm);
+  outline: none;
+}
+
+.rubric-item__weight-input:focus {
+  border-color: var(--accent);
+}
+
+.rubric-item__weight-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+/* ── Inline Row ── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+/* ── Submit Button ── */
+.create-market__submit {
+  width: 100%;
+  padding: var(--space-md) var(--space-xl);
+  background: linear-gradient(135deg, var(--accent-dim) 0%, var(--accent) 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: var(--space-md);
+}
+
+.create-market__submit:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.create-market__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.create-market__deposit-note {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: var(--space-sm);
+}
+
+@media (max-width: 640px) {
+  .rubric-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
