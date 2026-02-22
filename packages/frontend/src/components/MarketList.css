@@ -1,0 +1,271 @@
+/*
+ * MarketList — Docket of Cases
+ *
+ * Each market card is a "case file" in the docket.
+ * Cards use layered backgrounds for depth, with copper
+ * accent borders on the selected card. The pool bar
+ * inside each card gives an at-a-glance read on sentiment.
+ */
+
+.market-list {
+  margin-bottom: var(--space-2xl);
+}
+
+.market-list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.market-list__title {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.market-list__count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.1em;
+}
+
+/* ── Card Grid ── */
+.market-list__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-md);
+}
+
+.market-list__empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--space-3xl) var(--space-xl);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Individual Market Card ── */
+.market-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  animation: slideReveal 0.4s ease-out both;
+}
+
+/* Staggered reveal for cards */
+.market-card:nth-child(1) { animation-delay: 0.05s; }
+.market-card:nth-child(2) { animation-delay: 0.10s; }
+.market-card:nth-child(3) { animation-delay: 0.15s; }
+.market-card:nth-child(4) { animation-delay: 0.20s; }
+.market-card:nth-child(5) { animation-delay: 0.25s; }
+.market-card:nth-child(6) { animation-delay: 0.30s; }
+
+.market-card:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-surface);
+  transform: translateY(-2px);
+}
+
+.market-card--selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-glow), 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.market-card--selected::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent), var(--accent-dim));
+}
+
+/* ── Card Header: status badge + market ID ── */
+.market-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.market-card__id {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.market-card__status {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 2px var(--space-sm);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.market-card__status::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.market-card__status--open {
+  color: var(--resolve-primary);
+  background: var(--resolve-bg);
+  border: 1px solid var(--resolve-border);
+}
+.market-card__status--open::before { background: var(--resolve-primary); }
+
+.market-card__status--settlement {
+  color: var(--escalate-primary);
+  background: var(--escalate-bg);
+  border: 1px solid var(--escalate-border);
+}
+.market-card__status--settlement::before {
+  background: var(--escalate-primary);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.market-card__status--resolved {
+  color: var(--yes-primary);
+  background: var(--yes-bg);
+  border: 1px solid var(--yes-border);
+}
+.market-card__status--resolved::before { background: var(--yes-primary); }
+
+.market-card__status--escalated {
+  color: var(--no-primary);
+  background: var(--no-bg);
+  border: 1px solid var(--no-border);
+}
+.market-card__status--escalated::before { background: var(--no-primary); }
+
+/* ── Question Text ── */
+.market-card__question {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+  /* Clamp to 3 lines max */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Pool Bar (miniature version for cards) ── */
+.market-card__pools {
+  margin-bottom: var(--space-md);
+}
+
+.market-card__pool-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.market-card__pool-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.market-card__pool-label--yes { color: var(--yes-primary); }
+.market-card__pool-label--no { color: var(--no-primary); }
+
+.market-card__pool-bar {
+  display: flex;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  gap: 1px;
+  background: var(--bg-deep);
+}
+
+.market-card__pool-yes {
+  background: var(--yes-primary);
+  border-radius: 2px 0 0 2px;
+  transition: width 0.5s ease;
+  min-width: 2px;
+}
+
+.market-card__pool-no {
+  background: var(--no-primary);
+  border-radius: 0 2px 2px 0;
+  transition: width 0.5s ease;
+  min-width: 2px;
+}
+
+.market-card__pool-total {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* ── Deadline Countdown ── */
+.market-card__deadline {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.market-card__deadline--expired {
+  color: var(--warning-primary);
+}
+
+.market-card__deadline-icon {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* ── Loading State ── */
+.market-list__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-2xl);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.market-list__loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-medium);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@media (max-width: 640px) {
+  .market-list__grid {
+    grid-template-columns: 1fr;
+  }
+}
