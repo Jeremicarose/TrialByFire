@@ -1,9 +1,10 @@
 /*
  * MarketView Styles
  *
- * The market card uses the "elevated surface" background layer
- * to visually separate it from the page background. The rubric
- * criteria use a darker inset to create depth.
+ * The market detail view uses the "elevated surface" background
+ * to visually separate it from the page. Staking controls and
+ * action buttons adapt based on market status — each state
+ * has its own visual treatment.
  */
 
 .market-view {
@@ -84,59 +85,6 @@
 }
 .status--escalated::before { background: var(--escalate-primary); }
 
-/* ── Rubric Section ── */
-.market-view__rubric {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  margin-bottom: var(--space-lg);
-}
-
-.market-view__rubric-title {
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-  margin-bottom: var(--space-md);
-}
-
-.market-view__criteria {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-md);
-}
-
-.criterion {
-  padding: var(--space-sm) 0;
-}
-
-.criterion__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2px;
-}
-
-.criterion__name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-/* Monospace weight number — reads as data, not decoration */
-.criterion__weight {
-  font-size: 0.75rem;
-  color: var(--accent);
-}
-
-.criterion__desc {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
 /* ── Pool Split Bar ── */
 .market-view__pools {
   margin-bottom: var(--space-lg);
@@ -189,23 +137,172 @@
   margin-top: var(--space-sm);
 }
 
-/* ── Footer: meta info + Run button ── */
-.market-view__footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--border-subtle);
+/* ── User Position ── */
+.market-view__position {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
 }
 
-.market-view__meta {
+.market-view__position-row {
   display: flex;
+  gap: var(--space-md);
+}
+
+.market-view__position-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+}
+
+.market-view__position-badge--yes {
+  color: var(--yes-primary);
+  background: var(--yes-bg);
+  border: 1px solid var(--yes-border);
+}
+
+.market-view__position-badge--no {
+  color: var(--no-primary);
+  background: var(--no-bg);
+  border: 1px solid var(--no-border);
+}
+
+/* ── Meta Row ── */
+.market-view__meta-row {
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .meta-item {
   font-size: 0.7rem;
   color: var(--text-tertiary);
+}
+
+/* ── Action Zone ── */
+.market-view__actions {
+  padding-top: var(--space-md);
+}
+
+/* ── Staking Form ── */
+.market-view__stake-form {
+  animation: slideReveal 0.3s ease-out both;
+}
+
+.market-view__stake-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-sm);
+}
+
+.market-view__stake-row {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.market-view__stake-input {
+  width: 120px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: var(--space-sm) var(--space-md);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.market-view__stake-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+/*
+ * Stake buttons — YES is blue, NO is red.
+ * Each uses the side's color system from index.css.
+ */
+.market-view__stake-btn {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: var(--space-sm) var(--space-xl);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.market-view__stake-btn--yes {
+  background: var(--yes-dim);
+  color: #fff;
+}
+
+.market-view__stake-btn--yes:hover:not(:disabled) {
+  background: var(--yes-primary);
+  transform: translateY(-1px);
+}
+
+.market-view__stake-btn--no {
+  background: var(--no-dim);
+  color: #fff;
+}
+
+.market-view__stake-btn--no:hover:not(:disabled) {
+  background: var(--no-primary);
+  transform: translateY(-1px);
+}
+
+.market-view__stake-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Claim Buttons ── */
+.market-view__claim-btn {
+  background: var(--resolve-bg) !important;
+  border-color: var(--resolve-primary) !important;
+  color: var(--resolve-primary) !important;
+}
+
+.market-view__claim-btn:hover:not(:disabled) {
+  background: var(--resolve-primary) !important;
+  color: var(--bg-deep) !important;
+}
+
+.market-view__refund-btn {
+  background: var(--escalate-bg) !important;
+  border-color: var(--escalate-primary) !important;
+  color: var(--escalate-primary) !important;
+}
+
+.market-view__refund-btn:hover:not(:disabled) {
+  background: var(--escalate-primary) !important;
+  color: var(--bg-deep) !important;
+}
+
+/* ── Connect Prompt ── */
+.market-view__connect-prompt {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: var(--space-md);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
 }
 
 /* ── Run Trial Button ── */
@@ -224,6 +321,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  width: 100%;
+  justify-content: center;
 }
 
 .run-trial-btn:hover:not(:disabled) {
@@ -248,4 +347,23 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .market-view__header {
+    flex-direction: column;
+  }
+
+  .market-view__stake-row {
+    flex-direction: column;
+  }
+
+  .market-view__stake-input {
+    width: 100%;
+  }
+
+  .market-view__meta-row {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
 }
