@@ -1,88 +1,164 @@
+import { useState, useEffect, useCallback } from "react";
+import { useWallet } from "./hooks/useWallet";
+import { useContract } from "./hooks/useContract";
+import { CreateMarket } from "./components/CreateMarket";
+import { MarketList } from "./components/MarketList";
 import { MarketView } from "./components/MarketView";
-import { TrialTranscript } from "./components/TrialTranscript";
-import { JudgeScorecard } from "./components/JudgeScorecard";
-import { SettlementStatus } from "./components/SettlementStatus";
-import { useTrialEngine } from "./hooks/useTrialEngine";
-import type { MarketQuestion } from "./types";
+import "./App.css";
 
 /*
- * Demo market question — matches the engine CLI's default.
- * In production, this would come from the smart contract via
- * an onchain read, but for the hackathon demo we hardcode it.
+ * App — Root component that wires wallet, contract, and UI together.
+ *
+ * Architecture:
+ *   useWallet()   → MetaMask connection, account, signer, isOwner
+ *   useContract() → All contract reads/writes, market data, events
+ *
+ * Layout:
+ *   Header (branding + wallet button)
+ *   CreateMarket form (visible to anyone — 0.01 ETH deposit required)
+ *   MarketList (card grid of all filed cases)
+ *   MarketView (detail panel for selected case)
+ *
+ * The app listens for contract events (MarketCreated, MarketResolved,
+ * etc.) via useContract's event listeners, so the UI updates
+ * automatically when other users interact with the contract.
  */
-const DEMO_QUESTION: MarketQuestion = {
-  id: "demo-001",
-  question:
-    "Did ETH staking yields consistently outperform US Treasury rates in January 2026?",
-  rubric: {
-    criteria: [
-      { name: "Data accuracy", description: "Are the cited yield/rate numbers verifiable from the evidence?", weight: 30 },
-      { name: "Time period coverage", description: "Does the evidence cover the full period in question?", weight: 25 },
-      { name: "Source diversity", description: "Are multiple independent sources used to support claims?", weight: 20 },
-      { name: "Logical coherence", description: "Is the argument internally consistent and logically sound?", weight: 25 },
-    ],
-    evidenceSources: ["defilama", "treasury", "newsapi"],
-    confidenceThreshold: 20,
-  },
-  settlementDeadline: new Date(),
-};
-
 export default function App() {
+  const { account, isOwner, isConnected, connect, provider, signer, error: walletError } = useWallet();
+  const {
+    markets,
+    loading,
+    ethUsdPrice,
+    createMarket,
+    takePosition,
+    requestSettlement,
+    sendTrialRequest,
+    claimWinnings,
+    claimRefund,
+    getUserPosition,
+  } = useContract(provider, signer);
+
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [userPosition, setUserPosition] = useState<{ yes: string; no: string } | null>(null);
+
   /*
-   * useTrialEngine manages the full pipeline lifecycle:
-   * - stage: which step is currently running (evidence/advocates/judge/decision)
-   * - stageMessage: human-readable description of what's happening
-   * - isRunning: boolean for disabling the button during execution
-   * - transcript: null until trial completes, then the full TrialTranscript
-   * - runTrial: function to kick off the pipeline
+   * Auto-select the first market when data loads.
+   * Only fires once (when markets go from empty to populated).
    */
-  const { transcript, stage, stageMessage, isRunning, runTrial } =
-    useTrialEngine(DEMO_QUESTION);
+  useEffect(() => {
+    if (markets.length > 0 && selectedId === null) {
+      setSelectedId(markets[0].id);
+    }
+  }, [markets, selectedId]);
+
+  /*
+   * Load the user's position whenever the selected market
+   * or account changes. This shows "Your Position: YES 0.5 ETH"
+   * inside the MarketView component.
+   */
+  useEffect(() => {
+    if (selectedId !== null && account) {
+      getUserPosition(selectedId, account).then(setUserPosition);
+    } else {
+      setUserPosition(null);
+    }
+  }, [selectedId, account, getUserPosition, markets]);
+
+  /*
+   * Handle market creation.
+   * Wraps the contract call with loading state so the
+   * CreateMarket component can show a spinner.
+   */
+  const handleCreateMarket = useCallback(
+    async (question: string, rubricHash: string, deadline: number) => {
+      setCreateLoading(true);
+      try {
+        await createMarket(question, rubricHash, deadline);
+      } finally {
+        setCreateLoading(false);
+      }
+    },
+    [createMarket]
+  );
+
+  /* Find the currently selected market object */
+  const selectedMarket = markets.find((m) => m.id === selectedId) || null;
+
+  /*
+   * Truncate wallet address for display.
+   * 0x1234...abcd format — enough to identify, not enough to confuse.
+   */
+  const truncatedAddress = account
+    ? `${account.slice(0, 6)}...${account.slice(-4)}`
+    : null;
 
   return (
     <div className="app">
-      {/* Header — project branding */}
+      {/* ── Header ── */}
       <header className="app-header">
-        <p className="app-header__eyebrow">Adversarial Resolution Protocol</p>
-        <h1 className="app-header__title">TrialByFire</h1>
+        <div className="app-header__row">
+          <div>
+            <p className="app-header__eyebrow">Adversarial Resolution Protocol</p>
+            <h1 className="app-header__title">TrialByFire</h1>
+          </div>
+
+          <div className="app-header__wallet">
+            {ethUsdPrice && (
+              <span className="app-header__price mono">
+                ETH ${ethUsdPrice}
+              </span>
+            )}
+            {isConnected ? (
+              <div className="app-header__account">
+                {isOwner && <span className="app-header__owner-badge mono">Admin</span>}
+                <span className="app-header__address mono">{truncatedAddress}</span>
+              </div>
+            ) : (
+              <button className="app-header__connect-btn" onClick={connect}>
+                Connect Wallet
+              </button>
+            )}
+          </div>
+        </div>
+
         <p className="app-header__subtitle">
           Subjective prediction markets resolved by adversarial AI debate,
           scored against transparent rubrics, settled onchain.
         </p>
+
+        {walletError && (
+          <div className="app-header__error mono">{walletError}</div>
+        )}
       </header>
 
-      {/* Stage indicator — shows pipeline progress while running */}
-      {stage !== "idle" && (
-        <div className={`stage-indicator stage-indicator--${stage}`}>
-          <span className="stage-indicator__dot" />
-          <span>{stageMessage}</span>
-        </div>
+      {/* ── Create Market Form ── */}
+      {isConnected && (
+        <CreateMarket onSubmit={handleCreateMarket} isLoading={createLoading} />
       )}
 
-      {/* MarketView — always visible. Shows question, rubric, pools, Run button */}
-      <MarketView
-        question={DEMO_QUESTION}
-        yesPool="1.00"
-        noPool="0.50"
-        status={transcript ? (transcript.decision.action === "RESOLVE" ? "Resolved" : "Escalated") : isRunning ? "SettlementRequested" : "Open"}
-        isRunning={isRunning}
-        onRunTrial={runTrial}
+      {/* ── Market List (Case Docket) ── */}
+      <MarketList
+        markets={markets}
+        selectedId={selectedId}
+        onSelect={setSelectedId}
+        loading={loading}
       />
 
-      {/* Below components only render after the trial completes */}
-      {transcript && (
-        <>
-          <TrialTranscript
-            advocateYes={transcript.advocateYes}
-            advocateNo={transcript.advocateNo}
-          />
-          <JudgeScorecard ruling={transcript.judgeRuling} />
-          <SettlementStatus
-            decision={transcript.decision}
-            threshold={DEMO_QUESTION.rubric.confidenceThreshold}
-            durationMs={transcript.durationMs}
-          />
-        </>
+      {/* ── Selected Market Detail ── */}
+      {selectedMarket && (
+        <MarketView
+          market={selectedMarket}
+          account={account}
+          userPosition={userPosition}
+          isOwner={isOwner}
+          onStakeYes={(id, amount) => takePosition(id, 1, amount)}
+          onStakeNo={(id, amount) => takePosition(id, 2, amount)}
+          onRequestSettlement={requestSettlement}
+          onRunTrial={sendTrialRequest}
+          onClaimWinnings={claimWinnings}
+          onClaimRefund={claimRefund}
+        />
       )}
     </div>
   );
