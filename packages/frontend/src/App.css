@@ -1,0 +1,144 @@
+/*
+ * App-level styles — header layout with wallet connection.
+ *
+ * The header is now a flex row: branding on the left,
+ * wallet/price info on the right. This replaces the
+ * centered layout from the static demo.
+ */
+
+/* Override the centered header from index.css */
+.app-header {
+  text-align: left;
+  padding: var(--space-xl) 0 var(--space-xl);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-2xl);
+  position: relative;
+}
+
+/* Keep the copper accent line */
+.app-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 120px;
+  height: 1px;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.app-header__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-lg);
+}
+
+.app-header__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--space-xs);
+}
+
+.app-header__title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.app-header__subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin-top: var(--space-sm);
+  line-height: 1.5;
+}
+
+/* ── Wallet Area ── */
+.app-header__wallet {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-shrink: 0;
+}
+
+.app-header__price {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.app-header__connect-btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: var(--space-sm) var(--space-lg);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.app-header__connect-btn:hover {
+  background: var(--accent);
+  color: var(--bg-deep);
+}
+
+.app-header__account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.app-header__address {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.app-header__owner-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-glow);
+  border: 1px solid var(--accent-dim);
+  padding: 2px var(--space-sm);
+  border-radius: 12px;
+}
+
+.app-header__error {
+  margin-top: var(--space-md);
+  font-size: 0.75rem;
+  color: var(--warning-primary);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--warning-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--warning-primary);
+}
+
+@media (max-width: 640px) {
+  .app-header__row {
+    flex-direction: column;
+  }
+
+  .app-header__title {
+    font-size: 1.6rem;
+  }
+}
