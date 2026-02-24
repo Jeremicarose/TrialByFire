@@ -8,6 +8,7 @@
   "scripts": {
     "build": "tsc",
     "trial": "tsx src/cli.ts",
+    "api": "tsx src/api.ts",
     "test": "vitest run"
   },
   "dependencies": {
