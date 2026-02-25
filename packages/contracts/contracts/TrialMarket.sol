@@ -266,6 +266,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     // ==============================================================================
 
     /**
-     *  @notice
+     *  @notice Create a new prediction market. Anyone can this.
+     *  @param question THe subjective question to be debated
+     *  @param rubricHash IPFS hash or identifier for the 
      */
 }
