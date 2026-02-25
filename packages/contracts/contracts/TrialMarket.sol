@@ -409,7 +409,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         /**
          * Read the latest ETH/USD price from Chainlink Data FEEds.
          * latestRoundData() returns 5 values; we only need `answer`
-         * (the price with 8 decimals, e.g. 35000000000)
+         * (the price with 8 decimals, e.g. 35000000000 = $3,500.00).
+         * The underscore variables are roundId, startedAt, updateAt,
+         * and answer
          */
     }
 }
