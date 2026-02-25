@@ -17,7 +17,8 @@ program solidity ^0.8.19;
  * _fulfillRequest() callback with the trial results.
  * 
  * Chainlink Data Feeds:
- *  - AutomationCompatibleInterface: Enables Chainlink keepers to
+ *  - AutomationCompatibleInterface: Enables Chainlink keepers to auto-trigger
+ *  settlement when a market's deadline passes. checkUpkeep() scans
  * 
  * 
  */
