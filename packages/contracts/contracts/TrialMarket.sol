@@ -27,4 +27,5 @@ program solidity ^0.8.19;
  *  argument to the Functions request so the trial has verified oracle data.
  */
 import "@openzeppelin/contracts/access/Ownable.sol";
-import ""
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {FunctionsClient} from "@chainlink/"
