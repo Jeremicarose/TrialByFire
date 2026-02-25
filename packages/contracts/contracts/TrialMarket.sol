@@ -81,5 +81,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     using FunctionsRequest for FunctionsRequest.Request;
 
     // =====================================================================
-    
+    // ENUMS
+    // ======================================================================
 }
