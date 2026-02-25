@@ -358,6 +358,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *      2. Emits SettlementRequested event
      * 
      * The event serves as a trigger for Chainlink Functions.
-     * Chain
+     * Chainlink Automation can also call this automatically via 
+     * 
      */
 }
