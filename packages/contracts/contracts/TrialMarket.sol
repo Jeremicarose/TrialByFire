@@ -411,7 +411,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
          * latestRoundData() returns 5 values; we only need `answer`
          * (the price with 8 decimals, e.g. 35000000000 = $3,500.00).
          * The underscore variables are roundId, startedAt, updateAt,
-         * and answer
+         * and answeredInRound - unused here but available for freshness checks.
          */
+        (, int256 ethUsdPrice...) = s_priceFeed.la
     }
 }
