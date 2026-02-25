@@ -160,6 +160,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      */
     bytes32 public s_donId;
     uint64 public s_subscriptionId;
-    string public s_functionSource;
-    
+    string public s_functionsSource;
+    bytes public s_encryptedSecretsReference;
+    uint
 }
