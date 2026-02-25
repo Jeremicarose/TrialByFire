@@ -171,5 +171,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * This gives the adversarial debate verified oracle data alongside
      * the API-fetched evidence (DeFiLlama, Treasury, etc.).
      */
-    
+    AggregatorV3Interface public s_priceFeed;
+
+    /**
+     * Market 
+     */
 }
