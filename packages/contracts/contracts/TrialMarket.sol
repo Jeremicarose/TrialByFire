@@ -295,7 +295,11 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
             question: question,
             rubricHash: rubricHash,
             dealine: deadline,
-            status: Mart
+            status: MarketStatus.Open,
+            outcome: Verdict.None,
+            yesPool: 0,
+            noPool:  0,
+            transcriptHash: bytes32(0)
         })
     }
 }
