@@ -59,5 +59,6 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  * Lifecycle:
  *  1. createMarket()               - Anyone posts a question + 0.01 ETH deposit
  *  2. takePosition()               - Stake ETH on YES or NO
- *  3. requestSettlement()          - After deadline(manual or via )
+ *  3. requestSettlement()          - After deadline(manual or via Automation)
+ *  4. semdTrialRequest()           - Triggers Chainlink 
  */
