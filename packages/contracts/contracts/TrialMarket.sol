@@ -178,5 +178,11 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 0.01 ETH is lowenough to not be a barrier but high enough
      * to discourage frivolous market creation.
      */
-    uint256 public constant CREATION_DE
+    uint256 public constant CREATION_DEPOSIT = 0.01 ether;
+
+    // ==================================================================================
+    // EVENTS
+    // =====================================================================================
+
+    /
 }
