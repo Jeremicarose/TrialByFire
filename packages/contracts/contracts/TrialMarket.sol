@@ -271,6 +271,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *  @param rubricHash IPFS hash or identifier for the scoring rubric
      *  @param deadline Unix timestamp - betting claose at this time
      * 
-     * Requires exactly CREATION_DEPOSIT (0.01)
+     * Requires exactly CREATION_DEPOSIT (0.01 ETH)
      */
 }
