@@ -85,6 +85,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     // ====================================================================== 
 
     /**
-     * MarketS
+     * MarketStatus tracks the lifecycle state machine:
+     *  Open -> SettlementRequested -> Resolved | Escalated
+     * Each transaction is one
      */
 }
