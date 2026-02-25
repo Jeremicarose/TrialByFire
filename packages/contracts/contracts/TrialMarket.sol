@@ -129,6 +129,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
     /**
      * Position tracking: nested mapping of marketId -> user -> stake amount.
-     * 
+     * Separate mappings for YES and NO positions because a user could
+     * theoretically stake on both sides (hedging).
      */
+    
 }
