@@ -78,5 +78,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *  payloads with a clean API: initializeRequestForInlineJavaScript(),
      *  setArgs(), addSecretsReference(), etc,
      */
-    using FunctionsRequest for FunctionsRequest.Re
+    using FunctionsRequest for FunctionsRequest.Request;
+
+    // =====================================================================
+    
 }
