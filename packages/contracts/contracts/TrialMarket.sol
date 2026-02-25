@@ -222,5 +222,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     constructor(
         address router,
         address priceFeed
-    ) Ownable(msg.sender) 
+    ) Ownable(msg.sender) FunctionsClient(router) {
+        s_price
+    }
 }
