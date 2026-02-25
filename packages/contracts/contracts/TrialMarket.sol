@@ -235,6 +235,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * deployment. This is necessary because:
      *      - The subscription ID is created on the Chainlink UI after deployment
      *      - The functions source code may need updates without redeploying
-     *      - Encrypted secrets references
+     *      - Encrypted secrets references change when keys are rotated
+     *      - DON ID varies by network
      */
 }
