@@ -74,6 +74,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
 contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationCompatibleInterface {
 
     /**
-     *  Using the 
+     *  Using the FunctionsRequest library lets us build CBOR-encoded
+     *  pay
      */
 }
