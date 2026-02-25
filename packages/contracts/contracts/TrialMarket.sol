@@ -396,6 +396,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *     callback with the aggregated result,
      * 
      * Why read ETH/USD price here instead of in the JavaScript?
-     * Chainlink Data Feeds provide cryptog  
+     * Chainlink Data Feeds provide cryptographically signed price data
+     * Verified by the oracle network, Reading it on-chain and passing
+     * it as an argument gives the trial tamper-proof evi  
      */
 }
