@@ -387,6 +387,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 2. The request is sent to the DON via _sendRequest()
      * 
      * 3. Multiple DON nodes independently execute the JavaScript:
-     *      - Fetch evidence from APIs (DeFiLlam)
+     *      - Fetch evidence from APIs (DeFiLlama, Treasury)
+     *      - Call LLM APIs for YES advocate, NO advocate, and judge
+     *      - Evaluate confidence 
      */
 }
