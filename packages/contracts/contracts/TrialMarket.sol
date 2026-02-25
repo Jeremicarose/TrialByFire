@@ -424,6 +424,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
          *      [2] rubricHash - identifier for scoring critera
          *      [3] ethUsdPrice - verified Chainlink oracle price
          */
-        
+        string[] memory args = new string[](4);
+        args[0]
     }
 }
