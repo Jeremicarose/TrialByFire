@@ -437,6 +437,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
          * The CBOR-encoded request is sent to the DON via the router.
          */
         FunctionRequest.Request memory req;
-        req.initializeRequest
+        req.initializeRequestForInlineJavaScript(s_function)
     }
 }
