@@ -52,5 +52,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  *          trigger settlement when deadlines pass. No human needs to call
  *          requestSettlement() - it happens autonomously.
  * 
- *      3. Chainlink Data Feeds - The ETH/USD price feed provides verif
+ *      3. Chainlink Data Feeds - The ETH/USD price feed provides verified
+ *          oracle data as evidence for the trial. This trusted data source
+ *          supplements the API-fetched evidence (DeFi)
  */
