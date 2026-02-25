@@ -24,7 +24,7 @@ program solidity ^0.8.19;
  * Chainlink Data Feeds:
  *  - AggregatorV3Interface: Reads ETH/USD price from Chainlink's oracle network.
  *  Used as trusted evidence source - the current ETH price is passed as an
- *  argument to the Functions request
- * 
- * 
+ *  argument to the Functions request so the trial has verified oracle data.
  */
+import "@openzeppelin/contracts/access/Ownable.sol";
+import ""
