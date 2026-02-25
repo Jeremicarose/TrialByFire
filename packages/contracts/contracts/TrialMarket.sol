@@ -313,6 +313,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     /**
      * @notice Stake ETH on YES or NO for a given market.
      * @param marketId the market to bet on
-     * @param side Verdict.yes ()
+     * @param side Verdict.yes (1) or Verdict.No (2)
+     * 
+     * Users can stake multiple times on the same side - positions
+     * accumulate. They can even stake on both sides (hed)
      */
 }
