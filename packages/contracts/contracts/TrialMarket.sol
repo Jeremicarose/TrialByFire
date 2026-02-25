@@ -375,6 +375,11 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
     /**
      * @notice Trigger the adversarial trial via Chainlink Functions.
-     * @param marketId The market
+     * @param marketId The market to run the trial for
+     * 
+     * This is the bridge between on-chain and off-chain:
+     * 
+     * 1. We build a Chainlink Functions request with:
+     *      - The Java
      */
 }
