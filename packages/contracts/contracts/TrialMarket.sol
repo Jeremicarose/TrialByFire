@@ -132,5 +132,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * Separate mappings for YES and NO positions because a user could
      * theoretically stake on both sides (hedging).
      */
-    
+    mapping(uint256 => mapping(address => uint256)) public yesPositions;
+    mapping(uint256 => mapping(address => uint))
 }
