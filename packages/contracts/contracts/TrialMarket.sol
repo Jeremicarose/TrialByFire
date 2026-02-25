@@ -18,7 +18,11 @@ program solidity ^0.8.19;
  * 
  * Chainlink Data Feeds:
  *  - AutomationCompatibleInterface: Enables Chainlink keepers to auto-trigger
- *  settlement when a market's deadline passes. checkUpkeep() scans
+ *  settlement when a market's deadline passes. checkUpkeep() scans for
+ *  market past deadline; performUpkeep() calls requestSettlement().
+ * 
+ * Chainlink Data Feeds:
+ * 
  * 
  * 
  */
