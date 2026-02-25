@@ -341,5 +341,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
             noPositions[marketId][msg.sender] += msg.value;
             m.noPool += msg.value;
         }
+        emit PositionTaken(marketId, msg.sender, side, msg.value);
     }
+
+    // 
 }
