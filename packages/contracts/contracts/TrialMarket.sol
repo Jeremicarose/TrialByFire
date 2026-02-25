@@ -293,7 +293,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         marketId = nextMarketId++;
         markets[marketId] = Market({
             question: question,
-            rubricHash: rubricHash
+            rubricHash: rubricHash,
+            dealine: deadline,
+            status: Mart
         })
     }
 }
