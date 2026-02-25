@@ -133,5 +133,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * theoretically stake on both sides (hedging).
      */
     mapping(uint256 => mapping(address => uint256)) public yesPositions;
-    mapping(uint256 => mapping(address => uint256))
+    mapping(uint256 => mapping(address => uint256)) public noPositions;
+
+    /**
+     *  Chain
+     */
 }
