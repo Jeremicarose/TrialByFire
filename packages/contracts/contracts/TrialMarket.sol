@@ -349,6 +349,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     // =======================================================================================
 
     /**
+     * @notice Request settlement after the deadline has passed.
+     * @param marketId THe market to settle
      * 
+     * Anyone can call this - it
      */
 }
