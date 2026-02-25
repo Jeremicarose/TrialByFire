@@ -384,6 +384,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *      - Arguments: marketId, question, rubricHash, ETH/USD price
      *      - Encrypted secrets reference (LLM API Keys)
      * 
-     * 2. The request is sent to the DON via _sendRe
+     * 2. The request is sent to the DON via _sendRequest()
      */
 }
