@@ -381,6 +381,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 
      * 1. We build a Chainlink Functions request with:
      *      - The JavaScript source code (stored in s_functionsSource)
-     *      - Arguments: marketId, question, rubricHash, ETH/
+     *      - Arguments: marketId, question, rubricHash, ETH/USD price
+     *      - Encrypted secrets reference (LLM API Keys)
+     * 
+     * 2. The request is sent to the DON via _sendRe
      */
 }
