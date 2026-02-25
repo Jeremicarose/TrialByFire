@@ -451,6 +451,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
             s_donId
         );
 
-        /
+        /**
+         * Map the Chainlink request ID to our market ID.
+         * When _fulfillRequest()
+         */
     }
 }
