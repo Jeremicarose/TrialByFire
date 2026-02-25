@@ -364,6 +364,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     function requestSettlement(uint256 marketId) public {
         Market storage m = market[marketId];
         require(m.status == MarketStatus.Open, "Market not open");
-        require(block.timestamp >= m.deadline)
+        require(block.timestamp >= m.deadline,)
     }
 }
