@@ -147,6 +147,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * s_functionsSource: The JavaScript source code that runs on DON
      *   This contains the entire adversarial trial logic: evidence gathering,
      *   advocate arguments, judge scoring, and confidence evaluation.
-     *   
+     *   Stored on-chain so its immutable and auditable.
+     * 
+     * s_encryptedSecretsRefence: Encrypted reference to API keys ()
      */
 }
