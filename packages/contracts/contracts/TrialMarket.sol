@@ -219,4 +219,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *      - Manually settle markets as a fallback
      *      - Emergency functions if needed
      */
+    constructor(
+        
+    )
 }
