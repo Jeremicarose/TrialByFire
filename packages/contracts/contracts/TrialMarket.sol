@@ -380,6 +380,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * This is the bridge between on-chain and off-chain:
      * 
      * 1. We build a Chainlink Functions request with:
-     *      - The Java
+     *      - The JavaScript source code (stored in s_functionsSource)
+     *      - Arguments: marketId, question, rubricHash, ETH/
      */
 }
