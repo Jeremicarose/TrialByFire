@@ -190,5 +190,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *      2. Chainlink Automation's Log Trigger can watch for
      *          SettlementRequested to automatically start trials
      */
-    event MarketCreated(uint256 indexed marketId, )
+    event MarketCreated(uint256 indexed marketId, address indexed creator, string question, uint256 deadline);
+    event Posi
 }
