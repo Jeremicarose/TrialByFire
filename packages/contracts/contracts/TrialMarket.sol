@@ -139,6 +139,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *  Chainlink Fuctions configuration.
      * 
      * s_donId: Identifies which DON (Decentralized Oracle Network) processes
-     *   our requests. On Sepolia this is "fun"
+     *   our requests. On Sepolia this is "fun-ethereum-sepolia-1".
+     * 
+     * s_subscriptionId: The Chainlink Functions subscritption that 
      */
 }
