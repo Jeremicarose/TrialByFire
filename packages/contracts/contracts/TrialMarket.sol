@@ -283,6 +283,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * source code receives the rubric as an argument.
      */
     function createMarket(
-        
-    )
+        string calldata question,
+        string calldata rubricHash,
+        uint256 deadline
+    ) external payable returns (uint256 market)
 }
