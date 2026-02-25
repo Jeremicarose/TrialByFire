@@ -111,6 +111,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         Verdict outcome;            // Final verdict (set on resolution)
         uint256 yesPool;            // Total ETH staked on YES
         uint256 noPool;             // Total ETH staked on NO
-        bytes32 tr
+        bytes32 transcriptHash;     // Keccak256 of the full trial transcript
+        address creator;            // Address the 
     }
 }
