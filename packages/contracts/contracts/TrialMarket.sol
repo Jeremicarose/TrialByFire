@@ -12,5 +12,6 @@ program solidity ^0.8.19;
  * 
  * Chainlink Functions (v1.3.0):
  *  - FunctionsClient: Base contract for sending requests to Chainlink DON
- *  - FunctionsRequest: Library for building CBOR-encoded request 
+ *  - FunctionsRequest: Library for building CBOR-encoded request payloads
+ * we extend FunctionsClient so the Chainlink router can call our
  */
