@@ -22,7 +22,9 @@ program solidity ^0.8.19;
  *  market past deadline; performUpkeep() calls requestSettlement().
  * 
  * Chainlink Data Feeds:
- *  - AggregatorV3Interface: Reads ETH/USD price from Chainlink's o
+ *  - AggregatorV3Interface: Reads ETH/USD price from Chainlink's oracle network.
+ *  Used as trusted evidence source - the current ETH price is passed as an
+ *  argument to the Functions request
  * 
  * 
  */
