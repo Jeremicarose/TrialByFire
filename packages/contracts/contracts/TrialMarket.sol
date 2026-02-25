@@ -441,7 +441,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         req.setArgs(args);
 
         if (s_encryptedSecretsReference.length > 0) {
-            req.addSecreteReference()
+            req.addSecreteReference(s_encryptedSecretsReference);
         }
+
+        re
     }
 }
