@@ -421,7 +421,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
          * as the `args` parameter. We pass:
          *      [0] marketId - so the JS knows which market it's resolving
          *      [1] question - the full question text
-         *      [2] rubricHash - identifier for
+         *      [2] rubricHash - identifier for scoring cr
          */
     }
 }
