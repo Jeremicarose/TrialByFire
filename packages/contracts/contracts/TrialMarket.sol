@@ -61,5 +61,6 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  *  2. takePosition()               - Stake ETH on YES or NO
  *  3. requestSettlement()          - After deadline(manual or via Automation)
  *  4. semdTrialRequest()           - Triggers Chainlink Functions to run the trial
- *  5. _fulfillRequst()             
+ *  5. _fulfillRequst()             - DON returns verdict -> auto-settle or escalate
+ *  6. claimWinnings()              - Winners with
  */
