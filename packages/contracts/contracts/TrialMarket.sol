@@ -75,6 +75,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
     /**
      *  Using the FunctionsRequest library lets us build CBOR-encoded
-     *  payloads with a clean API: initializeRequestForInlineJavascript
+     *  payloads with a clean API: initializeRequestForInlineJavaScript(),
+     *  setArgs(), addSecretsReference(), etc,
      */
+    using FunctionsRequest for FunctionsRequest.Re
 }
