@@ -54,5 +54,5 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  * 
  *      3. Chainlink Data Feeds - The ETH/USD price feed provides verified
  *          oracle data as evidence for the trial. This trusted data source
- *          supplements the API-fetched evidence (DeFi)
+ *          supplements the API-fetched evidence (DeFiLlam, Treasur)
  */
