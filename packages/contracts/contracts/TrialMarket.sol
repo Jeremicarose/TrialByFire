@@ -127,5 +127,5 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     uint256 public nextMarketId;
     mapping(uint256 => Market) public markets;
 
-    /
+    /** */
 }
