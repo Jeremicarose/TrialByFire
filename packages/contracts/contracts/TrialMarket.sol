@@ -316,6 +316,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * @param side Verdict.yes (1) or Verdict.No (2)
      * 
      * Users can stake multiple times on the same side - positions
-     * accumulate. They can even stake on both sides (hed)
+     * accumulate. They can even stake on both sides (hedging), though
+     * that's economically irrational in most cases.
+     * 
+     * THe pool ratio (yesPool / totalPool) represents the market's
+
      */
 }
