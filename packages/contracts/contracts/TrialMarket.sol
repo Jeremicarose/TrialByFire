@@ -344,5 +344,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         emit PositionTaken(marketId, msg.sender, side, msg.value);
     }
 
-    // 
+    // ======================================================================================
+    // SETTLEMENT REQUEST
+    // =============================================================================================
 }
