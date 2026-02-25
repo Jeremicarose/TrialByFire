@@ -168,6 +168,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     /**
      * Chainlink Data Feed for ETH/USD price.
      * We read the latest price and pass it as evidence to the trial.
-     * 
+     * This gives the adversarial debate verified oracle data alongside
+     * the API-fetched evidence (DeFiLlama, Treasury, etc.).
      */
+    
 }
