@@ -276,6 +276,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * resolved or escalated. This "Skin in the game" mechanism
      * filters out low-quality question without being exclusionary.
      * 
-     * 
+     * Why not store the full rubric on-chain?
+     * Gas costs. A rubric with 4 criteria, descriptions, and weights
+     * Would cost ~500
      */
 }
