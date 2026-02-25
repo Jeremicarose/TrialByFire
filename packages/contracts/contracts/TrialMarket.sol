@@ -97,4 +97,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * None is the default (unresolved). Yes/No map to the two sides
      * of the prediction market question.
      */
+    enum Verdict { None, Yes, No}
+
+    // =========================================================================
+    // STRUCTS
+    // 
 }
