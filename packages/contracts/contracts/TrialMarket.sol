@@ -250,6 +250,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     }
 
     function setFunctionsSource(string calldata source) external onlyOwner {
-        s_functions
+        s_functionsSource = source;
+    }
+
+    function setEncryptedSecretsReference(bytes calldata ref) external onlyOwner {
+        s_encryptedSe
     }
 }
