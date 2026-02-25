@@ -117,5 +117,11 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     }
 
     // =============================================================================
-    // STATW VARI
+    // STATW VARIABLES
+    // ==============================================================================
+
+    /**
+     * Market storage: sequential IDs starting at 0.
+     * next
+     */
 }
