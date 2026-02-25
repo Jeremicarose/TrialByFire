@@ -393,6 +393,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *      - Return ABI-encoded result
      * 
      * 4. The DON reaches consensus and calls our _fulfillRequest()
-     *     callback with the aggre  
+     *     callback with the aggregated result,
+     * 
+     * Why read ETH/USD price here instead of in the JavaScript?
+     * Chainlink Data Feeds provide cryptog  
      */
 }
