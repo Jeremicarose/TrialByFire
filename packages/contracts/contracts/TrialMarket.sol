@@ -174,6 +174,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     AggregatorV3Interface public s_priceFeed;
 
     /**
-     * Market 
+     * Market creation requires a minimum deposit to prevent 
      */
 }
