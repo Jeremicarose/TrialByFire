@@ -366,6 +366,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         require(m.status == MarketStatus.Open, "Market not open");
         require(block.timestamp >= m.deadline, "Deadline not reached")
         m.status = MarketStatus.SettlementRequested;
-        
+        emit settlementRequested(marketId, block.timestamp);
     }
+
+    // =================================================================================
+    // CHAINLINK FUNCTIONS - SEND TRIAL REQUEST
 }
