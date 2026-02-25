@@ -90,5 +90,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * Each transaction is one-way. Once resolved or escalated, a market
      *  Cannot return to an earlier state.
      */
-    enum ManarketStatus { Open, SettlementRe}
+    enum ManarketStatus { Open, SettlementRequested, Resolved, Escalated}
+
+    /**
+     * 
+     */
 }
