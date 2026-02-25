@@ -254,6 +254,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     }
 
     function setEncryptedSecretsReference(bytes calldata ref) external onlyOwner {
-        s_encryptedSe
+        s_encryptedSecretsReference = ref;
+    }
+
+    function setCallbackGasLimit(uint32 gasLimit) external onlyOwner {
+        s_callbackGasLimit = gasLimit;
     }
 }
