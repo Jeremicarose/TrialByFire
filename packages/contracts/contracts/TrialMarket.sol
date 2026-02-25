@@ -122,6 +122,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
     /**
      * Market storage: sequential IDs starting at 0.
-     * next
+     * nextMarketId acts as both a counter and the ID for the next market.
      */
+    uint256 public nextMarketId;
+    mapping(uint256 => Market) public markets;
+
+    /
 }
