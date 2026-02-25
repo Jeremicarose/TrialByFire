@@ -428,6 +428,12 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         args[0] = _uint256ToString(marketId);
         args[1] = m.question;
         args[2] = m.rubricHash;
-        args[3] = _int256ToString()
+        args[3] = _int256ToString(ethUsdPrice);
+
+        /**
+         * Build and send the Chainlink Functions request.
+         * intitalizeRequestForInlineJavascript sets the source code
+         * 
+         */
     }
 }
