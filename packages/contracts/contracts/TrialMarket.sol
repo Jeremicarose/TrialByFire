@@ -273,6 +273,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 
      * Requires exactly CREATION_DEPOSIT (0.01 ETH) to prevent spam.
      * The deposit is refunded to the creator after the market is
-     * resolved or escala
+     * resolved or escalated. This "Skin in the game" mechanism
+     * filters out low-quality question without being exclusionary.
+     * 
+     * 
      */
 }
