@@ -246,6 +246,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     }
 
     function setSubscriptionId(uint64 subscriptionId) external onlyOwner {
-        s_subscriptio
+        s_subscriptionId = subscriptionId;
+    }
+
+    function setFunctionsSource(string calldata source) external onlyOwner {
+        s_functions
     }
 }
