@@ -352,6 +352,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * @notice Request settlement after the deadline has passed.
      * @param marketId THe market to settle
      * 
-     * Anyone can call this - it
+     * Anyone can call this - it's permissonless. The only requirement
+     * is that the deadline has passed. This function:
+     *      1. Transitions status to S
      */
 }
