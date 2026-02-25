@@ -404,6 +404,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     function sendTrialRequest(uint256 marketId) external returns (bytes32 requestId) {
         Market storage m = markets[marketId];
         require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
-        require(bytes(s_functionSource).length)
+        require(bytes(s_functionSource).length > 0, "Functions source not set");
+
+        /**
+         * Read latest
+         */
     }
 }
