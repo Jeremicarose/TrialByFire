@@ -418,6 +418,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         /**
          * Build the arguments array for the Functions JavaScript.
          * args[] is an array of string that the JS source receives
+         * as the `args` parameter. We pass:
+         *      [0] marketId - so the JS knows which market
          */
     }
 }
