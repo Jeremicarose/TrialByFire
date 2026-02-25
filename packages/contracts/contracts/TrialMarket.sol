@@ -325,6 +325,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 
      * Positions are locked until settlement. No withdrawals before
      * the deadline - this prevents manipulation where somone stakes,
-     * 
+     * moves the odds, then withdraws.
      */
+    function takePosition(uint256 marketId, Verdict side) external payable {
+        Market storage m = markets[marketId];
+        
+    }
 }
