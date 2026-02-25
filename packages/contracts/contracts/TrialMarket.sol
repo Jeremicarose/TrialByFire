@@ -44,5 +44,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  *      1. Chainlink Functions - Executes the adversarial trial off-chain on
  *          Chainlink's Decentralized Orcle Network (DON). The trial JavaScript
  *          source code calls LLM APIs (OpenAI, Anthropic), gathers evidence,
- *          runs a judge, and returns the verdict. Multiple DON nodes 
+ *          runs a judge, and returns the verdict. Multiple DON nodes execute
+ *          the same code independently, reaching consensus on the result.
+ *          
  */
