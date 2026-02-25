@@ -362,6 +362,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * performUpKeep() when checkUpkeep() detects a past-deadline market.
      */
     function requestSettlement(uint256 marketId) public {
-        Market storage m = market[]
+        Market storage m = market[marketId];
+        require(m.status == MarketStatus.Open, "Market not open")
     }
 }
