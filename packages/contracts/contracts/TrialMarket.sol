@@ -93,6 +93,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     enum ManarketStatus { Open, SettlementRequested, Resolved, Escalated}
 
     /**
-     * 
+     * Verdict represents the trial outcome.
+     * None is the default (unresolved). Yes/No map to the two sides
+     * of the prediction market question.
      */
 }
