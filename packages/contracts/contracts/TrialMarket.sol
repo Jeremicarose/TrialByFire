@@ -110,6 +110,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         MarketStatus status;        // Current lifecycle state
         Verdict outcome;            // Final verdict (set on resolution)
         uint256 yesPool;            // Total ETH staked on YES
-        uint256 noPool;             // 
+        uint256 noPool;             // Total ETH staked on NO
+        bytes32 tr
     }
 }
