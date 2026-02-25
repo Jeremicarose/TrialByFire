@@ -162,5 +162,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     uint64 public s_subscriptionId;
     string public s_functionsSource;
     bytes public s_encryptedSecretsReference;
-    uint32 public s_encryptedSe
+    uint32 public s_ecallbackGasLimit = 300_000;
+    mapping(bytes32 => uint256) public s_requestIdToMa
 }
