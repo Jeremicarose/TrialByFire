@@ -48,5 +48,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  *          the same code independently, reaching consensus on the result.
  *          This removes the single-point-of-failure of owner-gated settlement.
  * 
- *      2. Chainlink Automation - 
+ *      2. Chainlink Automation - Keepers monitor all markets and automatically
+ *          trigger settlement when deadlines pass. No human needs to call
+ *          requestSettlement
  */
