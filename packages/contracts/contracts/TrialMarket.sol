@@ -260,4 +260,5 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     function setCallbackGasLimit(uint32 gasLimit) external onlyOwner {
         s_callbackGasLimit = gasLimit;
     }
+    
 }
