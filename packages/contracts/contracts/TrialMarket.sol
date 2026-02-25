@@ -322,5 +322,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * THe pool ratio (yesPool / totalPool) represents the market's
      * implied probability. If 75% of ETH is on YES, the market
      * thinks there's a 75% chance the answer is YES
+     * 
+     * Positions are locked until settlement. No withdrawals before
+     * the deadline - this prevents manipulation where somone stakes,
+     * 
      */
 }
