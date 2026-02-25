@@ -237,5 +237,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *      - The functions source code may need updates without redeploying
      *      - Encrypted secrets references change when keys are rotated
      *      - DON ID varies by network
+     * 
      */
 }
