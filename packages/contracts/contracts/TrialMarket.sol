@@ -39,5 +39,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  *          powered by Chainlink Functions, Automation, and Data Feeds.
  * 
  * Architecture:
- *      
+ *      This contract integrates THree Chainlink technologies:
+ * 
+ *      1. Chainlink Functions - Executes the adversarial trial off-chair
  */
