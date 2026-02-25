@@ -75,6 +75,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
     /**
      *  Using the FunctionsRequest library lets us build CBOR-encoded
-     *  pay
+     *  payloads with a clean API: initializeRequestForInlineJavascript
      */
 }
