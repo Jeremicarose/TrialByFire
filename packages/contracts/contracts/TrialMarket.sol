@@ -87,6 +87,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     /**
      * MarketStatus tracks the lifecycle state machine:
      *  Open -> SettlementRequested -> Resolved | Escalated
-     * Each transaction is one
+     * Each transaction is one-way. Once resolved or escalated, a market
+     *  Cannot return to an earlier state.
      */
+    enum ManarketStatus { Open, SettlementRe}
 }
