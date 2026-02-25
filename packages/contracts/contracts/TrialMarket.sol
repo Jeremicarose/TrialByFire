@@ -291,6 +291,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         requre(msg.value >= CREATION_DEPOSIT, "Must deposit 0.01 ETH");
 
         marketId = nextMarketId++;
-        markets[marketId]
+        markets[marketId] = Market({
+            question
+        })
     }
 }
