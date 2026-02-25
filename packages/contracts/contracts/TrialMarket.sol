@@ -149,6 +149,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *   advocate arguments, judge scoring, and confidence evaluation.
      *   Stored on-chain so its immutable and auditable.
      * 
-     * s_encryptedSecretsRefence: Encrypted reference to API keys ()
+     * s_encryptedSecretsRefence: Encrypted reference to API keys (OpenAI,
+     *   Anthropic) stored off-chain. Only DON nodes can decrypt these.
+     * 
+     * s_callbackGas
      */
 }
