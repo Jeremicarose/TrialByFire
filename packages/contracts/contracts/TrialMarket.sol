@@ -211,6 +211,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *      router:         0x
      *      priceFeed:
      * 
-     * FunctionsClient(router) registers us with the Chainlink 
+     * FunctionsClient(router) registers us with the Chainlink router
+     * so it knows to call our handleOracleFulfillment() with results.
+     * 
+     * Ownable(msg.sender)
      */
 }
