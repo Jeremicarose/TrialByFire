@@ -242,6 +242,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * For the hackathon, owner access is sufficient.
      */
     function setDonId(bytes32 donId) external onlyOwner {
-        
+        s_don
     }
 }
