@@ -286,5 +286,5 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         string calldata question,
         string calldata rubricHash,
         uint256 deadline
-    ) external payable returns (uint256 market)
+    ) external payable returns (uint256 marketId)
 }
