@@ -38,5 +38,6 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  * @notice A subjective prediction market resolved by adversarial AI debate,
  *          powered by Chainlink Functions, Automation, and Data Feeds.
  * 
- * Arch
+ * Architecture:
+ *      
  */
