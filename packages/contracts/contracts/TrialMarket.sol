@@ -225,5 +225,12 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     ) Ownable(msg.sender) FunctionsClient(router) {
         s_priceFeed = AggeratorV3Interface(priceFeed);
     }
-    
+
+    // ===========================================================================================
+    // ADMIN CONFIGURATION
+    // ===========================================================================================
+
+    /**
+     * 
+     */
 }
