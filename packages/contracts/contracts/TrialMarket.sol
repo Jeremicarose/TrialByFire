@@ -101,5 +101,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
     // =========================================================================
     // STRUCTS
-    // 
+    // =========================================================================
+
+    struct Market {
+        string question;            // THe subjective question being debated
+        
+    }
 }
