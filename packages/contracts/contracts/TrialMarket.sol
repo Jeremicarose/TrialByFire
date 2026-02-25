@@ -11,5 +11,6 @@ program solidity ^0.8.19;
  *  - ReentrancyGuard: Prevents re-entrancy on ETH transfers (claimWinnings/claimRefund)
  * 
  * Chainlink Functions (v1.3.0):
- *  - FunctionsClient: Base contract for sending requests to 
+ *  - FunctionsClient: Base contract for sending requests to Chainlink DON
+ * 
  */
