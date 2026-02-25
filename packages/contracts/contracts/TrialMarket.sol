@@ -155,6 +155,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * s_callbackGasLimit: Gas budget for the _fulfillRequest() callback.
      *   Must be enough to decode the result and update market state.
      * 
-     * s_requestIdToMarket
+     * s_requestIdToMarketId: Maps Chainlink request IDs to our market IDs
+     *   so we know which market to settle when the callback arrives.
      */
+    bytes32 public s_donId;
+    uint
 }
