@@ -308,5 +308,11 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
     // ==========================================================================
     // POSTING TAKING (BETTING)
-    // 
+    // ============================================================================
+
+    /**
+     * @notice Stake ETH on YES or NO for a given market.
+     * @param marketId the market to bet on
+     * @param side Verdict.yes ()
+     */
 }
