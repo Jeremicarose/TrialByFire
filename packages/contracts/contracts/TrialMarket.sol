@@ -286,5 +286,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         string calldata question,
         string calldata rubricHash,
         uint256 deadline
-    ) external payable returns (uint256 marketId)
+    ) external payable returns (uint256 marketId) {
+        require(deadline > block.timestamp, "Deadline must be in the future");
+        requre(msg.value >)
+    }
 }
