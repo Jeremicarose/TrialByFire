@@ -136,6 +136,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     mapping(uint256 => mapping(address => uint256)) public noPositions;
 
     /**
-     *  Chain
+     *  Chainlink Fuctions configuration.
+     * 
+     * s_donId: Identifies which DON (Decentralized Oracle Network) processes
+     * 
      */
 }
