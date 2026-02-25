@@ -238,6 +238,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *      - Encrypted secrets references change when keys are rotated
      *      - DON ID varies by network
      * 
-     * In production, these would be locked down or governed by a 
+     * In production, these would be locked down or governed by a DAO
      */
 }
