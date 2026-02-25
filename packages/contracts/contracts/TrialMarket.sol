@@ -194,5 +194,5 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     event PositionTaken(uint256 indexed marketId, address indexed participant, Verdict side, uint256 amount);
     event SettlementRequested(uint256 indexed marketId, uint256 timestamp);
     event TrialRequested(uint256 indexed marketId, bytes32 indexed requestId);
-    event MarketResolved(uint256 indexed marketId, Ver)
+    event MarketResolved(uint256 indexed marketId, Verdict outcome, uint256 scoreYes, uint256 scorteNo, bytes32 transcriptHash);
 }
