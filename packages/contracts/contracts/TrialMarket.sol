@@ -112,6 +112,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         uint256 yesPool;            // Total ETH staked on YES
         uint256 noPool;             // Total ETH staked on NO
         bytes32 transcriptHash;     // Keccak256 of the full trial transcript
-        address creator;            // Address the 
+        address creator;            // Address that created the market
+        uint256 creationDeposit;    // ETH deposited by creator (refundable)
     }
+
+    // =============================================================================
+    // 
 }
