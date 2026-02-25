@@ -385,5 +385,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *      - Encrypted secrets reference (LLM API Keys)
      * 
      * 2. The request is sent to the DON via _sendRequest()
+     * 
+     * 3. Multiple DON nodes independently execute the JavaScript:
+     *      - Fetch evidence from APIs (DeFiLlam)
      */
 }
