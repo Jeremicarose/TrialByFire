@@ -174,6 +174,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     AggregatorV3Interface public s_priceFeed;
 
     /**
-     * Market creation requires a minimum deposit to prevent 
+     * Market creation requires a minimum deposit to prevent spam. 
+     * 0.01 ETH is lowenough to not be a barrier but high enough
+     * to discourage fr
      */
 }
