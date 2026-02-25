@@ -329,6 +329,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      */
     function takePosition(uint256 marketId, Verdict side) external payable {
         Market storage m = markets[marketId];
+        require(m.status == MarketStatus.Open, "Market not open");
+        require(block.timestamp < m.deadline, "Past deadline");
         
     }
 }
