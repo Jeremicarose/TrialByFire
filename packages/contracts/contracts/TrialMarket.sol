@@ -208,6 +208,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *  the ETH/USD price feed address. Both are network-specific:
      * 
      * Sepolia:
-     *      router:         
+     *      router:         0x
+     *      priceFeed:
+     * 
+     * FunctionsClient(router) registers us with the Chainlink 
      */
 }
