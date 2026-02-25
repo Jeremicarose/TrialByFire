@@ -279,6 +279,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * Why not store the full rubric on-chain?
      * Gas costs. A rubric with 4 criteria, descriptions, and weights
      * Would cost ~500k gas to store. Instead, we store a hash and
-     * the full rubric lives on IPFS or 
+     * the full rubric lives on IPFS or in the frontend. The Functions
+     * source code receives the rubric as an argument.
      */
+    function createMarket(
+        
+    )
 }
