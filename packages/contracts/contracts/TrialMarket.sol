@@ -176,6 +176,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     /**
      * Market creation requires a minimum deposit to prevent spam. 
      * 0.01 ETH is lowenough to not be a barrier but high enough
-     * to discourage fr
+     * to discourage frivolous market creation.
      */
+    uint256 public constant CREATION_DE
 }
