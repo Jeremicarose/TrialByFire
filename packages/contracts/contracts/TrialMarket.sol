@@ -142,6 +142,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *   our requests. On Sepolia this is "fun-ethereum-sepolia-1".
      * 
      * s_subscriptionId: The Chainlink Functions subscritption that pays for
-     *   DON execution
+     *   DON execution. Must be funded with LINK tokens.
+     * 
+     * s_functionsSource: The JavaScript source code that runs on DON
+     *   This contains the entire adversar
      */
 }
