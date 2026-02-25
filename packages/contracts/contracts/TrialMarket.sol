@@ -305,4 +305,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         });
         emit MarketCreated(marketId, msg.sender, question, dealine);
     }
+
+    // ==========================================================================
+    // POSTING TAKING (BETTING)
+    // 
 }
