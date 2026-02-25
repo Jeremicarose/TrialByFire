@@ -231,6 +231,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     // ===========================================================================================
 
     /**
+     * These setters let the owner configure Chainlink Functions after
+     * deployment. This is necessary because:
      * 
      */
 }
