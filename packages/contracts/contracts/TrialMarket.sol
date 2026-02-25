@@ -66,5 +66,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  *      claimRefund()               - On escalation, everyone get their stake back
  * 
  * Economics:
- *  - Market cre
+ *  - Market creator deposists 0.01 ETH (refunded after settlement)
+ *  - Stakers bet ETH on YES or NO
+ *  - Winners split the total poll 
  */
