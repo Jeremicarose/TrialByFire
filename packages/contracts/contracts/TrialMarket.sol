@@ -371,4 +371,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
     // =================================================================================
     // CHAINLINK FUNCTIONS - SEND TRIAL REQUEST
+    // ====================================================================================
+
+    /**
+     * @notice Trigger the adversarial trial via Chainlink Functions.
+     * @param marketId The market
+     */
 }
