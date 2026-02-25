@@ -152,6 +152,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * s_encryptedSecretsRefence: Encrypted reference to API keys (OpenAI,
      *   Anthropic) stored off-chain. Only DON nodes can decrypt these.
      * 
-     * s_callbackGas
+     * s_callbackGasLimit: Gas budget for the _fulfillRequest() callback.
+     *   Must be enough to decode the result and update market state.
+     * 
+     * s_re
      */
 }
