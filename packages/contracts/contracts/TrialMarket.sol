@@ -64,4 +64,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  *  5. _fulfillRequst()             - DON returns verdict -> auto-settle or escalate
  *  6. claimWinnings()              - Winners withdraw proportional payouts
  *      claimRefund()               - On escalation, everyone get their stake back
+ * 
+ * Economics:
+ *  - Market cre
  */
