@@ -359,6 +359,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 
      * The event serves as a trigger for Chainlink Functions.
      * Chainlink Automation can also call this automatically via 
-     * performUpKeep() when checkUpkeep()
+     * performUpKeep() when checkUpkeep() detects
      */
 }
