@@ -401,5 +401,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * it as an argument gives the trial tamper-proof evidence that 
      * no single API call can match.  
      */
-    function sendTrialRequest(uint256 marketId) external returns (bytes32) request
+    function sendTrialRequest(uint256 marketId) external returns (bytes32 requestId) {
+        Market storage m = markets[marketId];
+        require(m.status == Market)
+    }
 }
