@@ -390,6 +390,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *      - Fetch evidence from APIs (DeFiLlama, Treasury)
      *      - Call LLM APIs for YES advocate, NO advocate, and judge
      *      - Evaluate confidence (margin check + hallucination detection)
+     *      - Return ABI-encoded result
      * 
+     * 4. The DON reaches consensus and calls our _fulfillRequest()
+     *     callback with the aggre  
      */
 }
