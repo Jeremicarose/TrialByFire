@@ -197,5 +197,13 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     event MarketResolved(uint256 indexed marketId, Verdict outcome, uint256 scoreYes, uint256 scorteNo, bytes32 transcriptHash);
     event MarketEscalated(uint256 indexed marketId, bytes32 transcriptHash);
     event RefundClaimed(uint256 indexed marketId, address indexed participant, uint256 amount);
-    event DepositRefunded(uint256 indexed marketId, address indexed creator, uint256 amount)
+    event DepositRefunded(uint256 indexed marketId, address indexed creator, uint256 amount);
+
+    // =======================================================================================================================
+    // CONSTRUCTOR
+    // =================================================================================
+
+    /**
+     * 
+     */
 }
