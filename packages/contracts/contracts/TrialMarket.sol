@@ -214,6 +214,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * FunctionsClient(router) registers us with the Chainlink router
      * so it knows to call our handleOracleFulfillment() with results.
      * 
-     * Ownable(msg.sender)
+     * Ownable(msg.sender) makes the deployer the admin, who can:
+     *      - Update Chainlink configuration (DON ID, subscription, source)
+     *      - Manually settle markets as a fallba
      */
 }
