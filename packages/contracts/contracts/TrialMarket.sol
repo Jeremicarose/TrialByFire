@@ -303,6 +303,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
             creator: msg.sender,
             creationDeposit: msg.value
         });
-        emit MarketCreated(marketId, msg.sender, question, dealine)
+        emit MarketCreated(marketId, msg.sender, question, dealine);
     }
 }
