@@ -7,5 +7,7 @@ program solidity ^0.8.19;
  * ========================================================================
  * 
  * OpenZeppelin:
- *  - Ownable: Admin functions ()
+ *  - Ownable: Admin functions (manual settle fallback, emergency)
+ *  - ReentrancyGuard: Prevents re-entrancy on ETH transfers (claimWinnings/claimRefund)
+ * 
  */
