@@ -109,6 +109,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         uint256 deadline;           // Unix timestamp - no positions after this
         MarketStatus status;        // Current lifecycle state
         Verdict outcome;            // Final verdict (set on resolution)
-        uint256 yesPool;            //
+        uint256 yesPool;            // 
     }
 }
