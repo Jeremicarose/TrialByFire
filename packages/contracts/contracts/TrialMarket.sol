@@ -389,6 +389,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 3. Multiple DON nodes independently execute the JavaScript:
      *      - Fetch evidence from APIs (DeFiLlama, Treasury)
      *      - Call LLM APIs for YES advocate, NO advocate, and judge
-     *      - Evaluate confidence 
+     *      - Evaluate confidence (margin check + hallucination detection)
+     * 
      */
 }
