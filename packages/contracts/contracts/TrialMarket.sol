@@ -14,4 +14,7 @@ program solidity ^0.8.19;
  *  - FunctionsClient: Base contract for sending requests to Chainlink DON
  *  - FunctionsRequest: Library for building CBOR-encoded request payloads
  * we extend FunctionsClient so the Chainlink router can call our
+ * _fulfillRequest() callback with the trial results.
+ * 
+ * 
  */
