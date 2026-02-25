@@ -68,5 +68,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  * Economics:
  *  - Market creator deposists 0.01 ETH (refunded after settlement)
  *  - Stakers bet ETH on YES or NO
- *  - Winners split the total poll 
+ *  - Winners split the total pool proportional to their stake
+ *  - Escaleted markets refund all stakers (no one loses money)
  */
+contract Trial
