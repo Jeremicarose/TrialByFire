@@ -413,6 +413,11 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
          * The underscore variables are roundId, startedAt, updateAt,
          * and answeredInRound - unused here but available for freshness checks.
          */
-        (, int256 ethUsdPrice...) = s_priceFeed.la
+        (, int256 ethUsdPrice...) = s_priceFeed.latestRoundData();
+
+        /**
+         * Build the arguments array for the Functions JavaScript.
+         * args[] is an array of string that the JS source receives
+         */
     }
 }
