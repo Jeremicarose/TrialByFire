@@ -71,4 +71,9 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
  *  - Winners split the total pool proportional to their stake
  *  - Escaleted markets refund all stakers (no one loses money)
  */
-contract Trial
+contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationCompatibleInterface {
+
+    /**
+     *  Using the 
+     */
+}
