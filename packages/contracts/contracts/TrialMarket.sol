@@ -407,7 +407,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         require(bytes(s_functionSource).length > 0, "Functions source not set");
 
         /**
-         * Read latest
+         * Read the latest ETH/USD price from Chainlink Data FEEds.
+         * latestRoundData()
          */
     }
 }
