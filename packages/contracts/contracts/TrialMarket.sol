@@ -105,6 +105,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
     struct Market {
         string question;            // THe subjective question being debated
-        
+        string rubricHash;          // IPFS hash or identifier for  the scoring rubric
+        uint256 deadline;           // U
     }
 }
