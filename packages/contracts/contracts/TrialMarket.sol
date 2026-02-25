@@ -117,5 +117,5 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     }
 
     // =============================================================================
-    // 
+    // STATW VARI
 }
