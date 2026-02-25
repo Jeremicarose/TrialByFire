@@ -159,5 +159,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *   so we know which market to settle when the callback arrives.
      */
     bytes32 public s_donId;
-    uint
+    uint64 public s_subscriptionId;
+    string public s_functionSource;
+    
 }
