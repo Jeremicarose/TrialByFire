@@ -163,5 +163,11 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     string public s_functionsSource;
     bytes public s_encryptedSecretsReference;
     uint32 public s_ecallbackGasLimit = 300_000;
-    mapping(bytes32 => uint256) public s_requestIdToMa
+    mapping(bytes32 => uint256) public s_requestIdToMarketId;
+
+    /**
+     * Chainlink Data Feed for ETH/USD price.
+     * We read the latest price and pass it as evidence to the trial.
+     * 
+     */
 }
