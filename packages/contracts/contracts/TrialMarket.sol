@@ -216,6 +216,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 
      * Ownable(msg.sender) makes the deployer the admin, who can:
      *      - Update Chainlink configuration (DON ID, subscription, source)
-     *      - Manually settle markets as a fallba
+     *      - Manually settle markets as a fallback
+     *      - Emergency functions if needed
      */
 }
