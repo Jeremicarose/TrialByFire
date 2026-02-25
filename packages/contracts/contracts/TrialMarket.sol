@@ -354,6 +354,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 
      * Anyone can call this - it's permissonless. The only requirement
      * is that the deadline has passed. This function:
-     *      1. Transitions status to S
+     *      1. Transitions status to SettlemnentRequested
+     *      2. Emits SettlementRequested event
+     * 
+     * The event serves as a trigger for Chainlink Functions.
+     * Chain
      */
 }
