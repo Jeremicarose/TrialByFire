@@ -184,5 +184,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     // EVENTS
     // =====================================================================================
 
-    /
+    /**
+     * Events serve two purposes:
+     *      1. Frontend list
+     */
 }
