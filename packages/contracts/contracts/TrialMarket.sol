@@ -502,7 +502,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
          */
         if (err.length > 0 || response.length == 0) {
             m.status = MarketStatus.Escalated;
-            m.transcriptHash = keccak
+            m.transcriptHash = keccak256(err);
         }
     }
 }
