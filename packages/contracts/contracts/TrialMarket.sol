@@ -555,4 +555,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
  */
 function checkUpkeep(bytes calldata)
     external
-    
+    view
+    override
+    returns (bool upkeepNeeded, bytes memory performData)
+{
+    for (uint256 )
+}    
