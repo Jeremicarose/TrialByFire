@@ -515,5 +515,5 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         (uint8 action, uint8 verdict, uint256 scoreYes, uint256 scoreNo) = 
             abi.decode(response, (uint8, uint8, uint256, uint256));
 
-        bytes32 transcriptHash = keccak256    
+        bytes32 transcriptHash = keccak256(re)    
 }
