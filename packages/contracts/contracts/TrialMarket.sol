@@ -456,5 +456,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
          * When _fulfillRequest() is called later, we use this mapping
          * to know which market to settle with the result
          */
+        s_requestIdToMarketId[requestId] = marketId;
+        emit TrialRequested(marketId, requestId);
     }
 }
