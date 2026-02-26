@@ -546,5 +546,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
  * 
  * Gas consideration: This is view-only and runs off-chain on keeper
  * nodes, so the loop cost doesn't matter. However, we break on
- * the first match to keep per
+ * the first match to keep performData simple. If multiple markets
+ * need settlement, keepers will call again on the next check.
+ * 
+ * Why not batch?
  */
