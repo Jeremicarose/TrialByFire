@@ -542,4 +542,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
  * 
  * @dev Scans market from 0 to nextMarketId looking for any that are:
  *      - Status: Open (not yet requsted for settlement)
+ *      - Past deadline (block.timestamp >= deadline)
+ * 
+ * Gas consideration: This is view
  */
