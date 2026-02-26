@@ -480,6 +480,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *   scoreYes/scoreNo: Judge scores for each side (0-100)
      * 
      * If the DON returns an error (e.g., API timeout, JS exception),
-     * We escalate the market. Th
+     * We escalate the market. This is the safe default - we never
+     * auto-resolve based on a failed trial.
+     * 
+     * The transcript hash is computed from the response bytes.
+     * The full transcr
      */
 }
