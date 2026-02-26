@@ -565,7 +565,12 @@ function checkUpkeep(bytes calldata)
             block.timestamp >= markets[i].deadline
         ) {
             upkeepNeeded = true;
-            performData = abi.encode()
+            performData = abi.encode(i);
+            break;
         }
     }
-}    
+}  
+
+/**
+ * @notice Called on-chain by Chainlink keepers when checkUp
+ */
