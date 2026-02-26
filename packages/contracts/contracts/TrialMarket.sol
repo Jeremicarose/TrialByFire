@@ -500,6 +500,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
          * Common errors: API rate limits, LLM timeout, JS exceptions.
          * Escalation is always safe - stakers can claim refunds.
          */
-        
+        if (err.length > 0 || response.length == 0) {
+            m.status = MarketStatus.Escalated;
+            m.transcriptHash = keccak
+        }
     }
 }
