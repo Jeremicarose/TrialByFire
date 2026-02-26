@@ -497,7 +497,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
         /**
          * If the DON returned an error, escalate the market.
-         * Common errors: A
+         * Common errors: API rate limits, LLM timeout, JS exceptions.
+         * Escalation is always safe - stakers can claim refunds.
          */
+        
     }
 }
