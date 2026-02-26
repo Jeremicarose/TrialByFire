@@ -523,6 +523,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
             m.status = MarketStatus.Resolved;
             m.outcome = v;
             m.transcriptHash = transcriptHash;
+            emit MarketResolved(marketId, v, scoreYes, scoreNo, transcriptHash);
+        } else {
             
-        }    
+        }   
 }
