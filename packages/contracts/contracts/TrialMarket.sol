@@ -477,6 +477,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 
      *   action: 1 = RESOLVE, 2 = ESCALATE
      *   verdict: 1 = Yes, 2 = No (only meaningful if action = RESOLVE)
-     *   scoreYes/scoreNo: Judge scores for 
+     *   scoreYes/scoreNo: Judge scores for each side (0-100)
+     * 
+     * If the DON returns an error (e.g., API timeout, JS exception),
+     * We escalate the market. Th
      */
 }
