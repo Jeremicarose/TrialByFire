@@ -549,5 +549,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
  * the first match to keep performData simple. If multiple markets
  * need settlement, keepers will call again on the next check.
  * 
- * Why not batch?
+ * Why not batch? Simplicity. Each performUpkeep handles one market.
+ * Chainlink keepers call checkUpkeep frequently enough that all
+ * markets get
  */
