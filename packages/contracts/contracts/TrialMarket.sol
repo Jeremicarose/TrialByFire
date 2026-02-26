@@ -487,5 +487,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * The full transcript is stored off-chain (IPFS or database);
      * the hash provides an immutable on-chain verification anchor.
      */
-    fu
+    function _fulfillRequest(
+        
+    )
 }
