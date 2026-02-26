@@ -531,3 +531,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
             emit MarketEscalated(marketId, transcriptHash);
         }   
 }
+
+// ==========================================================================================
+// CHAINLINK AUTOMATION - AUTO-TRIGGER SETTLEMENT
+// ==============================================================================================
+
+/
