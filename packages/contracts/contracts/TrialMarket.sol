@@ -578,5 +578,8 @@ function checkUpkeep(bytes calldata)
  * Re-validates the condition before acting. This is required because
  * state can change between checkUpKeep (off-chain) and performUpkeep
  * (on-chain). Another transaction might have already called
- * requestSettlement()
+ * requestSettlement() for this market.
  */
+function performUpkeep(bytes calldata performData) external override {
+    
+}
