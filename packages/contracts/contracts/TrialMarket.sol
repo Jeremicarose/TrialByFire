@@ -488,6 +488,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * the hash provides an immutable on-chain verification anchor.
      */
     function _fulfillRequest(
-        
+        bytes32 requ
     )
 }
