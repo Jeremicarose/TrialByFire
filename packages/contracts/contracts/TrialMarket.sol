@@ -484,6 +484,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * auto-resolve based on a failed trial.
      * 
      * The transcript hash is computed from the response bytes.
-     * The full transcr
+     * The full transcript is stored off-chain (IPFS or database);
+     * the hash provides an immutable on-chain verification anchor.
      */
+    fu
 }
