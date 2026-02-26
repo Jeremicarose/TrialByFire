@@ -468,6 +468,8 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * @dev Called by the Chainlink Functions router when DON nodes
      *      have executed our Javascript and reached consensus.
      * 
-     * @param requestId The 
+     * @param requestId The ID of the original request
+     * @param response The ABI-encoded trial result (if successful)
+     * @param err Error bytes ()
      */
 }
