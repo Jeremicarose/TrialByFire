@@ -492,6 +492,12 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         bytes meemory response,
         bytes memory err
     ) internal override {
-        uint256 marketId = s_requestIdToMarketId
+        uint256 marketId = s_requestIdToMarketId[requestId];
+        Market storage m = markets[marketId];
+
+        /**
+         * If the DON returned an error, escalate the market.
+         * Common errors
+         */
     }
 }
