@@ -581,5 +581,9 @@ function checkUpkeep(bytes calldata)
  * requestSettlement() for this market.
  */
 function performUpkeep(bytes calldata performData) external override {
-    
+    uint256 marketId = abi.decode(perfromData, (uint256));
+
+    /**
+     * Re-check the condi
+     */
 }
