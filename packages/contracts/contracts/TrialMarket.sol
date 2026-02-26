@@ -572,5 +572,8 @@ function checkUpkeep(bytes calldata)
 }  
 
 /**
- * @notice Called on-chain by Chainlink keepers when checkUp
+ * @notice Called on-chain by Chainlink keepers when checkUpKeep returns true.
+ * @param performData ABI-encoded market ID to settle
+ * 
+ * Re-validates the condition before acting
  */
