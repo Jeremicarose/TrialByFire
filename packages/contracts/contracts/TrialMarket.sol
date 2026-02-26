@@ -459,4 +459,12 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         s_requestIdToMarketId[requestId] = marketId;
         emit TrialRequested(marketId, requestId);
     }
+
+    // =============================================================================
+    // CHAINLINK FUNCTIONS - FULFILL CALLBACK
+    // =================================================================================
+
+    /**
+     * 
+     */
 }
