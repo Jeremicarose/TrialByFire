@@ -497,7 +497,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
         /**
          * If the DON returned an error, escalate the market.
-         * Common errors
+         * Common errors: A
          */
     }
 }
