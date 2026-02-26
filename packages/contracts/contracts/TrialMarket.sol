@@ -559,5 +559,9 @@ function checkUpkeep(bytes calldata)
     override
     returns (bool upkeepNeeded, bytes memory performData)
 {
-    for (uint256 i)
+    for (uint256 i = 0; i < nextMarketId; i++) {
+        if (
+            markets[i].status == MarketStatus.O
+        )
+    }
 }    
