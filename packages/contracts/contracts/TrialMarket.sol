@@ -473,6 +473,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * @param err Error bytes (if the execution failed)
      * 
      * The response is ABI-encoded as:
-     *   (uint8 action, uint8 verdict, uint256 scoreYes, uint256 )
+     *   (uint8 action, uint8 verdict, uint256 scoreYes, uint256 scoreNo)
+     * 
+     *   action: 1 = RESOLVE, 2 = ESCALATE
+     *   verdict: 1 = Yes, 2 = No (only mean)
      */
 }
