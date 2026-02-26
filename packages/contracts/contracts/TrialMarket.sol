@@ -540,5 +540,6 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
  * @notice Called off-chain by Chainlink keepers to check if any
  *          market needs settlement.
  * 
- * 
+ * @dev Scans market from 0 to nextMarketId looking for any that are:
+ *      - Status: Open (not yet requsted for settlement)
  */
