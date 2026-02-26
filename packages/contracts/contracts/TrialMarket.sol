@@ -470,6 +470,9 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      * 
      * @param requestId The ID of the original request
      * @param response The ABI-encoded trial result (if successful)
-     * @param err Error bytes ()
+     * @param err Error bytes (if the execution failed)
+     * 
+     * The response is ABI-encoded as:
+     *   (uint8 action, uint8 verdict, uint256 scoreYes, uint256 )
      */
 }
