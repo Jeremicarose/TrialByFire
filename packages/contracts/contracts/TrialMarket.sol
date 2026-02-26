@@ -476,6 +476,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      *   (uint8 action, uint8 verdict, uint256 scoreYes, uint256 scoreNo)
      * 
      *   action: 1 = RESOLVE, 2 = ESCALATE
-     *   verdict: 1 = Yes, 2 = No (only mean)
+     *   verdict: 1 = Yes, 2 = No (only meaningful if action = RESOLVE)
+     *   scoreYes/scoreNo: Judge scores for 
      */
 }
