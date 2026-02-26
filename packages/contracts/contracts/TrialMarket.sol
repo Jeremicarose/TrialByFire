@@ -576,5 +576,5 @@ function checkUpkeep(bytes calldata)
  * @param performData ABI-encoded market ID to settle
  * 
  * Re-validates the condition before acting. This is required because
- * state can change betwee
+ * state can change between check
  */
