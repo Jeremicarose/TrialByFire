@@ -502,6 +502,13 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
          */
         if (err.length > 0 || response.length == 0) {
             m.status = MarketStatus.Escalated;
-            m.transcriptHash = 
+            m.transcriptHash = keccak256(err);
+            emit MarketEscalated(marketId, m.transcriptHash);
+            return;
         }
+
+        /**
+         * Decode the trial result.
+         * The Java
+         */
 }
