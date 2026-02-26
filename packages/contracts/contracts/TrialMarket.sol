@@ -561,7 +561,11 @@ function checkUpkeep(bytes calldata)
 {
     for (uint256 i = 0; i < nextMarketId; i++) {
         if (
-            markets[i].status == MarketStatus.O
-        )
+            markets[i].status == MarketStatus.Open &&
+            block.timestamp >= markets[i].deadline
+        ) {
+            upkeepNeeded = true;
+            performData = abi.encode
+        }
     }
 }    
