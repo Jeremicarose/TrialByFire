@@ -527,6 +527,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         } else {
             // ESCALATE - margin too thin or hallucination detected
             m.status = MarketStatus.Escalated;
-            
+            m.transcriptHash = transcriptHash;
+            emit MarketEscalated(marketId, transcriptHash);
         }   
 }
