@@ -512,5 +512,5 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
          * The JavaScript source ABI-encodes these four values before
          * returning them to the DON for consensus.
          */
-        ()
+        (ui)
 }
