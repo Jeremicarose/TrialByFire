@@ -584,6 +584,8 @@ function performUpkeep(bytes calldata performData) external override {
     uint256 marketId = abi.decode(perfromData, (uint256));
 
     /**
-     * Re-check the condi
+     * Re-check the condition. If the market was already settled
+     * between the off-chain check and this on-chain execution,
+     * requestSettlement() will revert with "Market not open".
      */
 }
