@@ -536,4 +536,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 // CHAINLINK AUTOMATION - AUTO-TRIGGER SETTLEMENT
 // ==============================================================================================
 
-/
+/**
+ * @notice Called off-chain by Chainlink keepers to check if any
+ *          market needs settlement
+ */
