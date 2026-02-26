@@ -519,6 +519,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
         if (action == 1) {
             // RESOLVE - the trial produced a clear verdict
-            Verdict v = verdict == 1 ? Ver
+            Verdict v = verdict == 1 ? Verdict.Yes : Verdict.No;
+            m.status = MarketStatus.Resolved;
+            m.outcome = v;
+            m.transcriptHash = transcriptHash;
+            
         }    
 }
