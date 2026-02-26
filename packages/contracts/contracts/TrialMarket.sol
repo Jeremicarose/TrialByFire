@@ -551,5 +551,5 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
  * 
  * Why not batch? Simplicity. Each performUpkeep handles one market.
  * Chainlink keepers call checkUpkeep frequently enough that all
- * markets get
+ * markets get pro
  */
