@@ -565,7 +565,7 @@ function checkUpkeep(bytes calldata)
             block.timestamp >= markets[i].deadline
         ) {
             upkeepNeeded = true;
-            performData = abi.encode
+            performData = abi.encode()
         }
     }
 }    
