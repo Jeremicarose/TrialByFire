@@ -538,5 +538,5 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
 
 /**
  * @notice Called off-chain by Chainlink keepers to check if any
- *          market needs settlement
+ *          market needs settlement.
  */
