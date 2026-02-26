@@ -587,5 +587,6 @@ function performUpkeep(bytes calldata performData) external override {
      * Re-check the condition. If the market was already settled
      * between the off-chain check and this on-chain execution,
      * requestSettlement() will revert with "Market not open".
+     * 
      */
 }
