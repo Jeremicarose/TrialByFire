@@ -465,6 +465,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     // =================================================================================
 
     /**
-     * 
+     * @dev Called by the Chainlink Functions router when DON nodes
+     *      have executed ourJavascript
      */
 }
