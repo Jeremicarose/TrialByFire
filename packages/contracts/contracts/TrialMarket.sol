@@ -544,5 +544,7 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
  *      - Status: Open (not yet requsted for settlement)
  *      - Past deadline (block.timestamp >= deadline)
  * 
- * Gas consideration: This is view
+ * Gas consideration: This is view-only and runs off-chain on keeper
+ * nodes, so the loop cost doesn't matter. However, we break on
+ * the first match to keep per
  */
