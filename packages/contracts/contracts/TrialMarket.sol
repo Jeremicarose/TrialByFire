@@ -1,30 +1,30 @@
 // SPDX-License-Identifier: MIT
-program solidity ^0.8.19;
+pragma solidity ^0.8.19;
 
-/**
- * ========================================================================
- * IMPORTS
- * ========================================================================
- * 
+/*
+ * ══════════════════════════════════════════════════════════════════════
+ *  IMPORTS
+ * ══════════════════════════════════════════════════════════════════════
+ *
  * OpenZeppelin:
- *  - Ownable: Admin functions (manual settle fallback, emergency)
- *  - ReentrancyGuard: Prevents re-entrancy on ETH transfers (claimWinnings/claimRefund)
- * 
+ *   - Ownable: Admin functions (manual settle fallback, emergency)
+ *   - ReentrancyGuard: Prevents re-entrancy on ETH transfers (claimWinnings/claimRefund)
+ *
  * Chainlink Functions (v1.3.0):
- *  - FunctionsClient: Base contract for sending requests to Chainlink DON
- *  - FunctionsRequest: Library for building CBOR-encoded request payloads
- * we extend FunctionsClient so the Chainlink router can call our
- * _fulfillRequest() callback with the trial results.
- * 
+ *   - FunctionsClient: Base contract for sending requests to Chainlink DON
+ *   - FunctionsRequest: Library for building CBOR-encoded request payloads
+ *   We extend FunctionsClient so the Chainlink router can call our
+ *   _fulfillRequest() callback with the trial results.
+ *
+ * Chainlink Automation:
+ *   - AutomationCompatibleInterface: Enables Chainlink keepers to auto-trigger
+ *   settlement when a market's deadline passes. checkUpkeep() scans for
+ *   markets past deadline; performUpkeep() calls requestSettlement().
+ *
  * Chainlink Data Feeds:
- *  - AutomationCompatibleInterface: Enables Chainlink keepers to auto-trigger
- *  settlement when a market's deadline passes. checkUpkeep() scans for
- *  market past deadline; performUpkeep() calls requestSettlement().
- * 
- * Chainlink Data Feeds:
- *  - AggregatorV3Interface: Reads ETH/USD price from Chainlink's oracle network.
- *  Used as trusted evidence source - the current ETH price is passed as an
- *  argument to the Functions request so the trial has verified oracle data.
+ *   - AggregatorV3Interface: Reads ETH/USD price from Chainlink's oracle network.
+ *   Used as a trusted evidence source — the current ETH price is passed as an
+ *   argument to the Functions request so the trial has verified oracle data.
  */
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
@@ -36,125 +36,125 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
 /**
  * @title TrialMarket
  * @notice A subjective prediction market resolved by adversarial AI debate,
- *          powered by Chainlink Functions, Automation, and Data Feeds.
- * 
+ *         powered by Chainlink Functions, Automation, and Data Feeds.
+ *
  * Architecture:
- *      This contract integrates THree Chainlink technologies:
- * 
- *      1. Chainlink Functions - Executes the adversarial trial off-chain on
- *          Chainlink's Decentralized Orcle Network (DON). The trial JavaScript
- *          source code calls LLM APIs (OpenAI, Anthropic), gathers evidence,
- *          runs a judge, and returns the verdict. Multiple DON nodes execute
- *          the same code independently, reaching consensus on the result.
- *          This removes the single-point-of-failure of owner-gated settlement.
- * 
- *      2. Chainlink Automation - Keepers monitor all markets and automatically
- *          trigger settlement when deadlines pass. No human needs to call
- *          requestSettlement() - it happens autonomously.
- * 
- *      3. Chainlink Data Feeds - The ETH/USD price feed provides verified
- *          oracle data as evidence for the trial. This trusted data source
- *          supplements the API-fetched evidence (DeFiLlam, Treasury rates).
- * 
+ *   This contract integrates THREE Chainlink technologies:
+ *
+ *   1. Chainlink Functions — Executes the adversarial trial off-chain on
+ *      Chainlink's Decentralized Oracle Network (DON). The trial JavaScript
+ *      source code calls LLM APIs (OpenAI, Anthropic), gathers evidence,
+ *      runs a judge, and returns the verdict. Multiple DON nodes execute
+ *      the same code independently, reaching consensus on the result.
+ *      This removes the single-point-of-failure of owner-gated settlement.
+ *
+ *   2. Chainlink Automation — Keepers monitor all markets and automatically
+ *      trigger settlement when deadlines pass. No human needs to call
+ *      requestSettlement() — it happens autonomously.
+ *
+ *   3. Chainlink Data Feeds — The ETH/USD price feed provides verified
+ *      oracle data as evidence for the trial. This trusted data source
+ *      supplements the API-fetched evidence (DeFiLlama, Treasury rates).
+ *
  * Lifecycle:
- *  1. createMarket()               - Anyone posts a question + 0.01 ETH deposit
- *  2. takePosition()               - Stake ETH on YES or NO
- *  3. requestSettlement()          - After deadline(manual or via Automation)
- *  4. semdTrialRequest()           - Triggers Chainlink Functions to run the trial
- *  5. _fulfillRequst()             - DON returns verdict -> auto-settle or escalate
- *  6. claimWinnings()              - Winners withdraw proportional payouts
- *      claimRefund()               - On escalation, everyone get their stake back
- * 
+ *   1. createMarket()        — Anyone posts a question + 0.01 ETH deposit
+ *   2. takePosition()        — Stake ETH on YES or NO
+ *   3. requestSettlement()   — After deadline (manual or via Automation)
+ *   4. sendTrialRequest()    — Triggers Chainlink Functions to run the trial
+ *   5. _fulfillRequest()     — DON returns verdict → auto-settle or escalate
+ *   6. claimWinnings()       — Winners withdraw proportional payouts
+ *      claimRefund()         — On escalation, everyone gets their stake back
+ *
  * Economics:
- *  - Market creator deposists 0.01 ETH (refunded after settlement)
- *  - Stakers bet ETH on YES or NO
- *  - Winners split the total pool proportional to their stake
- *  - Escaleted markets refund all stakers (no one loses money)
+ *   - Market creator deposits 0.01 ETH (refunded after settlement)
+ *   - Stakers bet ETH on YES or NO
+ *   - Winners split the total pool proportional to their stake
+ *   - Escalated markets refund all stakers (no one loses money)
  */
-contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationCompatibleInterface {
+contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCompatibleInterface {
 
-    /**
-     *  Using the FunctionsRequest library lets us build CBOR-encoded
-     *  payloads with a clean API: initializeRequestForInlineJavaScript(),
-     *  setArgs(), addSecretsReference(), etc,
+    /*
+     * Using the FunctionsRequest library lets us build CBOR-encoded
+     * payloads with a clean API: initializeRequestForInlineJavaScript(),
+     * setArgs(), addSecretsReference(), etc.
      */
     using FunctionsRequest for FunctionsRequest.Request;
 
-    // =====================================================================
-    // ENUMS
-    // ====================================================================== 
+    // ═══════════════════════════════════════════════════════════════
+    //  ENUMS
+    // ═══════════════════════════════════════════════════════════════
 
-    /**
+    /*
      * MarketStatus tracks the lifecycle state machine:
-     *  Open -> SettlementRequested -> Resolved | Escalated
-     * Each transaction is one-way. Once resolved or escalated, a market
-     *  Cannot return to an earlier state.
+     *   Open → SettlementRequested → Resolved | Escalated
+     * Each transition is one-way. Once resolved or escalated, a market
+     * cannot return to an earlier state.
      */
-    enum ManarketStatus { Open, SettlementRequested, Resolved, Escalated}
+    enum MarketStatus { Open, SettlementRequested, Resolved, Escalated }
 
-    /**
+    /*
      * Verdict represents the trial outcome.
      * None is the default (unresolved). Yes/No map to the two sides
      * of the prediction market question.
      */
-    enum Verdict { None, Yes, No}
+    enum Verdict { None, Yes, No }
 
-    // =========================================================================
-    // STRUCTS
-    // =========================================================================
+    // ═══════════════════════════════════════════════════════════════
+    //  STRUCTS
+    // ═══════════════════════════════════════════════════════════════
 
     struct Market {
-        string question;            // THe subjective question being debated
-        string rubricHash;          // IPFS hash or identifier for  the scoring rubric
-        uint256 deadline;           // Unix timestamp - no positions after this
-        MarketStatus status;        // Current lifecycle state
-        Verdict outcome;            // Final verdict (set on resolution)
-        uint256 yesPool;            // Total ETH staked on YES
-        uint256 noPool;             // Total ETH staked on NO
-        bytes32 transcriptHash;     // Keccak256 of the full trial transcript
-        address creator;            // Address that created the market
-        uint256 creationDeposit;    // ETH deposited by creator (refundable)
+        string question;          // The subjective question being debated
+        string rubricHash;        // IPFS hash or identifier for the scoring rubric
+        uint256 deadline;         // Unix timestamp — no positions after this
+        MarketStatus status;      // Current lifecycle state
+        Verdict outcome;          // Final verdict (set on resolution)
+        uint256 yesPool;          // Total ETH staked on YES
+        uint256 noPool;           // Total ETH staked on NO
+        bytes32 transcriptHash;   // keccak256 of the full trial transcript
+        address creator;          // Address that created the market
+        uint256 creationDeposit;  // ETH deposited by creator (refundable)
     }
 
-    // =============================================================================
-    // STATW VARIABLES
-    // ==============================================================================
+    // ═══════════════════════════════════════════════════════════════
+    //  STATE VARIABLES
+    // ═══════════════════════════════════════════════════════════════
 
-    /**
+    /*
      * Market storage: sequential IDs starting at 0.
      * nextMarketId acts as both a counter and the ID for the next market.
      */
     uint256 public nextMarketId;
     mapping(uint256 => Market) public markets;
 
-    /**
-     * Position tracking: nested mapping of marketId -> user -> stake amount.
+    /*
+     * Position tracking: nested mapping of marketId → user → stake amount.
      * Separate mappings for YES and NO positions because a user could
      * theoretically stake on both sides (hedging).
      */
     mapping(uint256 => mapping(address => uint256)) public yesPositions;
     mapping(uint256 => mapping(address => uint256)) public noPositions;
 
-    /**
-     *  Chainlink Fuctions configuration.
-     * 
+    /*
+     * Chainlink Functions configuration.
+     *
      * s_donId: Identifies which DON (Decentralized Oracle Network) processes
      *   our requests. On Sepolia this is "fun-ethereum-sepolia-1".
-     * 
-     * s_subscriptionId: The Chainlink Functions subscritption that pays for
+     *
+     * s_subscriptionId: The Chainlink Functions subscription that pays for
      *   DON execution. Must be funded with LINK tokens.
-     * 
-     * s_functionsSource: The JavaScript source code that runs on DON
+     *
+     * s_functionsSource: The JavaScript source code that runs on DON nodes.
      *   This contains the entire adversarial trial logic: evidence gathering,
      *   advocate arguments, judge scoring, and confidence evaluation.
-     *   Stored on-chain so its immutable and auditable.
-     * 
-     * s_encryptedSecretsRefence: Encrypted reference to API keys (OpenAI,
+     *   Stored on-chain so it's immutable and auditable.
+     *
+     * s_encryptedSecretsReference: Encrypted reference to API keys (OpenAI,
      *   Anthropic) stored off-chain. Only DON nodes can decrypt these.
-     * 
+     *
      * s_callbackGasLimit: Gas budget for the _fulfillRequest() callback.
      *   Must be enough to decode the result and update market state.
-     * 
+     *
      * s_requestIdToMarketId: Maps Chainlink request IDs to our market IDs
      *   so we know which market to settle when the callback arrives.
      */
@@ -162,10 +162,10 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
     uint64 public s_subscriptionId;
     string public s_functionsSource;
     bytes public s_encryptedSecretsReference;
-    uint32 public s_ecallbackGasLimit = 300_000;
+    uint32 public s_callbackGasLimit = 300_000;
     mapping(bytes32 => uint256) public s_requestIdToMarketId;
 
-    /**
+    /*
      * Chainlink Data Feed for ETH/USD price.
      * We read the latest price and pass it as evidence to the trial.
      * This gives the adversarial debate verified oracle data alongside
@@ -173,71 +173,71 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
      */
     AggregatorV3Interface public s_priceFeed;
 
-    /**
-     * Market creation requires a minimum deposit to prevent spam. 
-     * 0.01 ETH is lowenough to not be a barrier but high enough
+    /*
+     * Market creation requires a minimum deposit to prevent spam.
+     * 0.01 ETH is low enough to not be a barrier but high enough
      * to discourage frivolous market creation.
      */
     uint256 public constant CREATION_DEPOSIT = 0.01 ether;
 
-    // ==================================================================================
-    // EVENTS
-    // =====================================================================================
+    // ═══════════════════════════════════════════════════════════════
+    //  EVENTS
+    // ═══════════════════════════════════════════════════════════════
 
-    /**
+    /*
      * Events serve two purposes:
-     *      1. Frontend listens for these to update the UI in real-time
-     *      2. Chainlink Automation's Log Trigger can watch for
-     *          SettlementRequested to automatically start trials
+     *   1. Frontend listens for these to update the UI in real-time
+     *   2. Chainlink Automation's Log Trigger can watch for
+     *      SettlementRequested to automatically start trials
      */
     event MarketCreated(uint256 indexed marketId, address indexed creator, string question, uint256 deadline);
     event PositionTaken(uint256 indexed marketId, address indexed participant, Verdict side, uint256 amount);
     event SettlementRequested(uint256 indexed marketId, uint256 timestamp);
     event TrialRequested(uint256 indexed marketId, bytes32 indexed requestId);
-    event MarketResolved(uint256 indexed marketId, Verdict outcome, uint256 scoreYes, uint256 scorteNo, bytes32 transcriptHash);
+    event MarketResolved(uint256 indexed marketId, Verdict outcome, uint256 scoreYes, uint256 scoreNo, bytes32 transcriptHash);
     event MarketEscalated(uint256 indexed marketId, bytes32 transcriptHash);
     event RefundClaimed(uint256 indexed marketId, address indexed participant, uint256 amount);
     event DepositRefunded(uint256 indexed marketId, address indexed creator, uint256 amount);
 
-    // =======================================================================================================================
-    // CONSTRUCTOR
-    // =================================================================================
+    // ═══════════════════════════════════════════════════════════════
+    //  CONSTRUCTOR
+    // ═══════════════════════════════════════════════════════════════
 
-    /**
+    /*
      * The constructor takes the Chainlink Functions router address and
-     *  the ETH/USD price feed address. Both are network-specific:
-     * 
-     * Sepolia:
-     *      router:         0x
-     *      priceFeed:
-     * 
+     * the ETH/USD price feed address. Both are network-specific:
+     *
+     *   Sepolia:
+     *     router:    0xb83E47C2bC239B3bf370bc41e1459A34b41238D0
+     *     priceFeed: 0x694AA1769357215DE4FAC081bf1f309aDC325306
+     *
      * FunctionsClient(router) registers us with the Chainlink router
      * so it knows to call our handleOracleFulfillment() with results.
-     * 
+     *
      * Ownable(msg.sender) makes the deployer the admin, who can:
-     *      - Update Chainlink configuration (DON ID, subscription, source)
-     *      - Manually settle markets as a fallback
-     *      - Emergency functions if needed
+     *   - Update Chainlink configuration (DON ID, subscription, source)
+     *   - Manually settle markets as a fallback
+     *   - Emergency functions if needed
      */
     constructor(
         address router,
         address priceFeed
     ) Ownable(msg.sender) FunctionsClient(router) {
-        s_priceFeed = AggeratorV3Interface(priceFeed);
+        s_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
-    // ===========================================================================================
-    // ADMIN CONFIGURATION
-    // ===========================================================================================
+    // ═══════════════════════════════════════════════════════════════
+    //  ADMIN CONFIGURATION
+    // ═══════════════════════════════════════════════════════════════
 
-    /**
+    /*
      * These setters let the owner configure Chainlink Functions after
      * deployment. This is necessary because:
-     *      - The subscription ID is created on the Chainlink UI after deployment
-     *      - The functions source code may need updates without redeploying
-     *      - Encrypted secrets references change when keys are rotated
-     *      - DON ID varies by network
-     * 
+     *   - The subscription ID is created on the Chainlink UI after deployment
+     *   - The Functions source code may need updates without redeploying
+     *   - Encrypted secrets references change when keys are rotated
+     *   - DON ID varies by network
+     *
      * In production, these would be locked down or governed by a DAO.
      * For the hackathon, owner access is sufficient.
      */
@@ -261,24 +261,24 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         s_callbackGasLimit = gasLimit;
     }
 
-    // =====================================================================================
-    // MARKET CREATION
-    // ==============================================================================
+    // ═══════════════════════════════════════════════════════════════
+    //  MARKET CREATION
+    // ═══════════════════════════════════════════════════════════════
 
     /**
-     *  @notice Create a new prediction market. Anyone can this.
-     *  @param question THe subjective question to be debated
-     *  @param rubricHash IPFS hash or identifier for the scoring rubric
-     *  @param deadline Unix timestamp - betting claose at this time
-     * 
+     * @notice Create a new prediction market. Anyone can call this.
+     * @param question The subjective question to be debated
+     * @param rubricHash IPFS hash or identifier for the scoring rubric
+     * @param deadline Unix timestamp — betting closes at this time
+     *
      * Requires exactly CREATION_DEPOSIT (0.01 ETH) to prevent spam.
      * The deposit is refunded to the creator after the market is
-     * resolved or escalated. This "Skin in the game" mechanism
-     * filters out low-quality question without being exclusionary.
-     * 
+     * resolved or escalated. This "skin in the game" mechanism
+     * filters out low-quality questions without being exclusionary.
+     *
      * Why not store the full rubric on-chain?
      * Gas costs. A rubric with 4 criteria, descriptions, and weights
-     * Would cost ~500k gas to store. Instead, we store a hash and
+     * would cost ~500k gas to store. Instead, we store a hash and
      * the full rubric lives on IPFS or in the frontend. The Functions
      * source code receives the rubric as an argument.
      */
@@ -288,43 +288,43 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         uint256 deadline
     ) external payable returns (uint256 marketId) {
         require(deadline > block.timestamp, "Deadline must be in the future");
-        requre(msg.value >= CREATION_DEPOSIT, "Must deposit 0.01 ETH");
+        require(msg.value >= CREATION_DEPOSIT, "Must deposit 0.01 ETH");
 
         marketId = nextMarketId++;
         markets[marketId] = Market({
             question: question,
             rubricHash: rubricHash,
-            dealine: deadline,
+            deadline: deadline,
             status: MarketStatus.Open,
             outcome: Verdict.None,
             yesPool: 0,
-            noPool:  0,
+            noPool: 0,
             transcriptHash: bytes32(0),
             creator: msg.sender,
             creationDeposit: msg.value
         });
-        emit MarketCreated(marketId, msg.sender, question, dealine);
+        emit MarketCreated(marketId, msg.sender, question, deadline);
     }
 
-    // ==========================================================================
-    // POSTING TAKING (BETTING)
-    // ============================================================================
+    // ═══════════════════════════════════════════════════════════════
+    //  POSITION TAKING (BETTING)
+    // ═══════════════════════════════════════════════════════════════
 
     /**
      * @notice Stake ETH on YES or NO for a given market.
-     * @param marketId the market to bet on
-     * @param side Verdict.yes (1) or Verdict.No (2)
-     * 
-     * Users can stake multiple times on the same side - positions
+     * @param marketId The market to bet on
+     * @param side Verdict.Yes (1) or Verdict.No (2)
+     *
+     * Users can stake multiple times on the same side — positions
      * accumulate. They can even stake on both sides (hedging), though
      * that's economically irrational in most cases.
-     * 
-     * THe pool ratio (yesPool / totalPool) represents the market's
+     *
+     * The pool ratio (yesPool / totalPool) represents the market's
      * implied probability. If 75% of ETH is on YES, the market
-     * thinks there's a 75% chance the answer is YES
-     * 
+     * thinks there's a 75% chance the answer is YES.
+     *
      * Positions are locked until settlement. No withdrawals before
-     * the deadline - this prevents manipulation where somone stakes,
+     * the deadline — this prevents manipulation where someone stakes,
      * moves the odds, then withdraws.
      */
     function takePosition(uint256 marketId, Verdict side) external payable {
@@ -344,85 +344,85 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         emit PositionTaken(marketId, msg.sender, side, msg.value);
     }
 
-    // ======================================================================================
-    // SETTLEMENT REQUEST
-    // =======================================================================================
+    // ═══════════════════════════════════════════════════════════════
+    //  SETTLEMENT REQUEST
+    // ═══════════════════════════════════════════════════════════════
 
     /**
      * @notice Request settlement after the deadline has passed.
-     * @param marketId THe market to settle
-     * 
-     * Anyone can call this - it's permissonless. The only requirement
+     * @param marketId The market to settle
+     *
+     * Anyone can call this — it's permissionless. The only requirement
      * is that the deadline has passed. This function:
-     *      1. Transitions status to SettlemnentRequested
-     *      2. Emits SettlementRequested event
-     * 
+     *   1. Transitions status to SettlementRequested
+     *   2. Emits SettlementRequested event
+     *
      * The event serves as a trigger for Chainlink Functions.
-     * Chainlink Automation can also call this automatically via 
-     * performUpKeep() when checkUpkeep() detects a past-deadline market.
+     * Chainlink Automation can also call this automatically via
+     * performUpkeep() when checkUpkeep() detects a past-deadline market.
      */
     function requestSettlement(uint256 marketId) public {
-        Market storage m = market[marketId];
+        Market storage m = markets[marketId];
         require(m.status == MarketStatus.Open, "Market not open");
-        require(block.timestamp >= m.deadline, "Deadline not reached")
+        require(block.timestamp >= m.deadline, "Deadline not reached");
         m.status = MarketStatus.SettlementRequested;
-        emit settlementRequested(marketId, block.timestamp);
+        emit SettlementRequested(marketId, block.timestamp);
     }
 
-    // =================================================================================
-    // CHAINLINK FUNCTIONS - SEND TRIAL REQUEST
-    // ====================================================================================
+    // ═══════════════════════════════════════════════════════════════
+    //  CHAINLINK FUNCTIONS — SEND TRIAL REQUEST
+    // ═══════════════════════════════════════════════════════════════
 
     /**
      * @notice Trigger the adversarial trial via Chainlink Functions.
      * @param marketId The market to run the trial for
-     * 
+     *
      * This is the bridge between on-chain and off-chain:
-     * 
+     *
      * 1. We build a Chainlink Functions request with:
-     *      - The JavaScript source code (stored in s_functionsSource)
-     *      - Arguments: marketId, question, rubricHash, ETH/USD price
-     *      - Encrypted secrets reference (LLM API Keys)
-     * 
+     *    - The JavaScript source code (stored in s_functionsSource)
+     *    - Arguments: marketId, question, rubricHash, ETH/USD price
+     *    - Encrypted secrets reference (LLM API keys)
+     *
      * 2. The request is sent to the DON via _sendRequest()
-     * 
+     *
      * 3. Multiple DON nodes independently execute the JavaScript:
-     *      - Fetch evidence from APIs (DeFiLlama, Treasury)
-     *      - Call LLM APIs for YES advocate, NO advocate, and judge
-     *      - Evaluate confidence (margin check + hallucination detection)
-     *      - Return ABI-encoded result
-     * 
+     *    - Fetch evidence from APIs (DeFiLlama, Treasury)
+     *    - Call LLM APIs for YES advocate, NO advocate, and judge
+     *    - Evaluate confidence (margin check + hallucination detection)
+     *    - Return ABI-encoded result
+     *
      * 4. The DON reaches consensus and calls our _fulfillRequest()
-     *     callback with the aggregated result,
-     * 
+     *    callback with the aggregated result.
+     *
      * Why read ETH/USD price here instead of in the JavaScript?
      * Chainlink Data Feeds provide cryptographically signed price data
-     * Verified by the oracle network, Reading it on-chain and passing
-     * it as an argument gives the trial tamper-proof evidence that 
-     * no single API call can match.  
+     * verified by the oracle network. Reading it on-chain and passing
+     * it as an argument gives the trial tamper-proof evidence that
+     * no single API call can match.
      */
     function sendTrialRequest(uint256 marketId) external returns (bytes32 requestId) {
         Market storage m = markets[marketId];
         require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
-        require(bytes(s_functionSource).length > 0, "Functions source not set");
+        require(bytes(s_functionsSource).length > 0, "Functions source not set");
 
-        /**
-         * Read the latest ETH/USD price from Chainlink Data FEEds.
+        /*yeste
+         * Read the latest ETH/USD price from Chainlink Data Feeds.
          * latestRoundData() returns 5 values; we only need `answer`
-         * (the price with 8 decimals, e.g. 35000000000 = $3,500.00).
-         * The underscore variables are roundId, startedAt, updateAt,
-         * and answeredInRound - unused here but available for freshness checks.
+         * (the price with 8 decimals, e.g. 350000000000 = $3,500.00).
+         * The underscore variables are roundId, startedAt, updatedAt,
+         * and answeredInRound — unused here but available for freshness checks.
          */
-        (, int256 ethUsdPrice...) = s_priceFeed.latestRoundData();
+        (, int256 ethUsdPrice,,,) = s_priceFeed.latestRoundData();
 
-        /**
+        /*
          * Build the arguments array for the Functions JavaScript.
-         * args[] is an array of string that the JS source receives
+         * args[] is an array of strings that the JS source receives
          * as the `args` parameter. We pass:
-         *      [0] marketId - so the JS knows which market it's resolving
-         *      [1] question - the full question text
-         *      [2] rubricHash - identifier for scoring critera
-         *      [3] ethUsdPrice - verified Chainlink oracle price
+         *   [0] marketId — so the JS knows which market it's resolving
+         *   [1] question — the full question text
+         *   [2] rubricHash — identifier for scoring criteria
+         *   [3] ethUsdPrice — verified Chainlink oracle price
          */
         string[] memory args = new string[](4);
         args[0] = _uint256ToString(marketId);
@@ -430,18 +430,18 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
         args[2] = m.rubricHash;
         args[3] = _int256ToString(ethUsdPrice);
 
-        /**
+        /*
          * Build and send the Chainlink Functions request.
-         * intitalizeRequestForInlineJavascript sets the source code
+         * initializeRequestForInlineJavaScript sets the source code
          * to be executed directly (not fetched from a URL).
          * The CBOR-encoded request is sent to the DON via the router.
          */
-        FunctionRequest.Request memory req;
+        FunctionsRequest.Request memory req;
         req.initializeRequestForInlineJavaScript(s_functionsSource);
         req.setArgs(args);
 
         if (s_encryptedSecretsReference.length > 0) {
-            req.addSecreteReference(s_encryptedSecretsReference);
+            req.addSecretsReference(s_encryptedSecretsReference);
         }
 
         requestId = _sendRequest(
@@ -451,54 +451,54 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
             s_donId
         );
 
-        /**
+        /*
          * Map the Chainlink request ID to our market ID.
          * When _fulfillRequest() is called later, we use this mapping
-         * to know which market to settle with the result
+         * to know which market to settle with the result.
          */
         s_requestIdToMarketId[requestId] = marketId;
         emit TrialRequested(marketId, requestId);
     }
 
-    // =============================================================================
-    // CHAINLINK FUNCTIONS - FULFILL CALLBACK
-    // =================================================================================
+    // ═══════════════════════════════════════════════════════════════
+    //  CHAINLINK FUNCTIONS — FULFILL CALLBACK
+    // ═══════════════════════════════════════════════════════════════
 
     /**
      * @dev Called by the Chainlink Functions router when DON nodes
-     *      have executed our Javascript and reached consensus.
-     * 
+     *      have executed our JavaScript and reached consensus.
+     *
      * @param requestId The ID of the original request
      * @param response The ABI-encoded trial result (if successful)
      * @param err Error bytes (if the execution failed)
-     * 
+     *
      * The response is ABI-encoded as:
      *   (uint8 action, uint8 verdict, uint256 scoreYes, uint256 scoreNo)
-     * 
-     *   action: 1 = RESOLVE, 2 = ESCALATE
+     *
+     *   action:  1 = RESOLVE, 2 = ESCALATE
      *   verdict: 1 = Yes, 2 = No (only meaningful if action = RESOLVE)
      *   scoreYes/scoreNo: Judge scores for each side (0-100)
-     * 
+     *
      * If the DON returns an error (e.g., API timeout, JS exception),
-     * We escalate the market. This is the safe default - we never
+     * we escalate the market. This is the safe default — we never
      * auto-resolve based on a failed trial.
-     * 
+     *
      * The transcript hash is computed from the response bytes.
      * The full transcript is stored off-chain (IPFS or database);
      * the hash provides an immutable on-chain verification anchor.
      */
     function _fulfillRequest(
         bytes32 requestId,
-        bytes meemory response,
+        bytes memory response,
         bytes memory err
     ) internal override {
         uint256 marketId = s_requestIdToMarketId[requestId];
         Market storage m = markets[marketId];
 
-        /**
+        /*
          * If the DON returned an error, escalate the market.
          * Common errors: API rate limits, LLM timeout, JS exceptions.
-         * Escalation is always safe - stakers can claim refunds.
+         * Escalation is always safe — stakers can claim refunds.
          */
         if (err.length > 0 || response.length == 0) {
             m.status = MarketStatus.Escalated;
@@ -507,134 +507,299 @@ contract TrialMarket is Ownable, ReentracyGuard, FunctionsClient, AutomationComp
             return;
         }
 
-        /**
+        /*
          * Decode the trial result.
          * The JavaScript source ABI-encodes these four values before
          * returning them to the DON for consensus.
          */
-        (uint8 action, uint8 verdict, uint256 scoreYes, uint256 scoreNo) = 
+        (uint8 action, uint8 verdict, uint256 scoreYes, uint256 scoreNo) =
             abi.decode(response, (uint8, uint8, uint256, uint256));
 
         bytes32 transcriptHash = keccak256(response);
 
         if (action == 1) {
-            // RESOLVE - the trial produced a clear verdict
+            // RESOLVE — the trial produced a clear verdict
             Verdict v = verdict == 1 ? Verdict.Yes : Verdict.No;
             m.status = MarketStatus.Resolved;
             m.outcome = v;
             m.transcriptHash = transcriptHash;
             emit MarketResolved(marketId, v, scoreYes, scoreNo, transcriptHash);
         } else {
-            // ESCALATE - margin too thin or hallucination detected
+            // ESCALATE — margin too thin or hallucination detected
             m.status = MarketStatus.Escalated;
             m.transcriptHash = transcriptHash;
             emit MarketEscalated(marketId, transcriptHash);
-        }   
-}
-
-// ==========================================================================================
-// CHAINLINK AUTOMATION - AUTO-TRIGGER SETTLEMENT
-// ==============================================================================================
-
-/**
- * @notice Called off-chain by Chainlink keepers to check if any
- *          market needs settlement.
- * 
- * @dev Scans market from 0 to nextMarketId looking for any that are:
- *      - Status: Open (not yet requsted for settlement)
- *      - Past deadline (block.timestamp >= deadline)
- * 
- * Gas consideration: This is view-only and runs off-chain on keeper
- * nodes, so the loop cost doesn't matter. However, we break on
- * the first match to keep performData simple. If multiple markets
- * need settlement, keepers will call again on the next check.
- * 
- * Why not batch? Simplicity. Each performUpkeep handles one market.
- * Chainlink keepers call checkUpkeep frequently enough that all
- * markets get processed within a few block of their deadline.
- */
-function checkUpkeep(bytes calldata)
-    external
-    view
-    override
-    returns (bool upkeepNeeded, bytes memory performData)
-{
-    for (uint256 i = 0; i < nextMarketId; i++) {
-        if (
-            markets[i].status == MarketStatus.Open &&
-            block.timestamp >= markets[i].deadline
-        ) {
-            upkeepNeeded = true;
-            performData = abi.encode(i);
-            break;
         }
     }
-}  
 
-/**
- * @notice Called on-chain by Chainlink keepers when checkUpKeep returns true.
- * @param performData ABI-encoded market ID to settle
- * 
- * Re-validates the condition before acting. This is required because
- * state can change between checkUpKeep (off-chain) and performUpkeep
- * (on-chain). Another transaction might have already called
- * requestSettlement() for this market.
- */
-function performUpkeep(bytes calldata performData) external override {
-    uint256 marketId = abi.decode(perfromData, (uint256));
+    // ═══════════════════════════════════════════════════════════════
+    //  CHAINLINK AUTOMATION — AUTO-TRIGGER SETTLEMENT
+    // ═══════════════════════════════════════════════════════════════
 
     /**
-     * Re-check the condition. If the market was already settled
-     * between the off-chain check and this on-chain execution,
-     * requestSettlement() will revert with "Market not open".
-     * We call it directly and let it handle validation.
+     * @notice Called off-chain by Chainlink keepers to check if any
+     *         market needs settlement.
+     *
+     * @dev Scans markets from 0 to nextMarketId looking for any that are:
+     *      - Status: Open (not yet requested for settlement)
+     *      - Past deadline (block.timestamp >= deadline)
+     *
+     * Gas consideration: This is view-only and runs off-chain on keeper
+     * nodes, so the loop cost doesn't matter. However, we break on
+     * the first match to keep performData simple. If multiple markets
+     * need settlement, keepers will call again on the next check.
+     *
+     * Why not batch? Simplicity. Each performUpkeep handles one market.
+     * Chainlink keepers call checkUpkeep frequently enough that all
+     * markets get processed within a few blocks of their deadline.
      */
-    requestSettlement(marketId)
+    function checkUpkeep(bytes calldata)
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory performData)
+    {
+        for (uint256 i = 0; i < nextMarketId; i++) {
+            if (
+                markets[i].status == MarketStatus.Open &&
+                block.timestamp >= markets[i].deadline
+            ) {
+                upkeepNeeded = true;
+                performData = abi.encode(i);
+                break;
+            }
+        }
+    }
+
+    /**
+     * @notice Called on-chain by Chainlink keepers when checkUpkeep returns true.
+     * @param performData ABI-encoded market ID to settle
+     *
+     * Re-validates the condition before acting. This is required because
+     * state can change between checkUpkeep (off-chain) and performUpkeep
+     * (on-chain). Another transaction might have already called
+     * requestSettlement() for this market.
+     */
+    function performUpkeep(bytes calldata performData) external override {
+        uint256 marketId = abi.decode(performData, (uint256));
+
+        /*
+         * Re-check the condition. If the market was already settled
+         * between the off-chain check and this on-chain execution,
+         * requestSettlement() will revert with "Market not open".
+         * We call it directly and let it handle validation.
+         */
+        requestSettlement(marketId);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  MANUAL SETTLEMENT (OWNER FALLBACK)
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * @notice Owner can manually settle a market as a fallback.
+     *
+     * Why keep this? Chainlink Functions requires a subscription funded
+     * with LINK, encrypted secrets, and a working DON. For local
+     * development (Hardhat), hackathon demos, or if the DON is down,
+     * the owner can settle directly using the engine's off-chain result.
+     *
+     * In production, ownership would transfer to a multisig or DAO,
+     * and this function would only be used as emergency override.
+     */
+    function settle(
+        uint256 marketId,
+        Verdict outcome,
+        uint256 scoreYes,
+        uint256 scoreNo,
+        bytes32 transcriptHash
+    ) external onlyOwner {
+        Market storage m = markets[marketId];
+        require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
+        require(outcome == Verdict.Yes || outcome == Verdict.No, "Invalid verdict");
+        m.status = MarketStatus.Resolved;
+        m.outcome = outcome;
+        m.transcriptHash = transcriptHash;
+        emit MarketResolved(marketId, outcome, scoreYes, scoreNo, transcriptHash);
+    }
+
+    /**
+     * @notice Owner can manually escalate a market as a fallback.
+     */
+    function escalate(
+        uint256 marketId,
+        bytes32 transcriptHash
+    ) external onlyOwner {
+        Market storage m = markets[marketId];
+        require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
+        m.status = MarketStatus.Escalated;
+        m.transcriptHash = transcriptHash;
+        emit MarketEscalated(marketId, transcriptHash);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  PAYOUTS
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * @notice Winners claim proportional payouts from resolved markets.
+     *
+     * Payout formula: (userStake / winnerPool) * totalPool
+     *
+     * Example with YES pool = 3 ETH, NO pool = 1 ETH, verdict = YES:
+     *   Alice staked 1 ETH YES → payout = (1/3) * 4 = 1.33 ETH
+     *   Carol staked 2 ETH YES → payout = (2/3) * 4 = 2.67 ETH
+     *   Bob (NO) gets nothing — his 1 ETH was distributed to winners
+     *
+     * The position is zeroed BEFORE the transfer (checks-effects-interactions
+     * pattern) to prevent re-entrancy. ReentrancyGuard provides additional
+     * safety, but CEI is the primary defense.
+     */
+    function claimWinnings(uint256 marketId) external nonReentrant {
+        Market storage m = markets[marketId];
+        require(m.status == MarketStatus.Resolved, "Market not resolved");
+
+        uint256 userPosition;
+        uint256 totalWinnerPool;
+        uint256 totalPool = m.yesPool + m.noPool;
+
+        if (m.outcome == Verdict.Yes) {
+            userPosition = yesPositions[marketId][msg.sender];
+            totalWinnerPool = m.yesPool;
+            yesPositions[marketId][msg.sender] = 0;
+        } else {
+            userPosition = noPositions[marketId][msg.sender];
+            totalWinnerPool = m.noPool;
+            noPositions[marketId][msg.sender] = 0;
+        }
+
+        require(userPosition > 0, "No winning position");
+        require(totalWinnerPool > 0, "No winner pool");
+
+        uint256 payout = (userPosition * totalPool) / totalWinnerPool;
+        (bool sent, ) = payable(msg.sender).call{value: payout}("");
+        require(sent, "Transfer failed");
+    }
+
+    /**
+     * @notice Claim a full refund from an escalated market.
+     *
+     * When the AI trial can't determine a clear winner (margin too
+     * thin or hallucination detected), the market is escalated and
+     * ALL stakers get their money back. No one loses.
+     *
+     * This is the safe default — better to refund everyone than to
+     * guess wrong on a close call. It incentivizes well-structured
+     * questions that produce clear outcomes.
+     *
+     * Both YES and NO positions are refunded in a single call.
+     * If a user staked on both sides (rare), they get both back.
+     */
+    function claimRefund(uint256 marketId) external nonReentrant {
+        Market storage m = markets[marketId];
+        require(m.status == MarketStatus.Escalated, "Market not escalated");
+
+        uint256 yesAmount = yesPositions[marketId][msg.sender];
+        uint256 noAmount = noPositions[marketId][msg.sender];
+        uint256 totalRefund = yesAmount + noAmount;
+
+        require(totalRefund > 0, "No position to refund");
+
+        // Zero positions before transfer (CEI pattern)
+        yesPositions[marketId][msg.sender] = 0;
+        noPositions[marketId][msg.sender] = 0;
+
+        (bool sent, ) = payable(msg.sender).call{value: totalRefund}("");
+        require(sent, "Transfer failed");
+
+        emit RefundClaimed(marketId, msg.sender, totalRefund);
+    }
+
+    /**
+     * @notice Creator reclaims their 0.01 ETH deposit after settlement.
+     *
+     * The deposit is refundable regardless of outcome (resolved or
+     * escalated). The deposit's purpose is spam prevention, not
+     * punishment. As long as the market reaches conclusion, the
+     * creator gets their deposit back.
+     */
+    function claimCreationDeposit(uint256 marketId) external nonReentrant {
+        Market storage m = markets[marketId];
+        require(
+            m.status == MarketStatus.Resolved || m.status == MarketStatus.Escalated,
+            "Market not settled"
+        );
+        require(msg.sender == m.creator, "Not market creator");
+        require(m.creationDeposit > 0, "Deposit already claimed");
+
+        uint256 deposit = m.creationDeposit;
+        m.creationDeposit = 0;
+
+        (bool sent, ) = payable(msg.sender).call{value: deposit}("");
+        require(sent, "Transfer failed");
+
+        emit DepositRefunded(marketId, msg.sender, deposit);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  VIEW FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * @notice Returns the full market struct for a given ID.
+     * Used by the frontend to display market state.
+     */
+    function getMarket(uint256 marketId) external view returns (Market memory) {
+        return markets[marketId];
+    }
+
+    /**
+     * @notice Returns the latest ETH/USD price from Chainlink Data Feeds.
+     * @return price The ETH price in USD with 8 decimals
+     * @return updatedAt Timestamp of the last price update
+     *
+     * Exposed as a view so the frontend can display the current
+     * Chainlink oracle price alongside market data.
+     */
+    function getLatestEthUsdPrice() external view returns (int256 price, uint256 updatedAt) {
+        (, price,, updatedAt,) = s_priceFeed.latestRoundData();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  INTERNAL HELPERS
+    // ═══════════════════════════════════════════════════════════════
+
+    /*
+     * String conversion utilities for building Functions arguments.
+     * Chainlink Functions args[] is string[], so we need to convert
+     * numeric values to strings before passing them.
+     *
+     * Why not use OpenZeppelin Strings? We could, but these are
+     * minimal implementations that avoid an extra import. The
+     * contract already has enough imports.
+     */
+
+    function _uint256ToString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) return "0";
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
+    }
+
+    function _int256ToString(int256 value) internal pure returns (string memory) {
+        if (value >= 0) {
+            return _uint256ToString(uint256(value));
+        }
+        return string(abi.encodePacked("-", _uint256ToString(uint256(-value))));
+    }
 }
-
-// ==============================================================================
-// MANUAL SETTLEMENT (OWNER FALLBACK)
-// ======================================================================================
-
-/**
- * @notice Owner can maually settle a market as a fallback
- * 
- * Why keep this? Chainlink Functions requires a subscription funded
- * with LINK, encypted secrets, and a working DON. For local
- * development (HArdhat), hackathon demos, or if the the DON is down,
- * the owner can settle directly using the engine's off-chain result.
- * 
- * In production, ownership would transfer to a multisig or DAO,
- * and this function would be used as emergency override.
- */
-function settle(
-    uint256 marketId,
-    Verdict outcome,
-    uint256 scoreYes,
-    uint256 scoreNo,
-    bytes32 transcriptHash
-) external onlyOwner {
-    Market storage m = markets[marketId];
-    require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
-    require(outcome == Verdict.Yes || outcome == Verdict.No, "Invalid verdict");
-    m.status = MarketStatus.Resolved;
-    m.outcome = outcome;
-    m.transcriptHash = transcriptHash;
-    emit MarketResolved(marketId, outcome, scoreYes, scoreNo, transcriptHash);
-}
-
-/**
- * @notice Owner can manually escalate a market as a fallback.
- */
-function escalate(
-    uint256 marketId,
-    bytes32 transcriptHash
-) eternal onlyOwner {
-    Market storage m = markets[marketId];
-    require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
-    m.status = MarketStatus.Escalated;
-    m.transcriptHash = transacriptHash;
-    emit MarketEscalated(marketId, transcriptHash);
-}
-
-// 
