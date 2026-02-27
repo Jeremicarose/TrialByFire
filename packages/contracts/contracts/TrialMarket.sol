@@ -631,5 +631,7 @@ function escalate(
     bytes32 transcriptHash
 ) eternal onlyOwner {
     Market storage m = markets[marketId];
-    require
+    require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
+    m.status = MarketStatus.Escalated;
+    
 }
