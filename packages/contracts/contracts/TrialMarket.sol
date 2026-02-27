@@ -626,4 +626,10 @@ function settle(
 /**
  * @notice Owner can manually escalate a market as a fallback.
  */
-function escalate
+function escalate(
+    uint256 marketId,
+    bytes32 transcriptHash
+) eternal onlyOwner {
+    Market storage m = markets[marketId];
+    require
+}
