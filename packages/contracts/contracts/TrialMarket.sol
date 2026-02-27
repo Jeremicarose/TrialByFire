@@ -597,5 +597,7 @@ function performUpkeep(bytes calldata performData) external override {
 // ======================================================================================
 
 /**
- * @notice Owner can maually settle
+ * @notice Owner can maually settle a market as a fallback
+ * 
+ * Why keep this? Chainlink Funstions require
  */
