@@ -633,5 +633,8 @@ function escalate(
     Market storage m = markets[marketId];
     require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
     m.status = MarketStatus.Escalated;
-    m.transa
+    m.transcriptHash = transacriptHash;
+    emit MarketEscalated(marketId, transcriptHash);
 }
+
+// 
