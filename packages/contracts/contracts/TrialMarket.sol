@@ -602,5 +602,5 @@ function performUpkeep(bytes calldata performData) external override {
  * Why keep this? Chainlink Functions requires a subscription funded
  * with LINK, encypted secrets, and a working DON. For local
  * development (HArdhat), hackathon demos, or if the the DON is down,
- * the own
+ * the owner can settle directly using the e
  */
