@@ -619,5 +619,5 @@ function settle(
     require(outcome == Verdict.Yes || outcome == Verdict.No, "Invalid verdict");
     m.status = MarketStatus.Resolved;
     m.outcome = outcome;
-    m.tr
+    m.trans
 }
