@@ -34,7 +34,23 @@ export function CreateMarket({ onSubmit, isLoading }: CreateMarketProps) {
     if (!question.trim() || !deadlineStr) return;
 
     const deadlineUnix = Math.floor(new Date(deadlineStr).getTime() / 1000);
-    const rubricHash = `QmRubric_${Date.now()}`;
+
+    /*
+     * Build a deterministic rubric JSON and hash it with keccak256.
+     * This produces a content-addressed hash — the same rubric
+     * always produces the same hash, so anyone can verify the rubric
+     * that was used by re-hashing the original data.
+     *
+     * The rubric object includes criteria (name + weight) and the
+     * confidence threshold. Description is excluded from the hash
+     * because it's human-facing text, not scoring logic.
+     */
+    const rubricData = {
+      criteria: criteria.map((c) => ({ name: c.name, weight: c.weight })),
+      confidenceThreshold: threshold,
+    };
+    const rubricJson = JSON.stringify(rubricData);
+    const rubricHash = ethers.keccak256(ethers.toUtf8Bytes(rubricJson));
 
     await onSubmit(question, rubricHash, deadlineUnix);
     setQuestion("");
