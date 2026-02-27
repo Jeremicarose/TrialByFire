@@ -619,5 +619,6 @@ function settle(
     require(outcome == Verdict.Yes || outcome == Verdict.No, "Invalid verdict");
     m.status = MarketStatus.Resolved;
     m.outcome = outcome;
-    m.trans
+    m.transcriptHash = transcriptHash;
+    emit MarketResolved(marketId, outcome, scoreYes, scoreNo, trans)
 }
