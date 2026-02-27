@@ -591,3 +591,7 @@ function performUpkeep(bytes calldata performData) external override {
      */
     requestSettlement(marketId)
 }
+
+// ==============================================================================
+// MANUAL SETTLEMENT (OWNER FALLBACK)
+// ======================================================================================
