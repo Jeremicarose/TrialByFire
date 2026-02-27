@@ -620,5 +620,5 @@ function settle(
     m.status = MarketStatus.Resolved;
     m.outcome = outcome;
     m.transcriptHash = transcriptHash;
-    emit MarketResolved(marketId, outcome, scoreYes, scoreNo, trans)
+    emit MarketResolved(marketId, outcome, scoreYes, scoreNo, transcriptHash)
 }
