@@ -133,6 +133,15 @@ function parseMarket(id: number, raw: ethers.Result): MarketData {
   };
 }
 
+/**
+ * Trial result from the local API server.
+ * This is a simplified shape — the full TrialTranscript type
+ * lives in the engine package. We accept `any` from the API
+ * and the components type-check their own props.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type TrialResult = Record<string, any>;
+
 export function useContract(
   provider: ethers.BrowserProvider | null,
   signer: ethers.JsonRpcSigner | null
@@ -140,6 +149,8 @@ export function useContract(
   const [markets, setMarkets] = useState<MarketData[]>([]);
   const [loading, setLoading] = useState(false);
   const [ethUsdPrice, setEthUsdPrice] = useState<string | null>(null);
+  const [trialResult, setTrialResult] = useState<TrialResult | null>(null);
+  const [trialLoading, setTrialLoading] = useState(false);
 
   /**
    * Fetch all markets from the contract.
