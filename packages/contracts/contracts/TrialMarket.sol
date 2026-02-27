@@ -616,5 +616,8 @@ function settle(
 ) external onlyOwner {
     Market storage m = markets[marketId];
     require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
-    require(outcome == Verdict.Yes )
+    require(outcome == Verdict.Yes || outcome == Verdict.No, "Invalid verdict");
+    m.status = MarketStatus.Resolved;
+    m.outcome = outcome;
+    m.tr
 }
