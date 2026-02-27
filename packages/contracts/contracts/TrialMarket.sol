@@ -605,5 +605,10 @@ function performUpkeep(bytes calldata performData) external override {
  * the owner can settle directly using the engine's off-chain result.
  * 
  * In production, ownership would transfer to a multisig or DAO,
- * 
+ * and this function would be used as emergency override.
  */
+function settle(
+    uint256 marketId,
+    Verdict outcome,
+    uint
+)
