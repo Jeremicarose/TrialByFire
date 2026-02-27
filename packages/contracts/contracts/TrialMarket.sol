@@ -595,3 +595,7 @@ function performUpkeep(bytes calldata performData) external override {
 // ==============================================================================
 // MANUAL SETTLEMENT (OWNER FALLBACK)
 // ======================================================================================
+
+/**
+ * @notice Owner can maually settle
+ */
