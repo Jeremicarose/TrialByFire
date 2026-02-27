@@ -324,6 +324,68 @@ export function useContract(
   );
 
   /**
+   * Run the adversarial trial via the local API server.
+   *
+   * This is the LOCAL DEVELOPMENT path. It calls POST /api/trial
+   * on the engine API server (proxied via Vite on :3001), which runs
+   * the full pipeline (evidence → advocates → judge → confidence check).
+   *
+   * Then it calls POST /api/settle to write the result onchain
+   * (the engine server uses the deployer's private key to call
+   * settle() or escalate() on the contract).
+   *
+   * On Sepolia with Chainlink Functions, this isn't needed — the DON
+   * runs the trial and calls fulfillRequest() directly. But locally,
+   * there's no DON, so this server-side path is the fallback.
+   */
+  const runLocalTrial = useCallback(
+    async (marketId: number, question: string) => {
+      setTrialLoading(true);
+      setTrialResult(null);
+      try {
+        /* Step 1: Run the adversarial trial */
+        const trialRes = await fetch("/api/trial", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ marketId, question }),
+        });
+        if (!trialRes.ok) {
+          const err = await trialRes.json();
+          throw new Error(err.error || "Trial failed");
+        }
+        const { transcript } = await trialRes.json();
+        setTrialResult(transcript);
+
+        /* Step 2: Settle onchain via the API server */
+        const settleRes = await fetch("/api/settle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ marketId }),
+        });
+        if (!settleRes.ok) {
+          const err = await settleRes.json();
+          throw new Error(err.error || "Settlement failed");
+        }
+        const settlement = await settleRes.json();
+
+        /* Merge the txHash into the result so the UI can link to it */
+        setTrialResult((prev) => prev ? { ...prev, txHash: settlement.txHash } : prev);
+
+        /* Refresh markets to reflect the new onchain state */
+        await loadMarkets();
+
+        return transcript;
+      } catch (err) {
+        console.error("Local trial failed:", err);
+        throw err;
+      } finally {
+        setTrialLoading(false);
+      }
+    },
+    [loadMarkets]
+  );
+
+  /**
    * Get the user's position in a market.
    * Returns { yes: "0.5", no: "0.0" } in ETH.
    */
@@ -379,11 +441,14 @@ export function useContract(
     markets,
     loading,
     ethUsdPrice,
+    trialResult,
+    trialLoading,
     loadMarkets,
     createMarket,
     takePosition,
     requestSettlement,
     sendTrialRequest,
+    runLocalTrial,
     settle,
     escalate,
     claimWinnings,
