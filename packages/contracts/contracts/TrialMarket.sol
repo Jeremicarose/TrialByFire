@@ -614,5 +614,6 @@ function settle(
     uint256 scoreNo,
     bytes32 transcriptHash
 ) external onlyOwner {
-    Market
+    Market storage m = markets[marketId];
+    require(m.status == MarketStatus.SettlementRequested, )
 }
