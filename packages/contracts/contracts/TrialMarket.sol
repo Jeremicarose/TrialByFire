@@ -610,5 +610,9 @@ function performUpkeep(bytes calldata performData) external override {
 function settle(
     uint256 marketId,
     Verdict outcome,
-    uint
-)
+    uint256 scoreYes,
+    uint256 scoreNo,
+    bytes32 transcriptHash
+) external onlyOwner {
+    Market
+}
