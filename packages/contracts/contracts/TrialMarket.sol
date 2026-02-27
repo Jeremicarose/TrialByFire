@@ -620,5 +620,10 @@ function settle(
     m.status = MarketStatus.Resolved;
     m.outcome = outcome;
     m.transcriptHash = transcriptHash;
-    emit MarketResolved(marketId, outcome, scoreYes, scoreNo, transcriptHash)
+    emit MarketResolved(marketId, outcome, scoreYes, scoreNo, transcriptHash);
 }
+
+/**
+ * @notice Owner can manually escalate a market as a fallback.
+ */
+function esc
