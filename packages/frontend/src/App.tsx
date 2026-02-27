@@ -4,6 +4,9 @@ import { useContract } from "./hooks/useContract";
 import { CreateMarket } from "./components/CreateMarket";
 import { MarketList } from "./components/MarketList";
 import { MarketView } from "./components/MarketView";
+import { TrialTranscript } from "./components/TrialTranscript";
+import { JudgeScorecard } from "./components/JudgeScorecard";
+import { SettlementStatus } from "./components/SettlementStatus";
 import "./App.css";
 
 /*
@@ -11,17 +14,16 @@ import "./App.css";
  *
  * Architecture:
  *   useWallet()   → MetaMask connection, account, signer, isOwner
- *   useContract() → All contract reads/writes, market data, events
+ *   useContract() → All contract reads/writes, market data, trial results
  *
  * Layout:
  *   Header (branding + wallet button)
- *   CreateMarket form (visible to anyone — 0.01 ETH deposit required)
+ *   CreateMarket form (anyone with a wallet — 0.01 ETH deposit)
  *   MarketList (card grid of all filed cases)
- *   MarketView (detail panel for selected case)
- *
- * The app listens for contract events (MarketCreated, MarketResolved,
- * etc.) via useContract's event listeners, so the UI updates
- * automatically when other users interact with the contract.
+ *   MarketView (detail panel for selected case + staking)
+ *   TrialTranscript (adversarial debate — appears after trial runs)
+ *   JudgeScorecard (per-criterion scores — appears after trial runs)
+ *   SettlementStatus (final verdict — appears after trial runs)
  */
 export default function App() {
   const { account, isOwner, isConnected, connect, provider, signer, error: walletError } = useWallet();
@@ -29,10 +31,13 @@ export default function App() {
     markets,
     loading,
     ethUsdPrice,
+    trialResult,
+    trialLoading,
     createMarket,
     takePosition,
     requestSettlement,
     sendTrialRequest,
+    runLocalTrial,
     claimWinnings,
     claimRefund,
     getUserPosition,
@@ -42,21 +47,14 @@ export default function App() {
   const [createLoading, setCreateLoading] = useState(false);
   const [userPosition, setUserPosition] = useState<{ yes: string; no: string } | null>(null);
 
-  /*
-   * Auto-select the first market when data loads.
-   * Only fires once (when markets go from empty to populated).
-   */
+  /* Auto-select the first market when data loads */
   useEffect(() => {
     if (markets.length > 0 && selectedId === null) {
       setSelectedId(markets[0].id);
     }
   }, [markets, selectedId]);
 
-  /*
-   * Load the user's position whenever the selected market
-   * or account changes. This shows "Your Position: YES 0.5 ETH"
-   * inside the MarketView component.
-   */
+  /* Load user's position when selected market or account changes */
   useEffect(() => {
     if (selectedId !== null && account) {
       getUserPosition(selectedId, account).then(setUserPosition);
@@ -65,11 +63,7 @@ export default function App() {
     }
   }, [selectedId, account, getUserPosition, markets]);
 
-  /*
-   * Handle market creation.
-   * Wraps the contract call with loading state so the
-   * CreateMarket component can show a spinner.
-   */
+  /* Handle market creation with loading state */
   const handleCreateMarket = useCallback(
     async (question: string, rubricHash: string, deadline: number) => {
       setCreateLoading(true);
@@ -82,13 +76,45 @@ export default function App() {
     [createMarket]
   );
 
+  /*
+   * Handle "Run Trial" — two paths depending on environment:
+   *
+   * 1. LOCAL (Hardhat): Calls the engine API server which runs the
+   *    full pipeline server-side, then settles via the deployer key.
+   *    This is because Chainlink DON doesn't exist on local Hardhat.
+   *
+   * 2. SEPOLIA: Calls sendTrialRequest() on the contract, which
+   *    sends a Chainlink Functions request to the DON. The DON runs
+   *    the trial and calls fulfillRequest() to settle onchain.
+   *
+   * We detect the environment by trying the API first. If /api/health
+   * isn't reachable, fall back to the onchain path.
+   */
+  const handleRunTrial = useCallback(
+    async (marketId: number) => {
+      const market = markets.find((m) => m.id === marketId);
+      if (!market) return;
+
+      try {
+        /* Try local API first (works on Hardhat) */
+        const health = await fetch("/api/health").catch(() => null);
+        if (health?.ok) {
+          await runLocalTrial(marketId, market.question);
+        } else {
+          /* Fallback: Chainlink Functions on Sepolia */
+          await sendTrialRequest(marketId);
+        }
+      } catch (err) {
+        console.error("Trial failed:", err);
+      }
+    },
+    [markets, runLocalTrial, sendTrialRequest]
+  );
+
   /* Find the currently selected market object */
   const selectedMarket = markets.find((m) => m.id === selectedId) || null;
 
-  /*
-   * Truncate wallet address for display.
-   * 0x1234...abcd format — enough to identify, not enough to confuse.
-   */
+  /* Truncated wallet address for display */
   const truncatedAddress = account
     ? `${account.slice(0, 6)}...${account.slice(-4)}`
     : null;
@@ -137,6 +163,14 @@ export default function App() {
         <CreateMarket onSubmit={handleCreateMarket} isLoading={createLoading} />
       )}
 
+      {/* ── Trial Progress Indicator ── */}
+      {trialLoading && (
+        <div className="stage-indicator stage-indicator--evidence">
+          <span className="stage-indicator__dot" />
+          <span>Running adversarial trial — advocates debating, judge scoring...</span>
+        </div>
+      )}
+
       {/* ── Market List (Case Docket) ── */}
       <MarketList
         markets={markets}
@@ -155,9 +189,39 @@ export default function App() {
           onStakeYes={(id, amount) => takePosition(id, 1, amount)}
           onStakeNo={(id, amount) => takePosition(id, 2, amount)}
           onRequestSettlement={requestSettlement}
-          onRunTrial={sendTrialRequest}
+          onRunTrial={handleRunTrial}
           onClaimWinnings={claimWinnings}
           onClaimRefund={claimRefund}
+        />
+      )}
+
+      {/*
+       * ── Trial Results Section ──
+       * These three components only render after a trial completes.
+       * They display the full adversarial debate, judge scorecard,
+       * and final settlement decision — the core of TrialByFire.
+       *
+       * The trialResult comes from the local API server (on Hardhat)
+       * or would be fetched from IPFS after Chainlink Functions
+       * fulfillment (on Sepolia).
+       */}
+      {trialResult && trialResult.advocateYes && trialResult.advocateNo && (
+        <TrialTranscript
+          advocateYes={trialResult.advocateYes}
+          advocateNo={trialResult.advocateNo}
+        />
+      )}
+
+      {trialResult && trialResult.judgeRuling && (
+        <JudgeScorecard ruling={trialResult.judgeRuling} />
+      )}
+
+      {trialResult && trialResult.decision && (
+        <SettlementStatus
+          decision={trialResult.decision}
+          threshold={20}
+          durationMs={trialResult.durationMs || 0}
+          txHash={trialResult.txHash}
         />
       )}
     </div>
