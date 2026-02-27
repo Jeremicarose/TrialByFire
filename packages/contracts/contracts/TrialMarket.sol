@@ -626,4 +626,4 @@ function settle(
 /**
  * @notice Owner can manually escalate a market as a fallback.
  */
-function esc
+function escalate
