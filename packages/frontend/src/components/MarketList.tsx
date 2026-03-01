@@ -114,10 +114,10 @@ export function MarketList({ markets, selectedId, onSelect, loading }: MarketLis
                 <div className="market-card__pools">
                   <div className="market-card__pool-labels">
                     <span className="market-card__pool-label market-card__pool-label--yes">
-                      YES {m.yesPool} ETH
+                      YES {m.yesPool} ETH {total > 0 && `(${yesPct.toFixed(0)}%)`}
                     </span>
                     <span className="market-card__pool-label market-card__pool-label--no">
-                      NO {m.noPool} ETH
+                      NO {m.noPool} ETH {total > 0 && `(${(100 - yesPct).toFixed(0)}%)`}
                     </span>
                   </div>
                   <div className="market-card__pool-bar">
