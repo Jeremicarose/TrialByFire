@@ -104,8 +104,12 @@ export function MarketView({
       {/* Pool split bar — visual YES vs NO representation */}
       <div className="market-view__pools">
         <div className="pool-labels">
-          <span className="pool-label pool-label--yes mono">YES {market.yesPool} ETH</span>
-          <span className="pool-label pool-label--no mono">NO {market.noPool} ETH</span>
+          <span className="pool-label pool-label--yes mono">
+            YES {market.yesPool} ETH {total > 0 && `(${yesPct.toFixed(0)}%)`}
+          </span>
+          <span className="pool-label pool-label--no mono">
+            NO {market.noPool} ETH {total > 0 && `(${(100 - yesPct).toFixed(0)}%)`}
+          </span>
         </div>
         <div className="pool-bar">
           <div className="pool-bar__yes" style={{ width: `${yesPct}%` }} />
