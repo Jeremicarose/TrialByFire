@@ -22,7 +22,8 @@
  * We include CORS headers anyway for flexibility.
  */
 
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: "../../.env" });
 import http from "node:http";
 import { runTrial } from "./pipeline/index.js";
 import type { PipelineConfig } from "./pipeline/index.js";
