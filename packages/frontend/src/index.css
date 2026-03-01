@@ -122,51 +122,7 @@ body::before {
   padding: var(--space-xl) var(--space-lg);
 }
 
-/* ── Header — centered with a copper accent line below ── */
-.app-header {
-  text-align: center;
-  padding: var(--space-3xl) 0 var(--space-2xl);
-  border-bottom: 1px solid var(--border-subtle);
-  margin-bottom: var(--space-2xl);
-  position: relative;
-}
-
-/* The glowing copper line under the header */
-.app-header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 1px;
-  background: var(--accent);
-  box-shadow: 0 0 12px var(--accent-glow);
-}
-
-.app-header__eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: var(--space-md);
-}
-
-.app-header__title {
-  font-family: var(--font-serif);
-  font-size: 2.4rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.app-header__subtitle {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  max-width: 600px;
-  margin: var(--space-sm) auto 0;
-}
+/* Header styles moved to App.css to support wallet connection layout */
 
 /* ── Section Labels — monospace uppercase with a short accent line ── */
 .section-label {
