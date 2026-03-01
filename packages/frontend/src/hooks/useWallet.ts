@@ -116,6 +116,33 @@ export function useWallet() {
   }, [checkOwnership]);
 
   /*
+   * Auto-connect on page load.
+   * If the user previously connected, MetaMask remembers the approval.
+   * eth_accounts (not eth_requestAccounts) checks silently — no popup.
+   * This prevents the user from having to click "Connect" every refresh.
+   */
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.ethereum) return;
+
+    const autoConnect = async () => {
+      try {
+        const browserProvider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await browserProvider.send("eth_accounts", []);
+        if (accounts.length > 0) {
+          const walletSigner = await browserProvider.getSigner();
+          setAccount(accounts[0]);
+          setProvider(browserProvider);
+          setSigner(walletSigner);
+          await checkOwnership(accounts[0], browserProvider);
+        }
+      } catch {
+        /* Silently fail — user can click Connect manually */
+      }
+    };
+    autoConnect();
+  }, [checkOwnership]);
+
+  /*
    * Listen for MetaMask events.
    *
    * accountsChanged: Fires when the user switches accounts in MetaMask.
