@@ -405,36 +405,29 @@ export function useContract(
     [provider]
   );
 
-  // ── Event Listeners ───────────────────────────────────────────
+  // ── Polling ─────────────────────────────────────────────────────
 
   /*
-   * Listen for contract events to auto-refresh the market list.
-   * When a new market is created, a position is taken, or a market
-   * is resolved/escalated, we reload all markets.
+   * Poll the contract for updates every 10 seconds.
    *
-   * This gives the UI a "live" feel without polling.
+   * We originally used contract.on() event listeners, but many
+   * RPC providers (including Alchemy free tier) don't support
+   * eth_newFilter / eth_subscribe. Polling is universally compatible
+   * and 10s is fast enough for a prediction market UI.
    */
   useEffect(() => {
     if (!provider || !CONTRACT_ADDRESS) return;
-
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
     const refresh = () => {
       loadMarkets();
       loadEthPrice();
     };
 
-    contract.on("MarketCreated", refresh);
-    contract.on("MarketResolved", refresh);
-    contract.on("MarketEscalated", refresh);
-    contract.on("PositionTaken", refresh);
-
     // Initial load
     refresh();
 
-    return () => {
-      contract.removeAllListeners();
-    };
+    const interval = setInterval(refresh, 10_000);
+    return () => clearInterval(interval);
   }, [provider, loadMarkets, loadEthPrice]);
 
   return {
