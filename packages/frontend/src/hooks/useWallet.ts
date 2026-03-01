@@ -126,7 +126,7 @@ export function useWallet() {
 
     const autoConnect = async () => {
       try {
-        const browserProvider = new ethers.BrowserProvider(window.ethereum);
+        const browserProvider = new ethers.BrowserProvider(window.ethereum!);
         const accounts = await browserProvider.send("eth_accounts", []);
         if (accounts.length > 0) {
           const walletSigner = await browserProvider.getSigner();
