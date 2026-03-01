@@ -197,8 +197,8 @@ export function useContract(
       const [price] = await contract.getLatestEthUsdPrice();
       const formatted = (Number(price) / 1e8).toFixed(2);
       setEthUsdPrice(formatted);
-    } catch {
-      // Price feed not available (e.g., local Hardhat without mock)
+    } catch (err) {
+      console.warn("Failed to load ETH price:", err);
     }
   }, [provider]);
 
