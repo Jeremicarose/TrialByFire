@@ -7,6 +7,7 @@ interface MarketViewProps {
   account: string | null;
   userPosition: { yes: string; no: string } | null;
   isOwner: boolean;
+  ethUsdPrice: string | null;
   onStakeYes: (marketId: number, amount: string) => Promise<unknown>;
   onStakeNo: (marketId: number, amount: string) => Promise<unknown>;
   onRequestSettlement: (marketId: number) => Promise<unknown>;
