@@ -141,12 +141,12 @@ export function MarketView({
           <div className="market-view__position-row">
             {hasYesPosition && (
               <span className="market-view__position-badge market-view__position-badge--yes mono">
-                YES: {userPosition.yes} ETH
+                YES: {userPosition.yes} ETH{toUsd(userPosition.yes)}
               </span>
             )}
             {hasNoPosition && (
               <span className="market-view__position-badge market-view__position-badge--no mono">
-                NO: {userPosition.no} ETH
+                NO: {userPosition.no} ETH{toUsd(userPosition.no)}
               </span>
             )}
           </div>

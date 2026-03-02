@@ -7,6 +7,7 @@ interface MarketListProps {
   selectedId: number | null;
   onSelect: (id: number) => void;
   loading: boolean;
+  ethUsdPrice: string | null;
 }
 
 /*
@@ -48,7 +49,8 @@ function formatCountdown(deadline: Date): { text: string; expired: boolean } {
   return { text: `${minutes}m`, expired: false };
 }
 
-export function MarketList({ markets, selectedId, onSelect, loading }: MarketListProps) {
+export function MarketList({ markets, selectedId, onSelect, loading, ethUsdPrice }: MarketListProps) {
+  const priceNum = ethUsdPrice ? parseFloat(ethUsdPrice) : 0;
   /*
    * Force re-render every 60 seconds to update countdown timers.
    * Without this, "2h 15m" would stay frozen until the component
