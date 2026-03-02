@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useWallet } from "./hooks/useWallet";
 import { useContract } from "./hooks/useContract";
+import { HowItWorks } from "./components/HowItWorks";
 import { CreateMarket } from "./components/CreateMarket";
 import { MarketList } from "./components/MarketList";
 import { MarketView } from "./components/MarketView";
@@ -157,6 +158,9 @@ export default function App() {
           <div className="app-header__error mono">{walletError}</div>
         )}
       </header>
+
+      {/* ── How It Works (hero explainer for new visitors) ── */}
+      <HowItWorks />
 
       {/* ── Create Market Form ── */}
       {isConnected && (
