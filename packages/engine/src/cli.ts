@@ -77,10 +77,10 @@ const evidenceSources: EvidenceSource[] = useMocks
 
 const config: PipelineConfig = {
   evidenceSources,
-  // All roles use OpenAI (GPT-4o) for now
-  advocateYesClient: createLLMClient(useMocks ? "mock" : "openai"),
-  advocateNoClient: createLLMClient(useMocks ? "mock" : "openai"),
-  judgeClient: createLLMClient(useMocks ? "mock" : "openai"),
+  // All roles use Anthropic (Claude) for now
+  advocateYesClient: createLLMClient(useMocks ? "mock" : "anthropic"),
+  advocateNoClient: createLLMClient(useMocks ? "mock" : "anthropic"),
+  judgeClient: createLLMClient(useMocks ? "mock" : "anthropic"),
 
   // Progress callback — prints stage updates to terminal
   onProgress: (stage, detail) => {
