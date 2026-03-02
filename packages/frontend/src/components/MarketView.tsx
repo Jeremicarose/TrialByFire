@@ -50,7 +50,20 @@ export function MarketView({
   const yesNum = parseFloat(market.yesPool);
   const noNum = parseFloat(market.noPool);
   const total = yesNum + noNum;
-  const yesPct = total > 0 ? (yesNum / total) * 100 : 50;
+  /*
+   * When total is 0, show empty bar (0/0). When only one side has
+   * stakes, that side gets 100%. This prevents the misleading 50/50
+   * display when nobody has staked or only one side has.
+   */
+  const yesPct = total > 0 ? (yesNum / total) * 100 : 0;
+
+  /* Convert ETH to USD for display */
+  const priceNum = ethUsdPrice ? parseFloat(ethUsdPrice) : 0;
+  const toUsd = (eth: string) => {
+    if (!priceNum) return "";
+    const val = parseFloat(eth) * priceNum;
+    return val > 0 ? ` (~$${val.toFixed(2)})` : "";
+  };
 
   /* Deadline check — determines which action buttons appear */
   const isPastDeadline = market.deadline.getTime() < Date.now();
