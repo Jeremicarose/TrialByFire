@@ -19,16 +19,12 @@ interface MarketViewProps {
 /*
  * MarketView — Full detail view for a selected market.
  *
- * This is the "case file" that opens when you click a card
- * in the docket. Shows everything: question, pools, staking
- * form, and context-sensitive action buttons that change
- * based on market status and deadline.
- *
  * Status → Available Actions:
  *   Open (before deadline)  → Stake YES / Stake NO
  *   Open (past deadline)    → Request Settlement
  *   SettlementRequested     → Run Trial (owner/admin)
- *   Resolved                → Claim Winnings
+ *   Resolved (winner)       → Claim Winnings
+ *   Resolved (loser)        → "Market resolved against your position"
  *   Escalated               → Claim Refund
  */
 export function MarketView({
@@ -46,16 +42,13 @@ export function MarketView({
 }: MarketViewProps) {
   const [stakeAmount, setStakeAmount] = useState("0.01");
   const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
 
   /* Pool percentage calculation for the split bar */
   const yesNum = parseFloat(market.yesPool);
   const noNum = parseFloat(market.noPool);
   const total = yesNum + noNum;
-  /*
-   * When total is 0, show empty bar (0/0). When only one side has
-   * stakes, that side gets 100%. This prevents the misleading 50/50
-   * display when nobody has staked or only one side has.
-   */
   const yesPct = total > 0 ? (yesNum / total) * 100 : 0;
 
   /* Convert ETH to USD for display */
@@ -66,10 +59,9 @@ export function MarketView({
     return val > 0 ? ` (~$${val.toFixed(2)})` : "";
   };
 
-  /* Deadline check — determines which action buttons appear */
+  /* Deadline check */
   const isPastDeadline = market.deadline.getTime() < Date.now();
 
-  /* Format the deadline into a readable string */
   const deadlineStr = market.deadline.toLocaleString(undefined, {
     month: "short",
     day: "numeric",
@@ -88,23 +80,70 @@ export function MarketView({
   const { label: statusLabel, className: statusClass } = statusConfig[market.status];
 
   /*
-   * Wrap async action calls with loading state.
-   * Prevents double-clicks and gives visual feedback.
+   * Wrap async action calls with loading state + error display.
+   * Extracts revert reasons from contract errors and shows them to users.
    */
   const handleAction = async (action: () => Promise<unknown>) => {
     setActionLoading(true);
+    setActionError(null);
+    setTxHash(null);
     try {
-      await action();
-    } catch (err) {
+      const result = await action();
+      /* Extract tx hash if the result is a transaction */
+      if (result && typeof result === "object" && "hash" in result) {
+        setTxHash((result as { hash: string }).hash);
+      }
+    } catch (err: unknown) {
+      let message = "Transaction failed";
+      if (err instanceof Error) {
+        /* Extract revert reason from contract errors */
+        const revertMatch = err.message.match(/reason="([^"]+)"/);
+        if (revertMatch) {
+          message = revertMatch[1];
+        } else if (err.message.includes("user rejected")) {
+          message = "Transaction rejected by wallet";
+        } else if (err.message.includes("insufficient funds")) {
+          message = "Insufficient ETH balance";
+        } else {
+          message = err.message.length > 120 ? err.message.slice(0, 120) + "..." : err.message;
+        }
+      }
+      setActionError(message);
       console.error("Action failed:", err);
     } finally {
       setActionLoading(false);
     }
   };
 
-  /* Check if the user has any position in this market */
+  /* Check if the user has any position */
   const hasYesPosition = userPosition && parseFloat(userPosition.yes) > 0;
   const hasNoPosition = userPosition && parseFloat(userPosition.no) > 0;
+
+  /* Determine if user won or lost */
+  const userWon =
+    market.status === "Resolved" &&
+    ((market.outcome === "Yes" && hasYesPosition) ||
+     (market.outcome === "No" && hasNoPosition));
+
+  const userLost =
+    market.status === "Resolved" &&
+    (hasYesPosition || hasNoPosition) &&
+    !userWon;
+
+  /* Calculate expected payout for winners */
+  const getExpectedPayout = () => {
+    if (!userWon || !userPosition) return null;
+    const userStake = market.outcome === "Yes"
+      ? parseFloat(userPosition.yes)
+      : parseFloat(userPosition.no);
+    const winnerPool = market.outcome === "Yes" ? yesNum : noNum;
+    if (winnerPool <= 0) return null;
+    const payout = (userStake / winnerPool) * total;
+    const profit = payout - userStake;
+    return { payout, profit };
+  };
+
+  const payoutInfo = getExpectedPayout();
 
   return (
     <section className="market-view reveal">
@@ -116,7 +155,7 @@ export function MarketView({
         <span className={`market-view__status ${statusClass}`}>{statusLabel}</span>
       </div>
 
-      {/* Pool split bar — visual YES vs NO representation */}
+      {/* Pool split bar */}
       <div className="market-view__pools">
         <div className="pool-labels">
           <span className="pool-label pool-label--yes mono">
@@ -135,7 +174,7 @@ export function MarketView({
         </div>
       </div>
 
-      {/* User's position — only shown if they have a stake */}
+      {/* User's position */}
       {account && userPosition && (hasYesPosition || hasNoPosition) && (
         <div className="market-view__position">
           <div className="section-label">Your Position</div>
@@ -151,6 +190,29 @@ export function MarketView({
               </span>
             )}
           </div>
+
+          {/* Payout info for winners */}
+          {userWon && payoutInfo && (
+            <div className="market-view__payout market-view__payout--win">
+              <span className="market-view__payout-icon">&#10003;</span>
+              <div>
+                <strong>You won!</strong> Claimable: {payoutInfo.payout.toFixed(4)} ETH{toUsd(payoutInfo.payout.toString())}
+                <span className="market-view__payout-profit mono">
+                  +{payoutInfo.profit.toFixed(4)} ETH profit
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Loss message */}
+          {userLost && (
+            <div className="market-view__payout market-view__payout--loss">
+              <span className="market-view__payout-icon">&#10007;</span>
+              <div>
+                Market resolved as <strong>{market.outcome}</strong> — your stake was on the losing side.
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -163,12 +225,34 @@ export function MarketView({
         <span className="meta-item mono">Creator: {market.creator.slice(0, 6)}...{market.creator.slice(-4)}</span>
       </div>
 
-      {/* ── Action Zone: changes based on market status ── */}
+      {/* ── Error Display ── */}
+      {actionError && (
+        <div className="market-view__error mono">
+          <span className="market-view__error-icon">&#9888;</span>
+          {actionError}
+          <button className="market-view__error-dismiss" onClick={() => setActionError(null)}>&#10005;</button>
+        </div>
+      )}
+
+      {/* ── TX Hash Link ── */}
+      {txHash && (
+        <div className="market-view__tx-success mono">
+          <span className="market-view__tx-icon">&#10003;</span>
+          Transaction confirmed —{" "}
+          <a
+            href={`https://sepolia.etherscan.io/tx/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="market-view__tx-link"
+          >
+            View on Etherscan: {txHash.slice(0, 10)}...{txHash.slice(-8)}
+          </a>
+        </div>
+      )}
+
+      {/* ── Action Zone ── */}
       <div className="market-view__actions">
-        {/*
-         * OPEN + BEFORE DEADLINE → Show staking form.
-         * Users pick an amount and stake on YES or NO.
-         */}
+        {/* OPEN + BEFORE DEADLINE → Staking form */}
         {market.status === "Open" && !isPastDeadline && account && (
           <div className="market-view__stake-form">
             <label className="market-view__stake-label mono">Stake Amount (ETH)</label>
@@ -200,11 +284,7 @@ export function MarketView({
           </div>
         )}
 
-        {/*
-         * OPEN + PAST DEADLINE → "Request Settlement" button.
-         * Anyone can call this — it's permissionless on the contract.
-         * Transitions the market to SettlementRequested status.
-         */}
+        {/* OPEN + PAST DEADLINE → Request Settlement */}
         {market.status === "Open" && isPastDeadline && account && (
           <button
             className="run-trial-btn"
@@ -222,11 +302,7 @@ export function MarketView({
           </button>
         )}
 
-        {/*
-         * SETTLEMENT REQUESTED → "Run Trial" button.
-         * Triggers Chainlink Functions to execute the adversarial
-         * trial on the DON. Owner-only for now (hackathon safety).
-         */}
+        {/* SETTLEMENT REQUESTED → Run Trial */}
         {market.status === "SettlementRequested" && account && (
           <button
             className="run-trial-btn"
@@ -245,24 +321,18 @@ export function MarketView({
           </button>
         )}
 
-        {/*
-         * RESOLVED → "Claim Winnings" button.
-         * Only shown if the user has a position on the winning side.
-         */}
-        {market.status === "Resolved" && account && (hasYesPosition || hasNoPosition) && (
+        {/* RESOLVED + WINNER → Claim Winnings */}
+        {market.status === "Resolved" && account && userWon && (
           <button
             className="run-trial-btn market-view__claim-btn"
             disabled={actionLoading}
             onClick={() => handleAction(() => onClaimWinnings(market.id))}
           >
-            {actionLoading ? "Claiming..." : "Claim Winnings"}
+            {actionLoading ? "Claiming..." : `Claim ${payoutInfo ? payoutInfo.payout.toFixed(4) + " ETH" : "Winnings"}`}
           </button>
         )}
 
-        {/*
-         * ESCALATED → "Claim Refund" button.
-         * All stakers get their money back on escalation.
-         */}
+        {/* ESCALATED → Claim Refund */}
         {market.status === "Escalated" && account && (hasYesPosition || hasNoPosition) && (
           <button
             className="run-trial-btn market-view__refund-btn"
