@@ -119,17 +119,19 @@ export function MarketView({
       <div className="market-view__pools">
         <div className="pool-labels">
           <span className="pool-label pool-label--yes mono">
-            YES {market.yesPool} ETH {total > 0 && `(${yesPct.toFixed(0)}%)`}
+            YES {market.yesPool} ETH{toUsd(market.yesPool)} {total > 0 && `(${yesPct.toFixed(0)}%)`}
           </span>
           <span className="pool-label pool-label--no mono">
-            NO {market.noPool} ETH {total > 0 && `(${(100 - yesPct).toFixed(0)}%)`}
+            NO {market.noPool} ETH{toUsd(market.noPool)} {total > 0 && `(${(100 - yesPct).toFixed(0)}%)`}
           </span>
         </div>
         <div className="pool-bar">
           <div className="pool-bar__yes" style={{ width: `${yesPct}%` }} />
           <div className="pool-bar__no" style={{ width: `${100 - yesPct}%` }} />
         </div>
-        <div className="pool-total mono">Total Pool: {total.toFixed(4)} ETH</div>
+        <div className="pool-total mono">
+          Total Pool: {total.toFixed(4)} ETH{toUsd(total.toString())}
+        </div>
       </div>
 
       {/* User's position — only shown if they have a stake */}
