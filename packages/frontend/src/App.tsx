@@ -177,6 +177,7 @@ export default function App() {
         selectedId={selectedId}
         onSelect={setSelectedId}
         loading={loading}
+        ethUsdPrice={ethUsdPrice}
       />
 
       {/* ── Selected Market Detail ── */}
