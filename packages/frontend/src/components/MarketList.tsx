@@ -92,7 +92,8 @@ export function MarketList({ markets, selectedId, onSelect, loading, ethUsdPrice
             const yesNum = parseFloat(m.yesPool);
             const noNum = parseFloat(m.noPool);
             const total = yesNum + noNum;
-            const yesPct = total > 0 ? (yesNum / total) * 100 : 50;
+            const yesPct = total > 0 ? (yesNum / total) * 100 : 0;
+            const totalUsd = priceNum && total > 0 ? ` (~$${(total * priceNum).toFixed(2)})` : "";
             const countdown = formatCountdown(m.deadline);
 
             return (
@@ -128,7 +129,7 @@ export function MarketList({ markets, selectedId, onSelect, loading, ethUsdPrice
                   </div>
                   {total > 0 && (
                     <div className="market-card__pool-total">
-                      {total.toFixed(4)} ETH total
+                      {total.toFixed(4)} ETH{totalUsd} total
                     </div>
                   )}
                 </div>
