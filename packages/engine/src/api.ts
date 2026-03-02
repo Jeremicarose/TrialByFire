@@ -91,9 +91,9 @@ const evidenceSources: EvidenceSource[] = useMocks
 function buildPipelineConfig(): PipelineConfig {
   return {
     evidenceSources,
-    advocateYesClient: createLLMClient(useMocks ? "mock" : "anthropic"),
+    advocateYesClient: createLLMClient(useMocks ? "mock" : "openai"),
     advocateNoClient: createLLMClient(useMocks ? "mock" : "openai"),
-    judgeClient: createLLMClient(useMocks ? "mock" : "anthropic"),
+    judgeClient: createLLMClient(useMocks ? "mock" : "openai"),
     onProgress: (stage, detail) => {
       console.log(`  [${stage.toUpperCase()}] ${detail}`);
     },

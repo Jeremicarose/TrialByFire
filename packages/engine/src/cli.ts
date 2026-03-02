@@ -77,11 +77,10 @@ const evidenceSources: EvidenceSource[] = useMocks
 
 const config: PipelineConfig = {
   evidenceSources,
-  // YES advocate uses Claude, NO advocate uses OpenAI (different models = genuine diversity)
-  advocateYesClient: createLLMClient(useMocks ? "mock" : "anthropic"),
+  // All roles use OpenAI (GPT-4o) for now
+  advocateYesClient: createLLMClient(useMocks ? "mock" : "openai"),
   advocateNoClient: createLLMClient(useMocks ? "mock" : "openai"),
-  // Judge uses Claude (different model version ideally)
-  judgeClient: createLLMClient(useMocks ? "mock" : "anthropic"),
+  judgeClient: createLLMClient(useMocks ? "mock" : "openai"),
 
   // Progress callback — prints stage updates to terminal
   onProgress: (stage, detail) => {
