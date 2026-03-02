@@ -1,0 +1,162 @@
+/*
+ * HowItWorks — Hero explainer section.
+ * Uses the existing design system variables from index.css.
+ */
+
+.how-it-works {
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-2xl) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* ── Hero Text ── */
+.how-it-works__hero {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+.how-it-works__headline {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  margin-bottom: var(--space-md);
+}
+
+.how-it-works__subtext {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.how-it-works__subtext em {
+  color: var(--accent);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ── Three Steps ── */
+.how-it-works__steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-2xl);
+}
+
+.how-it-works__step {
+  flex: 1;
+  max-width: 280px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
+  position: relative;
+}
+
+.how-it-works__step-number {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  margin-bottom: var(--space-sm);
+}
+
+.how-it-works__step-icon {
+  font-size: 2rem;
+  margin-bottom: var(--space-md);
+  opacity: 0.7;
+}
+
+.how-it-works__step-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.how-it-works__step-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.how-it-works__connector {
+  color: var(--accent-dim);
+  font-size: 1.5rem;
+  margin-top: 60px;
+  flex-shrink: 0;
+}
+
+/* ── Chainlink Badges ── */
+.how-it-works__chainlink {
+  text-align: center;
+}
+
+.how-it-works__chainlink-label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-md);
+}
+
+.how-it-works__badges {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+}
+
+.how-it-works__badge {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-lg);
+  text-align: center;
+}
+
+.how-it-works__badge-name {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.how-it-works__badge-desc {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .how-it-works__steps {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .how-it-works__connector {
+    transform: rotate(90deg);
+    margin: var(--space-sm) 0;
+  }
+
+  .how-it-works__step {
+    max-width: 100%;
+  }
+
+  .how-it-works__badges {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .how-it-works__headline {
+    font-size: 1.5rem;
+  }
+}
