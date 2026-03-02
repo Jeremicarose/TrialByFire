@@ -156,7 +156,9 @@ export function MarketView({
       {/* Meta info row */}
       <div className="market-view__meta-row">
         <span className="meta-item mono">Deadline: {deadlineStr}</span>
-        <span className="meta-item mono">Outcome: {market.outcome}</span>
+        <span className="meta-item mono">
+          Outcome: {market.outcome === "None" ? "Pending" : market.outcome}
+        </span>
         <span className="meta-item mono">Creator: {market.creator.slice(0, 6)}...{market.creator.slice(-4)}</span>
       </div>
 
