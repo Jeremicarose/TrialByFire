@@ -187,6 +187,7 @@ export default function App() {
           account={account}
           userPosition={userPosition}
           isOwner={isOwner}
+          ethUsdPrice={ethUsdPrice}
           onStakeYes={(id, amount) => takePosition(id, 1, amount)}
           onStakeNo={(id, amount) => takePosition(id, 2, amount)}
           onRequestSettlement={requestSettlement}

@@ -36,6 +36,7 @@ export function MarketView({
   account,
   userPosition,
   isOwner,
+  ethUsdPrice,
   onStakeYes,
   onStakeNo,
   onRequestSettlement,
