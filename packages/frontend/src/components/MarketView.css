@@ -295,6 +295,108 @@
   color: var(--bg-deep) !important;
 }
 
+/* ── Payout Info (win/loss) ── */
+.market-view__payout {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.market-view__payout--win {
+  background: var(--resolve-bg);
+  border: 1px solid var(--resolve-border);
+  color: var(--resolve-primary);
+}
+
+.market-view__payout--loss {
+  background: var(--no-bg);
+  border: 1px solid var(--no-border);
+  color: var(--no-primary);
+}
+
+.market-view__payout-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.market-view__payout-profit {
+  display: inline-block;
+  margin-left: var(--space-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--resolve-primary);
+}
+
+/* ── Error Display ── */
+.market-view__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-primary);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  color: var(--warning-primary);
+  animation: slideReveal 0.3s ease-out;
+}
+
+.market-view__error-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.market-view__error-dismiss {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--warning-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 6px;
+  opacity: 0.7;
+}
+
+.market-view__error-dismiss:hover {
+  opacity: 1;
+}
+
+/* ── TX Success Link ── */
+.market-view__tx-success {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--resolve-bg);
+  border: 1px solid var(--resolve-border);
+  border-radius: var(--radius-md);
+  font-size: 0.72rem;
+  color: var(--resolve-primary);
+  animation: slideReveal 0.3s ease-out;
+}
+
+.market-view__tx-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.market-view__tx-link {
+  color: var(--resolve-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.market-view__tx-link:hover {
+  color: var(--text-primary);
+}
+
 /* ── Connect Prompt ── */
 .market-view__connect-prompt {
   text-align: center;
