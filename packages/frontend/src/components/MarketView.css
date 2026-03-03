@@ -397,6 +397,20 @@
   color: var(--text-primary);
 }
 
+/* ── Auto-Settlement Status ── */
+.market-view__auto-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
 /* ── Connect Prompt ── */
 .market-view__connect-prompt {
   text-align: center;
