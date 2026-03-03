@@ -533,5 +533,6 @@ export function useContract(
     claimWinnings,
     claimRefund,
     getUserPosition,
+    getMarketParticipants,
   };
 }
