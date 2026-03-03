@@ -86,9 +86,24 @@ function sendJson(res: http.ServerResponse, status: number, data: unknown) {
 
 /* ── Pipeline Config ── */
 
+/*
+ * Evidence sources: Dynamic routing replaces hardcoded sources.
+ *
+ * DynamicEvidenceSource uses an LLM to analyze the question and
+ * determine which free public APIs to call — CoinGecko for crypto
+ * prices, DeFiLlama for DeFi yields, Treasury for economics,
+ * Wikipedia for general knowledge, sports APIs, etc.
+ *
+ * We keep DeFiLlama and Treasury as fallbacks in case the dynamic
+ * source fails or returns no data (defense in depth).
+ *
+ * This is the local equivalent of what trial-source.js does on
+ * the Chainlink DON — both dynamically select APIs based on the question.
+ */
+const dynamicLLMClient = createLLMClient(useMocks ? "mock" : "anthropic");
 const evidenceSources: EvidenceSource[] = useMocks
   ? [new MockEvidenceSource()]
-  : [new DeFiLlamaSource(), new TreasurySource()];
+  : [new DynamicEvidenceSource(dynamicLLMClient), new DeFiLlamaSource(), new TreasurySource()];
 
 function buildPipelineConfig(): PipelineConfig {
   return {
