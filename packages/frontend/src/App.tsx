@@ -8,6 +8,8 @@ import { MarketView } from "./components/MarketView";
 import { TrialTranscript } from "./components/TrialTranscript";
 import { JudgeScorecard } from "./components/JudgeScorecard";
 import { SettlementStatus } from "./components/SettlementStatus";
+import { ParticipantList } from "./components/ParticipantList";
+import type { Participant } from "./hooks/useContract";
 import "./App.css";
 
 /*
