@@ -72,9 +72,10 @@ const question: MarketQuestion = {
 
 // ── Configure the pipeline ───────────────────────────────────────
 
+const dynamicLLMClient = createLLMClient(useMocks ? "mock" : "anthropic");
 const evidenceSources: EvidenceSource[] = useMocks
   ? [new MockEvidenceSource()]
-  : [new DeFiLlamaSource(), new TreasurySource(), new NewsAPISource()];
+  : [new DynamicEvidenceSource(dynamicLLMClient), new DeFiLlamaSource(), new TreasurySource(), new NewsAPISource()];
 
 const config: PipelineConfig = {
   evidenceSources,
