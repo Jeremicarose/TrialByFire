@@ -65,11 +65,12 @@ export function createOnchainSettler(
        */
       const verdictEnum = transcript.decision.verdict === "YES" ? 1 : 2;
 
+      /* Scores must be integers for the uint256 contract parameter */
       const tx = await contract.settle(
         marketId,
         verdictEnum,
-        transcript.judgeRuling.scoreYes,
-        transcript.judgeRuling.scoreNo,
+        Math.round(transcript.judgeRuling.scoreYes),
+        Math.round(transcript.judgeRuling.scoreNo),
         transcriptHash
       );
 
