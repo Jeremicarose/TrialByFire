@@ -138,14 +138,6 @@ export default function App() {
         <CreateMarket onSubmit={handleCreateMarket} isLoading={createLoading} />
       )}
 
-      {/* ── Trial Progress Indicator ── */}
-      {trialLoading && (
-        <div className="stage-indicator stage-indicator--evidence">
-          <span className="stage-indicator__dot" />
-          <span>Running adversarial trial — advocates debating, judge scoring...</span>
-        </div>
-      )}
-
       {/* ── Market List (Case Docket) ── */}
       <MarketList
         markets={markets}
