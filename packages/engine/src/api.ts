@@ -164,7 +164,8 @@ async function runTrialAndSettle(marketId: number, questionText: string): Promis
       }
 
       /* Store txHash in transcript for frontend to pick up */
-      (transcript as Record<string, unknown>).txHash = txHash;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (transcript as any).txHash = txHash;
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
