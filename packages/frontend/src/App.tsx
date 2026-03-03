@@ -44,11 +44,13 @@ export default function App() {
     claimWinnings,
     claimRefund,
     getUserPosition,
+    getMarketParticipants,
   } = useContract(provider, signer);
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
   const [userPosition, setUserPosition] = useState<{ yes: string; no: string } | null>(null);
+  const [participants, setParticipants] = useState<Participant[]>([]);
 
   /* Auto-select the first market when data loads */
   useEffect(() => {
