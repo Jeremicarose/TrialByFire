@@ -210,6 +210,17 @@ export default function App() {
         />
       )}
 
+      {/* ── Participant List ── */}
+      {selectedMarket && participants.length > 0 && (
+        <ParticipantList
+          participants={participants}
+          account={account}
+          ethUsdPrice={ethUsdPrice}
+          marketOutcome={selectedMarket.outcome}
+          marketStatus={selectedMarket.status}
+        />
+      )}
+
       {/*
        * ── Trial Results Section ──
        * These three components only render after a trial completes.
