@@ -171,34 +171,11 @@ export default function App() {
       )}
 
       {/*
-       * ── Trial Results Section ──
-       * These three components only render after a trial completes.
-       * They display the full adversarial debate, judge scorecard,
-       * and final settlement decision — the core of TrialByFire.
-       *
-       * The trialResult comes from the local API server (on Hardhat)
-       * or would be fetched from IPFS after Chainlink Functions
-       * fulfillment (on Sepolia).
+       * Trial results will be displayed once we add result fetching
+       * from the API server's transcript store or IPFS.
+       * For now, the market status updates automatically when the
+       * server completes the trial and settles onchain.
        */}
-      {trialResult && trialResult.advocateYes && trialResult.advocateNo && (
-        <TrialTranscript
-          advocateYes={trialResult.advocateYes}
-          advocateNo={trialResult.advocateNo}
-        />
-      )}
-
-      {trialResult && trialResult.judgeRuling && (
-        <JudgeScorecard ruling={trialResult.judgeRuling} />
-      )}
-
-      {trialResult && trialResult.decision && (
-        <SettlementStatus
-          decision={trialResult.decision}
-          threshold={20}
-          durationMs={trialResult.durationMs || 0}
-          txHash={trialResult.txHash}
-        />
-      )}
     </div>
   );
 }
