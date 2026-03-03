@@ -53,3 +53,4 @@ export { MockEvidenceSource } from "./mock.js";
 export { DeFiLlamaSource } from "./sources/defilama.js";
 export { NewsAPISource } from "./sources/news.js";
 export { TreasurySource } from "./sources/treasury.js";
+export { DynamicEvidenceSource } from "./sources/dynamic.js";

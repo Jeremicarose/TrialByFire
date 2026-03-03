@@ -30,6 +30,7 @@ import { createLLMClient } from "./llm/index.js";
 import { MockEvidenceSource } from "./evidence/mock.js";
 import { DeFiLlamaSource } from "./evidence/sources/defilama.js";
 import { TreasurySource } from "./evidence/sources/treasury.js";
+import { DynamicEvidenceSource } from "./evidence/sources/dynamic.js";
 import { createOnchainSettler } from "./settlement/onchain.js";
 import type { MarketQuestion, TrialTranscript } from "./types.js";
 import type { EvidenceSource } from "./evidence/index.js";
