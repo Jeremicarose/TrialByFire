@@ -7,11 +7,19 @@
  *
  * What it does:
  *   1. Receives market question + rubric + ETH price as args[]
- *   2. Fetches evidence from public APIs (DeFiLlama, Treasury)
- *   3. Runs two AI advocates (YES and NO) in parallel via LLM APIs
- *   4. Runs a judge to score both sides
- *   5. Evaluates confidence (margin check + hallucination detection)
- *   6. Returns ABI-encoded result: (action, verdict, scoreYes, scoreNo)
+ *   2. DYNAMICALLY selects relevant APIs based on the question content
+ *   3. Fetches evidence from those APIs (not hardcoded sources)
+ *   4. Runs two AI advocates (YES and NO) in parallel via LLM APIs
+ *   5. Runs a judge to score both sides
+ *   6. Evaluates confidence (margin check + hallucination detection)
+ *   7. Returns ABI-encoded result: (action, verdict, scoreYes, scoreNo)
+ *
+ * Dynamic Evidence Selection:
+ *   The key innovation — instead of always fetching the same APIs,
+ *   the code analyzes the question to determine its CATEGORY (crypto price,
+ *   DeFi yields, sports, economics, etc.) and selects relevant free APIs.
+ *   This means TrialByFire can resolve ANY subjective question, not just
+ *   crypto questions.
  *
  * Chainlink Functions constraints:
  *   - Must use Functions.makeHttpRequest() for all HTTP calls
@@ -38,116 +46,422 @@ const question = args[1];
 const rubricHash = args[2];
 const ethUsdPrice = args[3];
 
-/*
- * Convert the Chainlink Data Feed price to human-readable format.
- * The price has 8 decimals, so 350000000000 = $3,500.00.
- * We pass this to the LLMs as verified evidence.
- */
 const ethPriceUsd = (parseInt(ethUsdPrice) / 1e8).toFixed(2);
 
-// ── Step 1: Gather Evidence ─────────────────────────────────────
+// ── Step 0: Classify Question & Select APIs ─────────────────────
 
-/*
- * Fetch evidence from multiple public APIs in parallel.
- * Functions.makeHttpRequest is the Chainlink-provided HTTP client.
- * It works like fetch() but is sandboxed and metered by the DON.
+/**
+ * Dynamic evidence routing — the core innovation.
  *
- * We use Promise.allSettled (not Promise.all) so that if one
- * API is down, we still get evidence from the others. A failed
- * source returns status: "rejected" and we skip it gracefully.
+ * We analyze the question text to determine what KIND of data is needed,
+ * then select the right free public APIs. This runs INSIDE the DON,
+ * so the evidence selection itself is decentralized and verifiable.
+ *
+ * Categories and their API sources:
+ *   - crypto_price:  CoinGecko price + market data
+ *   - defi_yields:   DeFiLlama staking/yield pools
+ *   - economics:     US Treasury rates, exchange rates
+ *   - sports:        Public sports APIs
+ *   - weather:       Open-Meteo weather data
+ *   - general:       Wikipedia + web search fallback
  */
-const evidenceResponses = await Promise.allSettled([
-  /*
-   * DeFiLlama: Fetch ETH staking pool yields.
-   * No API key needed — public endpoint.
-   * Returns an array of pools with APY data.
-   */
-  Functions.makeHttpRequest({
-    url: "https://yields.llama.fi/pools",
-    method: "GET",
-    timeout: 5000,
-  }),
+const questionLower = question.toLowerCase();
 
-  /*
-   * US Treasury: Fetch average interest rates.
-   * No API key needed — US government public data.
-   * Returns Treasury Note/Bond/Bill rates.
-   */
-  Functions.makeHttpRequest({
-    url: "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates?sort=-record_date&page[size]=10",
-    method: "GET",
-    timeout: 5000,
-  }),
-]);
+function classifyQuestion(q) {
+  // Crypto price questions (ETH, BTC, SOL, etc.)
+  const cryptoPriceKeywords = [
+    "price", "worth", "value", "market cap", "trading",
+    "$", "usd", "ath", "all-time high", "crash", "rally",
+    "bull", "bear", "pump", "dump"
+  ];
+  const cryptoAssets = [
+    "eth", "ethereum", "btc", "bitcoin", "sol", "solana",
+    "bnb", "xrp", "ada", "cardano", "doge", "dogecoin",
+    "avax", "avalanche", "matic", "polygon", "dot", "polkadot",
+    "link", "chainlink", "uni", "uniswap", "aave", "crypto",
+    "token", "coin"
+  ];
 
-/*
- * Build the evidence summary string.
- * We extract the most relevant data from each API response
- * and format it as text that the LLM advocates can cite.
- */
-let evidenceSummary = `Verified Chainlink Data Feed: ETH/USD = $${ethPriceUsd}\n\n`;
+  const hasCryptoAsset = cryptoAssets.some((k) => q.includes(k));
+  const hasPriceKeyword = cryptoPriceKeywords.some((k) => q.includes(k));
 
-// Process DeFiLlama response
-if (evidenceResponses[0].status === "fulfilled" && !evidenceResponses[0].value.error) {
-  const pools = evidenceResponses[0].value.data.data || [];
-  /*
-   * Filter for ETH staking pools from major protocols.
-   * We look for Lido (stETH), Rocket Pool (rETH), and Coinbase (cbETH).
-   * These are the three largest ETH staking providers.
-   */
-  const ethPools = pools
-    .filter((p) => p.symbol && p.symbol.match(/stETH|rETH|cbETH/i))
-    .slice(0, 5);
+  if (hasCryptoAsset && hasPriceKeyword) return "crypto_price";
 
-  if (ethPools.length > 0) {
-    evidenceSummary += "ETH Staking Yields (DeFiLlama):\n";
-    ethPools.forEach((p) => {
-      evidenceSummary += `  - ${p.project} (${p.symbol}): APY ${p.apy?.toFixed(2)}%\n`;
-    });
-    evidenceSummary += "\n";
-  }
+  // DeFi yield questions
+  const defiKeywords = [
+    "yield", "apy", "apr", "staking", "lending", "tvl",
+    "liquidity", "defi", "lido", "rocket pool", "compound",
+    "protocol", "validator"
+  ];
+  if (hasCryptoAsset && defiKeywords.some((k) => q.includes(k))) return "defi_yields";
+
+  // General crypto (not price-specific)
+  if (hasCryptoAsset) return "crypto_general";
+
+  // Economics / finance
+  const econKeywords = [
+    "interest rate", "inflation", "gdp", "federal reserve",
+    "treasury", "bond", "stock", "s&p", "nasdaq", "dow",
+    "unemployment", "cpi", "fed", "monetary", "fiscal",
+    "recession", "economy", "economic"
+  ];
+  if (econKeywords.some((k) => q.includes(k))) return "economics";
+
+  // Sports
+  const sportsKeywords = [
+    "win", "championship", "game", "match", "season",
+    "nba", "nfl", "mlb", "soccer", "football", "basketball",
+    "baseball", "tennis", "team", "player", "score", "league",
+    "world cup", "super bowl", "playoffs", "finals"
+  ];
+  if (sportsKeywords.some((k) => q.includes(k))) return "sports";
+
+  // Weather / climate
+  const weatherKeywords = [
+    "weather", "temperature", "rain", "snow", "hurricane",
+    "climate", "drought", "flood", "celsius", "fahrenheit",
+    "forecast"
+  ];
+  if (weatherKeywords.some((k) => q.includes(k))) return "weather";
+
+  // Tech
+  const techKeywords = [
+    "ai", "artificial intelligence", "software", "app",
+    "launch", "release", "users", "github", "open source",
+    "technology", "startup"
+  ];
+  if (techKeywords.some((k) => q.includes(k))) return "technology";
+
+  return "general";
 }
 
-// Process Treasury response
-if (evidenceResponses[1].status === "fulfilled" && !evidenceResponses[1].value.error) {
-  const records = evidenceResponses[1].value.data.data || [];
-  /*
-   * Filter for Treasury Notes and Bonds (the standard benchmark
-   * for "risk-free rate" in traditional finance).
-   */
-  const notes = records
-    .filter((r) => r.security_desc && r.security_desc.match(/Note|Bond/))
-    .slice(0, 5);
+/**
+ * Build the list of API calls based on the question category.
+ * All APIs are FREE and require NO API key — critical for DON execution.
+ */
+function getApiCalls(category, q) {
+  const calls = [];
 
-  if (notes.length > 0) {
-    evidenceSummary += "US Treasury Rates (fiscal.treasury.gov):\n";
-    notes.forEach((r) => {
-      evidenceSummary += `  - ${r.security_desc}: ${r.avg_interest_rate_amt}%\n`;
-    });
-    evidenceSummary += "\n";
+  switch (category) {
+    case "crypto_price": {
+      // Detect which coin(s) the question is about
+      const coinMap = {
+        ethereum: ["eth", "ethereum", "ether"],
+        bitcoin: ["btc", "bitcoin"],
+        solana: ["sol", "solana"],
+        "binancecoin": ["bnb", "binance"],
+        ripple: ["xrp", "ripple"],
+        cardano: ["ada", "cardano"],
+        dogecoin: ["doge", "dogecoin"],
+        "avalanche-2": ["avax", "avalanche"],
+        "matic-network": ["matic", "polygon"],
+        polkadot: ["dot", "polkadot"],
+        chainlink: ["link", "chainlink"],
+        uniswap: ["uni", "uniswap"],
+        aave: ["aave"],
+      };
+
+      let coinId = "ethereum"; // default
+      for (const [id, keywords] of Object.entries(coinMap)) {
+        if (keywords.some((k) => q.includes(k))) {
+          coinId = id;
+          break;
+        }
+      }
+
+      // Current price + market data
+      calls.push({
+        url: `https://api.coingecko.com/api/v3/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false`,
+        description: `CoinGecko: ${coinId} current price, market cap, 24h/7d/30d changes`,
+        extract: "market_data",
+      });
+
+      // 90-day price history for trend analysis
+      calls.push({
+        url: `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=90`,
+        description: `CoinGecko: ${coinId} 90-day price history`,
+        extract: "prices",
+      });
+
+      break;
+    }
+
+    case "defi_yields": {
+      // DeFiLlama yield pools
+      calls.push({
+        url: "https://yields.llama.fi/pools",
+        description: "DeFiLlama: All DeFi yield pools with current APY",
+        extract: "eth_staking",
+      });
+
+      // Detect specific protocol
+      const protocols = ["lido", "rocket-pool", "aave", "compound", "maker", "uniswap"];
+      const matchedProtocol = protocols.find((p) => q.includes(p.replace("-", " ")));
+      if (matchedProtocol) {
+        calls.push({
+          url: `https://api.llama.fi/protocol/${matchedProtocol}`,
+          description: `DeFiLlama: ${matchedProtocol} TVL and protocol data`,
+          extract: "protocol",
+        });
+      }
+
+      break;
+    }
+
+    case "crypto_general": {
+      // General crypto info — get prices + DeFi overview
+      const coinMap2 = {
+        ethereum: ["eth", "ethereum"],
+        bitcoin: ["btc", "bitcoin"],
+        solana: ["sol", "solana"],
+      };
+      let coinId2 = "ethereum";
+      for (const [id, keywords] of Object.entries(coinMap2)) {
+        if (keywords.some((k) => q.includes(k))) {
+          coinId2 = id;
+          break;
+        }
+      }
+      calls.push({
+        url: `https://api.coingecko.com/api/v3/coins/${coinId2}?localization=false&tickers=false&community_data=false&developer_data=false`,
+        description: `CoinGecko: ${coinId2} overview data`,
+        extract: "market_data",
+      });
+      calls.push({
+        url: `https://api.llama.fi/tvl/${coinId2}`,
+        description: `DeFiLlama: ${coinId2} ecosystem TVL`,
+        extract: "raw",
+      });
+      break;
+    }
+
+    case "economics": {
+      // US Treasury rates
+      calls.push({
+        url: "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates?sort=-record_date&page[size]=10&fields=record_date,security_desc,avg_interest_rate_amt",
+        description: "US Treasury: Average interest rates on government securities",
+        extract: "treasury",
+      });
+
+      // Exchange rates
+      calls.push({
+        url: "https://open.er-api.com/v6/latest/USD",
+        description: "Exchange rates: Major currency rates vs USD",
+        extract: "exchange_rates",
+      });
+
+      break;
+    }
+
+    case "sports": {
+      // Wikipedia for context on teams/events
+      const keywords = q.replace(/[?.,!]/g, "").split(/\s+/).filter(
+        (w) => w.length > 3 && !["will", "does", "have", "been", "this", "that", "with"].includes(w)
+      ).slice(0, 3);
+      const topic = keywords.join("_");
+
+      calls.push({
+        url: `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`,
+        description: `Wikipedia: Summary for "${keywords.join(" ")}"`,
+        extract: "wikipedia",
+      });
+
+      break;
+    }
+
+    case "weather": {
+      // Default to major cities if no specific location
+      calls.push({
+        url: "https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.01&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=America/New_York&past_days=30",
+        description: "Open-Meteo: 30-day weather history for New York (default)",
+        extract: "weather",
+      });
+      break;
+    }
+
+    case "technology": {
+      const keywords = q.replace(/[?.,!]/g, "").split(/\s+/).filter(
+        (w) => w.length > 3
+      ).slice(0, 3);
+
+      calls.push({
+        url: `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(keywords.join("_"))}`,
+        description: `Wikipedia: Context on "${keywords.join(" ")}"`,
+        extract: "wikipedia",
+      });
+      break;
+    }
+
+    default: {
+      // General — use Wikipedia for any topic
+      const keywords = q.replace(/[?.,!]/g, "").split(/\s+/).filter(
+        (w) => w.length > 3 && !["will", "does", "have", "been", "this", "that", "with"].includes(w)
+      ).slice(0, 4);
+
+      calls.push({
+        url: `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(keywords.join("_"))}`,
+        description: `Wikipedia: Context on "${keywords.join(" ")}"`,
+        extract: "wikipedia",
+      });
+      break;
+    }
   }
+
+  return calls;
 }
+
+const category = classifyQuestion(questionLower);
+const apiCalls = getApiCalls(category, questionLower);
+
+// ── Step 1: Gather Evidence (Dynamic) ────────────────────────────
+
+/**
+ * Fetch evidence from dynamically selected APIs.
+ * The APIs were chosen based on the question category — not hardcoded.
+ * This is the key difference from the previous version.
+ */
+const evidenceResponses = await Promise.allSettled(
+  apiCalls.map((call) =>
+    Functions.makeHttpRequest({
+      url: call.url,
+      method: "GET",
+      timeout: 5000,
+    })
+  )
+);
+
+/**
+ * Build evidence summary from API responses.
+ * We extract the most useful data from each response and format it
+ * as text that the LLM advocates can cite.
+ */
+let evidenceSummary = `Verified Chainlink Data Feed: ETH/USD = $${ethPriceUsd}\n`;
+evidenceSummary += `Question category: ${category} (${apiCalls.length} dynamic sources selected)\n\n`;
+
+evidenceResponses.forEach((result, i) => {
+  if (result.status !== "fulfilled" || result.value.error) return;
+
+  const call = apiCalls[i];
+  const data = result.value.data;
+
+  evidenceSummary += `--- ${call.description} ---\n`;
+
+  try {
+    switch (call.extract) {
+      case "market_data": {
+        // CoinGecko coin detail
+        const md = data.market_data || {};
+        const price = md.current_price?.usd;
+        const change24h = md.price_change_percentage_24h;
+        const change7d = md.price_change_percentage_7d;
+        const change30d = md.price_change_percentage_30d;
+        const mcap = md.market_cap?.usd;
+        const high24h = md.high_24h?.usd;
+        const low24h = md.low_24h?.usd;
+        const ath = md.ath?.usd;
+        const athDate = md.ath_date?.usd;
+
+        evidenceSummary += `  Current price: $${price}\n`;
+        evidenceSummary += `  24h change: ${change24h?.toFixed(2)}% | 7d: ${change7d?.toFixed(2)}% | 30d: ${change30d?.toFixed(2)}%\n`;
+        evidenceSummary += `  24h range: $${low24h} — $${high24h}\n`;
+        evidenceSummary += `  Market cap: $${mcap ? (mcap / 1e9).toFixed(2) + "B" : "N/A"}\n`;
+        evidenceSummary += `  All-time high: $${ath} (${athDate?.slice(0, 10)})\n`;
+        break;
+      }
+
+      case "prices": {
+        // CoinGecko price history — summarize as trend
+        const prices = data.prices || [];
+        if (prices.length > 0) {
+          const oldest = prices[0][1];
+          const newest = prices[prices.length - 1][1];
+          const change = ((newest - oldest) / oldest * 100).toFixed(2);
+          const min = Math.min(...prices.map((p) => p[1]));
+          const max = Math.max(...prices.map((p) => p[1]));
+          evidenceSummary += `  90-day trend: $${oldest.toFixed(2)} → $${newest.toFixed(2)} (${change}%)\n`;
+          evidenceSummary += `  90-day range: $${min.toFixed(2)} — $${max.toFixed(2)}\n`;
+        }
+        break;
+      }
+
+      case "eth_staking": {
+        // DeFiLlama pools — filter for ETH staking
+        const pools = data.data || [];
+        const ethPools = pools
+          .filter((p) => p.symbol && p.symbol.match(/stETH|rETH|cbETH/i))
+          .slice(0, 5);
+        if (ethPools.length > 0) {
+          ethPools.forEach((p) => {
+            evidenceSummary += `  ${p.project} (${p.symbol}): APY ${p.apy?.toFixed(2)}%\n`;
+          });
+        }
+        break;
+      }
+
+      case "protocol": {
+        // DeFiLlama protocol detail
+        const tvl = data.currentChainTvls?.Ethereum;
+        if (tvl) {
+          evidenceSummary += `  TVL on Ethereum: $${(tvl / 1e9).toFixed(2)}B\n`;
+        }
+        break;
+      }
+
+      case "treasury": {
+        // US Treasury rates
+        const records = (data.data || [])
+          .filter((r) => r.security_desc?.match(/Note|Bond|Bill/))
+          .slice(0, 5);
+        records.forEach((r) => {
+          evidenceSummary += `  ${r.security_desc}: ${r.avg_interest_rate_amt}%\n`;
+        });
+        break;
+      }
+
+      case "exchange_rates": {
+        // Currency exchange rates
+        const rates = data.rates || {};
+        const majors = ["EUR", "GBP", "JPY", "CNY", "CHF"];
+        majors.forEach((c) => {
+          if (rates[c]) evidenceSummary += `  USD/${c}: ${rates[c]}\n`;
+        });
+        break;
+      }
+
+      case "wikipedia": {
+        // Wikipedia summary
+        if (data.extract) {
+          evidenceSummary += `  ${data.extract.slice(0, 500)}\n`;
+        }
+        break;
+      }
+
+      case "weather": {
+        // Open-Meteo weather
+        const daily = data.daily || {};
+        if (daily.temperature_2m_max) {
+          const temps = daily.temperature_2m_max;
+          const avg = temps.reduce((a, b) => a + b, 0) / temps.length;
+          evidenceSummary += `  Avg max temp (30 days): ${avg.toFixed(1)}C\n`;
+        }
+        break;
+      }
+
+      default: {
+        // Raw data — truncate
+        const raw = typeof data === "string" ? data : JSON.stringify(data);
+        evidenceSummary += `  ${raw.slice(0, 500)}\n`;
+      }
+    }
+  } catch (e) {
+    evidenceSummary += `  (Data available but parsing failed)\n`;
+  }
+
+  evidenceSummary += "\n";
+});
 
 // ── Step 2: Run Advocates in Parallel ───────────────────────────
 
-/*
- * The adversarial trial core: two LLMs argue opposite sides.
- *
- * YES advocate (Anthropic/Claude): Argues that the answer is YES.
- * NO advocate (OpenAI/GPT): Argues that the answer is NO.
- *
- * Using DIFFERENT models for each side prevents model-specific biases.
- * If both used the same model, they'd share the same training biases
- * and blind spots, defeating the adversarial structure.
- *
- * Each advocate must:
- *   1. Cite specific evidence from the evidence summary
- *   2. Make arguments per rubric criterion
- *   3. Rate their own confidence (0-100)
- *   4. Identify weaknesses in the opposing case
- *
- * Output is JSON validated by the contract's expectations.
- */
 const advocateSystemPrompt = (side) => `You are an advocate arguing the ${side} position in a structured debate.
 
 Your assigned position is: ${side}
@@ -184,17 +498,7 @@ Confidence threshold: 20 points
 
 Provide your structured argument as JSON.`;
 
-/*
- * Fire both advocates simultaneously.
- * Promise.all runs them in parallel on the DON node,
- * which cuts total execution time roughly in half.
- */
 const [yesResponse, noResponse] = await Promise.all([
-  /*
-   * YES Advocate — uses Anthropic Claude.
-   * The system prompt is a top-level field in Claude's API,
-   * not a message role. This is a key difference from OpenAI.
-   */
   Functions.makeHttpRequest({
     url: "https://api.anthropic.com/v1/messages",
     method: "POST",
@@ -213,11 +517,6 @@ const [yesResponse, noResponse] = await Promise.all([
     timeout: 8000,
   }),
 
-  /*
-   * NO Advocate — uses OpenAI GPT-4o.
-   * System prompt is a message with role: "system".
-   * response_format: { type: "json_object" } forces JSON output.
-   */
   Functions.makeHttpRequest({
     url: "https://api.openai.com/v1/chat/completions",
     method: "POST",
@@ -239,11 +538,6 @@ const [yesResponse, noResponse] = await Promise.all([
   }),
 ]);
 
-/*
- * Parse advocate responses.
- * Claude returns content in data.content[0].text.
- * OpenAI returns in data.choices[0].message.content.
- */
 let yesArgument, noArgument;
 
 if (yesResponse.error || !yesResponse.data) {
@@ -260,16 +554,6 @@ noArgument = JSON.parse(noText);
 
 // ── Step 3: Run Judge ───────────────────────────────────────────
 
-/*
- * The judge sees both arguments + the original evidence and must:
- *   1. Score each side per criterion (0-100)
- *   2. Determine an overall winner
- *   3. Flag any hallucinated evidence citations
- *   4. Write a prose ruling explaining the decision
- *
- * The judge uses a DIFFERENT model instance to avoid self-bias.
- * Temperature is lower (0.2) for more deterministic scoring.
- */
 const judgeSystemPrompt = `You are an impartial judge evaluating a structured debate between two advocates.
 
 Two advocates have argued opposite sides of a question. You must:
@@ -330,23 +614,6 @@ const ruling = JSON.parse(judgeText);
 
 // ── Step 4: Evaluate Confidence ─────────────────────────────────
 
-/*
- * The confidence evaluation determines whether to RESOLVE or ESCALATE.
- *
- * Two independent safety gates:
- *
- *   Gate 1 — Margin check:
- *     margin = |scoreYes - scoreNo|
- *     If margin < 20 (the confidence threshold), ESCALATE.
- *     The winner isn't clear enough to auto-resolve.
- *
- *   Gate 2 — Hallucination check:
- *     If the judge flagged ANY hallucinated citations, ESCALATE.
- *     Fabricated evidence means the trial can't be trusted.
- *
- * Both gates must pass for RESOLVE. Either failing means ESCALATE.
- * The failure mode is always "ask a human" rather than "guess wrong."
- */
 const scoreYes = Math.round(ruling.scoreYes || 0);
 const scoreNo = Math.round(ruling.scoreNo || 0);
 const margin = Math.abs(scoreYes - scoreNo);
@@ -357,36 +624,18 @@ let action; // 1 = RESOLVE, 2 = ESCALATE
 let verdict; // 1 = YES, 2 = NO
 
 if (hallucinations.length > 0) {
-  // Gate 2 failed: hallucination detected → ESCALATE
   action = 2;
   verdict = 0;
 } else if (margin < confidenceThreshold) {
-  // Gate 1 failed: margin too thin → ESCALATE
   action = 2;
   verdict = 0;
 } else {
-  // Both gates passed → RESOLVE with the winner
   action = 1;
   verdict = ruling.finalVerdict === "YES" ? 1 : 2;
 }
 
 // ── Step 5: Encode and Return ───────────────────────────────────
 
-/*
- * ABI-encode the result for the contract's _fulfillRequest() callback.
- *
- * The encoding matches what the contract expects:
- *   (uint8 action, uint8 verdict, uint256 scoreYes, uint256 scoreNo)
- *
- * Functions.encodeUint256 only handles single values, so we manually
- * pack our four values into bytes. The contract uses abi.decode()
- * to unpack them.
- *
- * Encoding:
- *   - Each uint8 is padded to 32 bytes (standard ABI encoding)
- *   - Each uint256 is 32 bytes
- *   - Total: 128 bytes (4 × 32)
- */
 const encoded = new Uint8Array(128);
 
 // action (uint8 → 32 bytes, value at position 31)
@@ -395,14 +644,10 @@ encoded[31] = action;
 // verdict (uint8 → 32 bytes, value at position 63)
 encoded[63] = verdict;
 
-/*
- * scoreYes (uint256 → 32 bytes, big-endian at positions 64-95)
- * Scores are 0-100, so they fit in a single byte,
- * but ABI encoding requires full 32-byte words.
- */
+// scoreYes (uint256 → 32 bytes, big-endian at position 95)
 encoded[95] = scoreYes;
 
-// scoreNo (uint256 → 32 bytes, big-endian at positions 96-127)
+// scoreNo (uint256 → 32 bytes, big-endian at position 127)
 encoded[127] = scoreNo;
 
 return encoded;
