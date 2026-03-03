@@ -284,41 +284,20 @@ export function MarketView({
           </div>
         )}
 
-        {/* OPEN + PAST DEADLINE → Request Settlement */}
-        {market.status === "Open" && isPastDeadline && account && (
-          <button
-            className="run-trial-btn"
-            disabled={actionLoading}
-            onClick={() => handleAction(() => onRequestSettlement(market.id))}
-          >
-            {actionLoading ? (
-              <>
-                <span className="run-trial-btn__spinner" />
-                Requesting...
-              </>
-            ) : (
-              "Request Settlement"
-            )}
-          </button>
+        {/* OPEN + PAST DEADLINE → auto-settlement in progress */}
+        {market.status === "Open" && isPastDeadline && (
+          <div className="market-view__auto-status mono">
+            <span className="run-trial-btn__spinner" />
+            Deadline passed — settlement will trigger automatically...
+          </div>
         )}
 
-        {/* SETTLEMENT REQUESTED → Run Trial */}
-        {market.status === "SettlementRequested" && account && (
-          <button
-            className="run-trial-btn"
-            disabled={actionLoading || (!isOwner)}
-            onClick={() => handleAction(() => onRunTrial(market.id))}
-            title={!isOwner ? "Only contract owner can trigger trials" : ""}
-          >
-            {actionLoading ? (
-              <>
-                <span className="run-trial-btn__spinner" />
-                Trial in Progress...
-              </>
-            ) : (
-              "Run Trial (Chainlink Functions)"
-            )}
-          </button>
+        {/* SETTLEMENT REQUESTED → trial running automatically */}
+        {market.status === "SettlementRequested" && (
+          <div className="market-view__auto-status mono">
+            <span className="run-trial-btn__spinner" />
+            Adversarial trial running — advocates debating, judge scoring...
+          </div>
         )}
 
         {/* RESOLVED + WINNER → Claim Winnings */}
