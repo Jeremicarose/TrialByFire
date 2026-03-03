@@ -28,12 +28,9 @@ export function MarketView({
   market,
   account,
   userPosition,
-  isOwner,
   ethUsdPrice,
   onStakeYes,
   onStakeNo,
-  onRequestSettlement,
-  onRunTrial,
   onClaimWinnings,
   onClaimRefund,
 }: MarketViewProps) {
