@@ -83,41 +83,6 @@ export default function App() {
     [createMarket]
   );
 
-  /*
-   * Handle "Run Trial" — two paths depending on environment:
-   *
-   * 1. LOCAL (Hardhat): Calls the engine API server which runs the
-   *    full pipeline server-side, then settles via the deployer key.
-   *    This is because Chainlink DON doesn't exist on local Hardhat.
-   *
-   * 2. SEPOLIA: Calls sendTrialRequest() on the contract, which
-   *    sends a Chainlink Functions request to the DON. The DON runs
-   *    the trial and calls fulfillRequest() to settle onchain.
-   *
-   * We detect the environment by trying the API first. If /api/health
-   * isn't reachable, fall back to the onchain path.
-   */
-  const handleRunTrial = useCallback(
-    async (marketId: number) => {
-      const market = markets.find((m) => m.id === marketId);
-      if (!market) return;
-
-      try {
-        /* Try local API first (works on Hardhat) */
-        const health = await fetch("/api/health").catch(() => null);
-        if (health?.ok) {
-          await runLocalTrial(marketId, market.question);
-        } else {
-          /* Fallback: Chainlink Functions on Sepolia */
-          await sendTrialRequest(marketId);
-        }
-      } catch (err) {
-        console.error("Trial failed:", err);
-      }
-    },
-    [markets, runLocalTrial, sendTrialRequest]
-  );
-
   /* Find the currently selected market object */
   const selectedMarket = markets.find((m) => m.id === selectedId) || null;
 
