@@ -59,14 +59,19 @@ export default function App() {
     }
   }, [markets, selectedId]);
 
-  /* Load user's position when selected market or account changes */
+  /* Load user's position and all participants when selected market changes */
   useEffect(() => {
     if (selectedId !== null && account) {
       getUserPosition(selectedId, account).then(setUserPosition);
     } else {
       setUserPosition(null);
     }
-  }, [selectedId, account, getUserPosition, markets]);
+    if (selectedId !== null) {
+      getMarketParticipants(selectedId).then(setParticipants);
+    } else {
+      setParticipants([]);
+    }
+  }, [selectedId, account, getUserPosition, getMarketParticipants, markets]);
 
   /* Handle market creation with loading state */
   const handleCreateMarket = useCallback(
