@@ -34,8 +34,6 @@ export default function App() {
     markets,
     loading,
     ethUsdPrice,
-    trialResult,
-    trialLoading,
     createMarket,
     takePosition,
     claimWinnings,
