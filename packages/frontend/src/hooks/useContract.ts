@@ -416,6 +416,81 @@ export function useContract(
     [provider]
   );
 
+  /**
+   * Get all participants in a market with their positions and potential payouts.
+   *
+   * Since the contract uses mappings (not arrays), we can't enumerate stakers
+   * directly. Instead we query PositionTaken events to find all unique addresses,
+   * then read their current positions.
+   */
+  const getMarketParticipants = useCallback(
+    async (marketId: number): Promise<Participant[]> => {
+      if (!provider || !CONTRACT_ADDRESS) return [];
+      try {
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+
+        /* Query all PositionTaken events for this market */
+        const filter = contract.filters.PositionTaken(marketId);
+        const events = await contract.queryFilter(filter);
+
+        /* Extract unique participant addresses */
+        const addressSet = new Set<string>();
+        for (const event of events) {
+          const log = event as ethers.EventLog;
+          if (log.args) {
+            addressSet.add(log.args.participant as string);
+          }
+        }
+
+        /* Read current positions for each participant */
+        const addresses = [...addressSet];
+        const participants: Participant[] = [];
+
+        /* Get market totals for payout calculation */
+        const raw = await contract.getMarket(marketId);
+        const yesPool = parseFloat(ethers.formatEther(raw.yesPool));
+        const noPool = parseFloat(ethers.formatEther(raw.noPool));
+        const totalPool = yesPool + noPool;
+
+        for (const addr of addresses) {
+          const [yesPos, noPos] = await Promise.all([
+            contract.yesPositions(marketId, addr),
+            contract.noPositions(marketId, addr),
+          ]);
+
+          const yesStake = parseFloat(ethers.formatEther(yesPos));
+          const noStake = parseFloat(ethers.formatEther(noPos));
+
+          /* Skip if user has withdrawn (both positions zero) */
+          if (yesStake === 0 && noStake === 0) continue;
+
+          /* Calculate potential payouts (profit/loss) for each outcome */
+          const payoutIfYes = yesPool > 0 && yesStake > 0
+            ? (yesStake / yesPool) * totalPool - yesStake - noStake  // win YES side, lose NO side
+            : -noStake; // no YES position, lose NO stake
+
+          const payoutIfNo = noPool > 0 && noStake > 0
+            ? (noStake / noPool) * totalPool - noStake - yesStake    // win NO side, lose YES side
+            : -yesStake; // no NO position, lose YES stake
+
+          participants.push({
+            address: addr,
+            yesStake: ethers.formatEther(yesPos),
+            noStake: ethers.formatEther(noPos),
+            payoutIfYes,
+            payoutIfNo,
+          });
+        }
+
+        return participants;
+      } catch (err) {
+        console.error("Failed to load participants:", err);
+        return [];
+      }
+    },
+    [provider]
+  );
+
   // ── Polling ─────────────────────────────────────────────────────
 
   /*
