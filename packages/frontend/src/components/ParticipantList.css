@@ -1,0 +1,135 @@
+/*
+ * ParticipantList — Staker table with potential payouts.
+ */
+
+.participants {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.participants__table-wrap {
+  overflow-x: auto;
+}
+
+.participants__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.participants__th {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-medium);
+}
+
+.participants__th--yes { color: var(--yes-dim); }
+.participants__th--no { color: var(--no-dim); }
+
+.participants__th--payout {
+  text-align: right;
+}
+
+/* Highlight the winning column header after resolution */
+.participants__th--active {
+  color: var(--resolve-primary);
+  border-bottom-color: var(--resolve-primary);
+}
+
+/* ── Rows ── */
+.participants__row {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.15s ease;
+}
+
+.participants__row:hover {
+  background: var(--bg-surface);
+}
+
+/* Connected user's row gets a subtle highlight */
+.participants__row--you {
+  background: var(--accent-glow);
+}
+
+.participants__row--you:hover {
+  background: var(--bg-surface-hover);
+}
+
+/* ── Cells ── */
+.participants__td {
+  padding: var(--space-sm) var(--space-md);
+  vertical-align: middle;
+}
+
+.participants__td--addr {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.participants__td--yes {
+  color: var(--yes-primary);
+}
+
+.participants__td--no {
+  color: var(--no-primary);
+}
+
+.participants__td--profit {
+  color: var(--resolve-primary);
+  text-align: right;
+}
+
+.participants__td--loss {
+  color: var(--no-primary);
+  text-align: right;
+}
+
+/* Highlight the actual outcome column */
+.participants__td--actual {
+  font-weight: 700;
+}
+
+/* "You" badge next to connected user's address */
+.participants__you-badge {
+  display: inline-block;
+  margin-left: var(--space-sm);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-glow);
+  border: 1px solid var(--accent-dim);
+  padding: 1px 6px;
+  border-radius: 8px;
+  vertical-align: middle;
+}
+
+.participants__usd {
+  display: block;
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+  margin-top: 1px;
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .participants__th,
+  .participants__td {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.7rem;
+  }
+
+  .participants__usd {
+    display: none;
+  }
+}
