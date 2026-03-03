@@ -20,6 +20,7 @@ import { MockEvidenceSource } from "./evidence/mock.js";
 import { DeFiLlamaSource } from "./evidence/sources/defilama.js";
 import { NewsAPISource } from "./evidence/sources/news.js";
 import { TreasurySource } from "./evidence/sources/treasury.js";
+import { DynamicEvidenceSource } from "./evidence/sources/dynamic.js";
 import type { MarketQuestion } from "./types.js";
 import type { EvidenceSource } from "./evidence/index.js";
 
