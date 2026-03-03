@@ -142,6 +142,17 @@ function parseMarket(id: number, raw: ethers.Result): MarketData {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TrialResult = Record<string, any>;
 
+/**
+ * A participant in a market with their positions and potential payouts.
+ */
+export interface Participant {
+  address: string;
+  yesStake: string;  // ETH
+  noStake: string;   // ETH
+  payoutIfYes: number; // profit/loss in ETH (positive = profit)
+  payoutIfNo: number;  // profit/loss in ETH (positive = profit)
+}
+
 export function useContract(
   provider: ethers.BrowserProvider | null,
   signer: ethers.JsonRpcSigner | null
