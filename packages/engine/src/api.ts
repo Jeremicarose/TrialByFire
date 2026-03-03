@@ -301,7 +301,8 @@ const server = http.createServer(async (req, res) => {
       }
 
       /* If already settled by automation, just return the hash */
-      const existingHash = (transcript as Record<string, unknown>).txHash;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const existingHash = (transcript as any).txHash;
       if (existingHash) {
         sendJson(res, 200, {
           txHash: existingHash,
