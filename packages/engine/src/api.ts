@@ -45,11 +45,12 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 /* Automation polling interval (30 seconds) */
 const POLL_INTERVAL = 30_000;
 
-/* ── Contract ABI (for reading market state + requestSettlement) ── */
+/* ── Contract ABI (for reading market state + triggering Chainlink) ── */
 const CONTRACT_ABI = [
   "function getMarket(uint256 marketId) view returns (tuple(string question, string rubricHash, uint256 deadline, uint8 status, uint8 outcome, uint256 yesPool, uint256 noPool, bytes32 transcriptHash, address creator, uint256 creationDeposit))",
   "function nextMarketId() view returns (uint256)",
   "function requestSettlement(uint256 marketId)",
+  "function sendTrialRequest(uint256 marketId) returns (bytes32)",
   "function settle(uint256 marketId, uint8 outcome, uint256 scoreYes, uint256 scoreNo, bytes32 transcriptHash)",
   "function escalate(uint256 marketId, bytes32 transcriptHash)",
 ];
@@ -191,8 +192,25 @@ async function runTrialAndSettle(marketId: number, questionText: string): Promis
   }
 }
 
-/* ── Automation Loop (local Chainlink Automation equivalent) ── */
-
+/*
+ * ── Automation Loop ──
+ *
+ * This loop bridges deadlines to Chainlink Functions.
+ * It does NOT run the trial locally — it triggers the DON.
+ *
+ * Flow:
+ *   1. Detect markets past deadline with status Open
+ *      → call requestSettlement() to transition to SettlementRequested
+ *   2. Detect markets with status SettlementRequested
+ *      → call sendTrialRequest() to trigger Chainlink Functions on the DON
+ *   3. The DON executes trial-source.js (evidence + advocates + judge)
+ *   4. DON nodes reach consensus and call _fulfillRequest() on the contract
+ *   5. The contract auto-resolves or escalates — fully decentralized
+ *
+ * In production, Chainlink Automation keepers handle step 1 via
+ * checkUpkeep()/performUpkeep(). This loop is a backup that also
+ * triggers sendTrialRequest() (step 2), which keepers don't do.
+ */
 async function automationLoop() {
   if (!CONTRACT_ADDRESS || !PRIVATE_KEY) {
     console.log("  [AUTO] No CONTRACT_ADDRESS or PRIVATE_KEY — automation disabled.");
@@ -203,7 +221,8 @@ async function automationLoop() {
   const signer = new ethers.Wallet(PRIVATE_KEY, provider);
   const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-  console.log("  [AUTO] Automation loop started (polling every 30s)...\n");
+  console.log("  [AUTO] Automation loop started (polling every 30s)...");
+  console.log("  [AUTO] Mode: DECENTRALIZED — triggering Chainlink Functions DON\n");
 
   const poll = async () => {
     try {
@@ -217,7 +236,7 @@ async function automationLoop() {
         const status = Number(raw.status);
         const deadline = Number(raw.deadline);
 
-        /* OPEN + past deadline → auto-request settlement */
+        /* OPEN + past deadline → request settlement */
         if (status === STATUS.Open && now >= deadline) {
           console.log(`  [AUTO] Market #${i} deadline passed — requesting settlement...`);
           try {
@@ -226,18 +245,53 @@ async function automationLoop() {
             console.log(`  [AUTO] Market #${i} settlement requested.`);
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
-            /* Ignore if already requested */
             if (!msg.includes("Market not open")) {
               console.error(`  [AUTO] requestSettlement failed for #${i}: ${msg}`);
             }
           }
         }
 
-        /* SETTLEMENT REQUESTED → auto-run trial + settle */
+        /*
+         * SETTLEMENT REQUESTED → trigger Chainlink Functions DON
+         *
+         * This calls sendTrialRequest() on the contract, which:
+         *   1. Reads ETH/USD from Chainlink Data Feeds
+         *   2. Builds a Chainlink Functions request with the trial JS source
+         *   3. Sends it to the DON via the Functions Router
+         *   4. DON nodes execute trial-source.js independently
+         *   5. DON reaches consensus → calls _fulfillRequest()
+         *   6. Contract auto-resolves or escalates
+         *
+         * The trial runs entirely on the DON — not on this server.
+         */
         if (status === STATUS.SettlementRequested) {
-          console.log(`  [AUTO] Market #${i} awaiting trial — starting automatically...`);
-          /* Run in background so we don't block other markets */
-          runTrialAndSettle(i, raw.question);
+          processingMarkets.add(i);
+          console.log(`  [AUTO] Market #${i} awaiting trial — triggering Chainlink Functions DON...`);
+          try {
+            const tx = await contract.sendTrialRequest(i);
+            const receipt = await tx.wait();
+            console.log(`  [AUTO] Market #${i} trial request sent to DON! TX: ${receipt.hash}`);
+            console.log(`  [AUTO] DON will execute trial-source.js and call _fulfillRequest() when done.`);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            if (msg.includes("Settlement not requested")) {
+              /* Already processed — Chainlink Automation may have called it first */
+              console.log(`  [AUTO] Market #${i} already being processed by DON.`);
+            } else {
+              console.error(`  [AUTO] sendTrialRequest failed for #${i}: ${msg}`);
+
+              /*
+               * Fallback: if Chainlink Functions fails (e.g., subscription out of LINK,
+               * secrets expired, source not set), run the trial locally as backup.
+               */
+              console.log(`  [AUTO] Falling back to local trial for market #${i}...`);
+              runTrialAndSettle(i, raw.question);
+            }
+          } finally {
+            /* Remove from processing after a delay to avoid re-triggering
+             * while the DON is still executing (typically takes 30-60s) */
+            setTimeout(() => processingMarkets.delete(i), 120_000);
+          }
         }
       }
     } catch (err) {
