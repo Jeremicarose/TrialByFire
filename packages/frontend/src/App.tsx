@@ -55,7 +55,13 @@ export default function App() {
     }
   }, [markets, selectedId]);
 
-  /* Load user's position and all participants when selected market changes */
+  /*
+   * Load user's position and all participants when:
+   *   - Selected market changes
+   *   - Account changes (wallet switch)
+   *   - Markets refresh (after staking, settlement, etc.)
+   *   - Provider changes (new wallet connection creates fresh provider)
+   */
   useEffect(() => {
     if (selectedId !== null && account) {
       getUserPosition(selectedId, account).then(setUserPosition);
@@ -67,7 +73,7 @@ export default function App() {
     } else {
       setParticipants([]);
     }
-  }, [selectedId, account, getUserPosition, getMarketParticipants, markets]);
+  }, [selectedId, account, provider, getUserPosition, getMarketParticipants, markets]);
 
   /*
    * Fetch trial transcript from the API server when a settled market is selected.
