@@ -429,9 +429,16 @@ export function useContract(
       try {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
-        /* Query all PositionTaken events for this market */
+        /*
+         * Query PositionTaken events for this market.
+         * We look back ~50,000 blocks (~1 week on Sepolia) to catch
+         * all stakes. Some RPC providers limit queryFilter range,
+         * so we use an explicit fromBlock to stay within limits.
+         */
+        const currentBlock = await provider.getBlockNumber();
+        const fromBlock = Math.max(0, currentBlock - 50000);
         const filter = contract.filters.PositionTaken(marketId);
-        const events = await contract.queryFilter(filter);
+        const events = await contract.queryFilter(filter, fromBlock, "latest");
 
         /* Extract unique participant addresses */
         const addressSet = new Set<string>();
