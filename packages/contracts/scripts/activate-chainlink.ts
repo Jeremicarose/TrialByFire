@@ -77,12 +77,21 @@ async function main() {
    * only DON nodes can decrypt them. The secrets never appear
    * in plaintext on-chain.
    */
+  /*
+   * The Chainlink Functions toolkit uses ethers v5 internally.
+   * Hardhat uses ethers v6. We need to create an ethers v5 signer
+   * for the SecretsManager. The @ethersproject packages (v5) are
+   * installed as transitive dependencies of the toolkit.
+   */
+  const ethersV5providers = require("@ethersproject/providers");
+  const ethersV5wallet = require("@ethersproject/wallet");
+
   const rpcUrl = process.env.SEPOLIA_RPC_URL || process.env.RPC_URL || "";
-  const provider = new ethers.JsonRpcProvider(rpcUrl);
-  const wallet = new ethers.Wallet(privateKey, provider);
+  const v5Provider = new ethersV5providers.JsonRpcProvider(rpcUrl);
+  const v5Wallet = new ethersV5wallet.Wallet(privateKey, v5Provider);
 
   const secretsManager = new SecretsManager({
-    signer: wallet as any,
+    signer: v5Wallet,
     functionsRouterAddress: FUNCTIONS_ROUTER,
     donId: DON_ID,
   });
