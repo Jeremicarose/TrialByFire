@@ -133,6 +133,18 @@
   border: 1px solid var(--warning-primary);
 }
 
+/* ── Trial Loading State ── */
+.trial-loading {
+  text-align: center;
+  padding: var(--space-xl) var(--space-md);
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
 @media (max-width: 640px) {
   .app-header__row {
     flex-direction: column;
