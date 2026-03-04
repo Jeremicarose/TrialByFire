@@ -6,24 +6,26 @@ import { CreateMarket } from "./components/CreateMarket";
 import { MarketList } from "./components/MarketList";
 import { MarketView } from "./components/MarketView";
 import { ParticipantList } from "./components/ParticipantList";
+import { TrialTranscript } from "./components/TrialTranscript";
+import { JudgeScorecard } from "./components/JudgeScorecard";
+import { SettlementStatus } from "./components/SettlementStatus";
 import type { Participant } from "./hooks/useContract";
+import type { TrialTranscript as TrialTranscriptType } from "./types";
 import "./App.css";
 
 /*
  * App — Root component that wires wallet, contract, and UI together.
  *
- * Architecture:
- *   useWallet()   → MetaMask connection, account, signer, isOwner
- *   useContract() → All contract reads/writes, market data, trial results
- *
  * Layout:
  *   Header (branding + wallet button)
+ *   HowItWorks (hero explainer)
  *   CreateMarket form (anyone with a wallet — 0.01 ETH deposit)
  *   MarketList (card grid of all filed cases)
  *   MarketView (detail panel for selected case + staking)
  *   TrialTranscript (adversarial debate — appears after trial runs)
  *   JudgeScorecard (per-criterion scores — appears after trial runs)
  *   SettlementStatus (final verdict — appears after trial runs)
+ *   ParticipantList (all stakers + potential payouts)
  */
 export default function App() {
   const { account, isOwner, isConnected, connect, provider, signer, error: walletError } = useWallet();
@@ -43,6 +45,8 @@ export default function App() {
   const [createLoading, setCreateLoading] = useState(false);
   const [userPosition, setUserPosition] = useState<{ yes: string; no: string } | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [transcript, setTranscript] = useState<TrialTranscriptType | null>(null);
+  const [transcriptLoading, setTranscriptLoading] = useState(false);
 
   /* Auto-select the first market when data loads */
   useEffect(() => {
@@ -64,6 +68,34 @@ export default function App() {
       setParticipants([]);
     }
   }, [selectedId, account, getUserPosition, getMarketParticipants, markets]);
+
+  /*
+   * Fetch trial transcript from the API server when a settled market is selected.
+   * The transcript persists on the server after auto-settlement, so users
+   * can always see the full debate, judge scores, and verdict reasoning.
+   */
+  useEffect(() => {
+    if (selectedId === null) {
+      setTranscript(null);
+      return;
+    }
+
+    const market = markets.find((m) => m.id === selectedId);
+    if (!market || (market.status !== "Resolved" && market.status !== "Escalated")) {
+      setTranscript(null);
+      return;
+    }
+
+    setTranscriptLoading(true);
+    fetch(`/api/transcript/${selectedId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("No transcript");
+        return res.json();
+      })
+      .then((data) => setTranscript(data.transcript))
+      .catch(() => setTranscript(null))
+      .finally(() => setTranscriptLoading(false));
+  }, [selectedId, markets]);
 
   /* Handle market creation with loading state */
   const handleCreateMarket = useCallback(
@@ -156,6 +188,45 @@ export default function App() {
         />
       )}
 
+      {/* ── Trial Results (appears after trial completes) ── */}
+      {selectedMarket && (selectedMarket.status === "Resolved" || selectedMarket.status === "Escalated") && (
+        <>
+          {transcriptLoading && (
+            <div className="trial-loading mono">
+              <span className="run-trial-btn__spinner" />
+              Loading trial results...
+            </div>
+          )}
+
+          {transcript && (
+            <>
+              {/* Adversarial Debate — YES vs NO side by side */}
+              <TrialTranscript
+                advocateYes={transcript.advocateYes}
+                advocateNo={transcript.advocateNo}
+              />
+
+              {/* Judge Scorecard — per-criterion scores + ruling */}
+              <JudgeScorecard ruling={transcript.judgeRuling} />
+
+              {/* Settlement Decision — RESOLVE or ESCALATE with reasoning */}
+              <SettlementStatus
+                decision={transcript.decision}
+                threshold={transcript.question.rubric.confidenceThreshold}
+                durationMs={transcript.durationMs}
+                txHash={(transcript as unknown as Record<string, unknown>).txHash as string | undefined}
+              />
+            </>
+          )}
+
+          {!transcriptLoading && !transcript && (
+            <div className="trial-loading mono">
+              Trial results not available (server may have restarted).
+            </div>
+          )}
+        </>
+      )}
+
       {/* ── Participant List ── */}
       {selectedMarket && participants.length > 0 && (
         <ParticipantList
@@ -166,13 +237,6 @@ export default function App() {
           marketStatus={selectedMarket.status}
         />
       )}
-
-      {/*
-       * Trial results will be displayed once we add result fetching
-       * from the API server's transcript store or IPFS.
-       * For now, the market status updates automatically when the
-       * server completes the trial and settles onchain.
-       */}
     </div>
   );
 }
