@@ -155,19 +155,27 @@ export function useWallet() {
   useEffect(() => {
     if (typeof window === "undefined" || !window.ethereum) return;
 
-    const handleAccountsChanged = (...args: unknown[]) => {
+    const handleAccountsChanged = async (...args: unknown[]) => {
       const accounts = args[0] as string[];
       if (accounts.length === 0) {
         // User disconnected their wallet
         setAccount(null);
         setIsOwner(false);
         setSigner(null);
+        setProvider(null);
       } else {
+        /*
+         * Create a FRESH provider and signer on account switch.
+         * The old BrowserProvider caches the previous account internally,
+         * so reusing it causes stale reads (user sees old wallet's data).
+         * A new BrowserProvider picks up the newly selected account.
+         */
+        const freshProvider = new ethers.BrowserProvider(window.ethereum!);
+        const freshSigner = await freshProvider.getSigner();
         setAccount(accounts[0]);
-        if (provider) {
-          checkOwnership(accounts[0], provider);
-          provider.getSigner().then(setSigner);
-        }
+        setProvider(freshProvider);
+        setSigner(freshSigner);
+        await checkOwnership(accounts[0], freshProvider);
       }
     };
 
