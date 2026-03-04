@@ -273,6 +273,19 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    /* ── GET /api/transcript/:marketId ── (fetch trial results for display) */
+    const transcriptMatch = method === "GET" && url?.match(/^\/api\/transcript\/(\d+)$/);
+    if (transcriptMatch) {
+      const marketId = parseInt(transcriptMatch[1], 10);
+      const transcript = transcriptStore.get(marketId);
+      if (transcript) {
+        sendJson(res, 200, { transcript });
+      } else {
+        sendJson(res, 404, { error: "No transcript found for this market" });
+      }
+      return;
+    }
+
     /* ── POST /api/trial ── (manual trigger, also used by frontend) */
     if (method === "POST" && url === "/api/trial") {
       const body = await parseBody(req);
@@ -325,7 +338,6 @@ const server = http.createServer(async (req, res) => {
           action: transcript.decision.action,
           verdict: transcript.decision.verdict,
         });
-        transcriptStore.delete(marketId);
         return;
       }
 
