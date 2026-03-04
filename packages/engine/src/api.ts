@@ -359,7 +359,6 @@ const server = http.createServer(async (req, res) => {
         console.log(`  Escalated! TX: ${txHash}`);
       }
 
-      transcriptStore.delete(marketId);
       sendJson(res, 200, {
         txHash,
         action: transcript.decision.action,
@@ -386,9 +385,10 @@ server.listen(PORT, () => {
   console.log(`  Contract:   ${CONTRACT_ADDRESS || "(not set)"}`);
   console.log(`  Automation: Enabled (polling every ${POLL_INTERVAL / 1000}s)`);
   console.log(`\n  Endpoints:`);
-  console.log(`    GET  /api/health  — Server status`);
-  console.log(`    POST /api/trial   — Run adversarial trial (manual)`);
-  console.log(`    POST /api/settle  — Settle market onchain (manual)`);
+  console.log(`    GET  /api/health            — Server status`);
+  console.log(`    GET  /api/transcript/:id    — Fetch trial results`);
+  console.log(`    POST /api/trial             — Run adversarial trial (manual)`);
+  console.log(`    POST /api/settle            — Settle market onchain (manual)`);
   console.log(`${"=".repeat(60)}\n`);
 
   /* Start automation loop after server is ready */
