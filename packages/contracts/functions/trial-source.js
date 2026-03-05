@@ -37,6 +37,7 @@
  * secrets (encrypted, stored off-chain):
  *   secrets.openaiKey    — OpenAI API key for NO advocate
  *   secrets.anthropicKey — Anthropic API key for YES advocate + judge
+ *   secrets.pinataJwt    — Pinata JWT for IPFS transcript upload
  */
 
 // ── Parse Arguments ─────────────────────────────────────────────
