@@ -635,9 +635,83 @@ if (hallucinations.length > 0) {
   verdict = ruling.finalVerdict === "YES" ? 1 : 2;
 }
 
+// ── Step 4.5: Upload Transcript to IPFS ─────────────────────────
+
+/**
+ * Build the full transcript and pin it to IPFS via Pinata.
+ * This makes the complete debate (advocates + judge + evidence)
+ * permanently available and verifiable — anyone can fetch it
+ * using the CID stored onchain.
+ *
+ * The upload is NON-FATAL: if Pinata times out or fails,
+ * the verdict still settles onchain — CID fields stay zeroed.
+ */
+const transcript = {
+  marketId,
+  question,
+  category,
+  evidence: evidenceSummary,
+  advocateYes: yesArgument,
+  advocateNo: noArgument,
+  judgeRuling: ruling,
+  decision: {
+    action: action === 1 ? "RESOLVE" : "ESCALATE",
+    verdict: verdict === 1 ? "YES" : verdict === 2 ? "NO" : null,
+    scoreYes,
+    scoreNo,
+    margin,
+    reason: action === 1
+      ? `Margin of ${margin} exceeds threshold of ${confidenceThreshold}`
+      : hallucinations.length > 0
+        ? `Hallucinations detected: ${hallucinations.join(", ")}`
+        : `Margin of ${margin} below threshold of ${confidenceThreshold}`,
+  },
+  executedAt: new Date().toISOString(),
+  rubricHash,
+  ethUsdPrice: ethPriceUsd,
+};
+
+let cidBytes = new Uint8Array(64); // Two 32-byte words for CID storage
+
+try {
+  const pinataResponse = await Functions.makeHttpRequest({
+    url: "https://api.pinata.cloud/pinning/pinJSONToIPFS",
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${secrets.pinataJwt}`,
+      "Content-Type": "application/json",
+    },
+    data: {
+      pinataContent: transcript,
+      pinataMetadata: { name: `trialbyfire-market-${marketId}` },
+    },
+    timeout: 5000,
+  });
+
+  if (!pinataResponse.error && pinataResponse.data?.IpfsHash) {
+    const cid = pinataResponse.data.IpfsHash;
+    // Encode CID string as ASCII bytes (CIDv0 = 46 chars, CIDv1 = variable)
+    for (let i = 0; i < cid.length && i < 64; i++) {
+      cidBytes[i] = cid.charCodeAt(i);
+    }
+  }
+} catch (e) {
+  // IPFS upload failed — non-fatal, verdict still goes onchain
+}
+
 // ── Step 5: Encode and Return ───────────────────────────────────
 
-const encoded = new Uint8Array(128);
+/**
+ * Response format: 192 bytes = 6 x 32-byte ABI words
+ *
+ * Word 0 (byte  31): action    — 1=RESOLVE, 2=ESCALATE
+ * Word 1 (byte  63): verdict   — 1=YES, 2=NO, 0=none
+ * Word 2 (byte  95): scoreYes  — 0-100
+ * Word 3 (byte 127): scoreNo   — 0-100
+ * Word 4 (bytes 128-159): cidA — first 32 bytes of IPFS CID string
+ * Word 5 (bytes 160-191): cidB — remaining bytes (zero-padded)
+ */
+const encoded = new Uint8Array(192);
 
 // action (uint8 → 32 bytes, value at position 31)
 encoded[31] = action;
@@ -650,5 +724,15 @@ encoded[95] = scoreYes;
 
 // scoreNo (uint256 → 32 bytes, big-endian at position 127)
 encoded[127] = scoreNo;
+
+// CID part A (bytes32 at positions 128-159)
+for (let i = 0; i < 32; i++) {
+  encoded[128 + i] = cidBytes[i] || 0;
+}
+
+// CID part B (bytes32 at positions 160-191)
+for (let i = 0; i < 32; i++) {
+  encoded[160 + i] = cidBytes[32 + i] || 0;
+}
 
 return encoded;
