@@ -67,9 +67,15 @@ async function main() {
 
   console.log("\n  [1/3] Encrypting API secrets for DON...");
 
+  const pinataJwt = process.env.PINATA_JWT || "";
+  if (!pinataJwt) {
+    console.log("  WARNING: PINATA_JWT not set — transcripts won't be uploaded to IPFS");
+  }
+
   const secrets = {
     anthropicKey: anthropicKey,
     openaiKey: openaiKey || "",
+    pinataJwt: pinataJwt,
   };
 
   /*
