@@ -200,6 +200,13 @@ async function runTrialAndSettle(marketId: number, questionText: string): Promis
       console.log(`  Verdict: ${transcript.decision.verdict}`);
     }
 
+    /* Upload transcript to IPFS for persistence */
+    const cid = await uploadToIpfs(transcript, marketId);
+    if (cid) {
+      console.log(`  [IPFS] Transcript pinned: ${cid}`);
+      cidStore.set(marketId, cid);
+    }
+
     /* Auto-settle onchain */
     if (CONTRACT_ADDRESS && PRIVATE_KEY) {
       console.log(`  Settling market #${marketId} onchain...`);
@@ -207,10 +214,10 @@ async function runTrialAndSettle(marketId: number, questionText: string): Promis
       let txHash: string;
 
       if (transcript.decision.action === "RESOLVE") {
-        txHash = await settler.settle(marketId, transcript);
+        txHash = await settler.settle(marketId, transcript, cid || undefined);
         console.log(`  Settled! TX: ${txHash}`);
       } else {
-        txHash = await settler.escalate(marketId, transcript);
+        txHash = await settler.escalate(marketId, transcript, cid || undefined);
         console.log(`  Escalated! TX: ${txHash}`);
       }
 
