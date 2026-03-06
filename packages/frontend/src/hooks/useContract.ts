@@ -92,6 +92,7 @@ export interface MarketData {
   yesPool: string; // ETH as string (e.g. "1.5")
   noPool: string;
   transcriptHash: string;
+  transcriptCid: string; // IPFS CID for the full trial transcript
   creator: string;
   creationDeposit: string;
 }
