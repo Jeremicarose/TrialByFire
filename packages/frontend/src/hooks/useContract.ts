@@ -457,7 +457,7 @@ export function useContract(
          * so we use an explicit fromBlock to stay within limits.
          */
         const currentBlock = await provider.getBlockNumber();
-        const fromBlock = Math.max(0, currentBlock - 50000);
+        const fromBlock = Math.max(0, currentBlock - 4999);
         const filter = contract.filters.PositionTaken(marketId);
         const events = await contract.queryFilter(filter, fromBlock, "latest");
 
