@@ -647,7 +647,9 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
         Verdict outcome,
         uint256 scoreYes,
         uint256 scoreNo,
-        bytes32 transcriptHash
+        bytes32 transcriptHash,
+        bytes32 cidA,
+        bytes32 cidB
     ) external onlyOwner {
         Market storage m = markets[marketId];
         require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
@@ -655,6 +657,8 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
         m.status = MarketStatus.Resolved;
         m.outcome = outcome;
         m.transcriptHash = transcriptHash;
+        m.transcriptCidA = cidA;
+        m.transcriptCidB = cidB;
         emit MarketResolved(marketId, outcome, scoreYes, scoreNo, transcriptHash);
     }
 
@@ -663,12 +667,16 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
      */
     function escalate(
         uint256 marketId,
-        bytes32 transcriptHash
+        bytes32 transcriptHash,
+        bytes32 cidA,
+        bytes32 cidB
     ) external onlyOwner {
         Market storage m = markets[marketId];
         require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
         m.status = MarketStatus.Escalated;
         m.transcriptHash = transcriptHash;
+        m.transcriptCidA = cidA;
+        m.transcriptCidB = cidB;
         emit MarketEscalated(marketId, transcriptHash);
     }
 
