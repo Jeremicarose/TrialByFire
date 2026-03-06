@@ -76,9 +76,14 @@ export default function App() {
   }, [selectedId, account, provider, getUserPosition, getMarketParticipants, markets]);
 
   /*
-   * Fetch trial transcript from the API server when a settled market is selected.
-   * The transcript persists on the server after auto-settlement, so users
-   * can always see the full debate, judge scores, and verdict reasoning.
+   * Fetch trial transcript when a settled market is selected.
+   *
+   * Priority:
+   *   1. IPFS (via Pinata/public gateways) — decentralized, permanent
+   *   2. Local API server fallback — for dev or if IPFS upload failed
+   *
+   * The DON uploads the full transcript to IPFS during trial execution.
+   * The CID is stored onchain in transcriptCidA/CidB fields.
    */
   useEffect(() => {
     if (selectedId === null) {
@@ -93,14 +98,74 @@ export default function App() {
     }
 
     setTranscriptLoading(true);
-    fetch(`/api/transcript/${selectedId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("No transcript");
-        return res.json();
-      })
-      .then((data) => setTranscript(data.transcript))
-      .catch(() => setTranscript(null))
-      .finally(() => setTranscriptLoading(false));
+
+    const fetchTranscript = async () => {
+      /* Try IPFS first if CID is available */
+      if (market.transcriptCid) {
+        const gateways = [
+          `https://gateway.pinata.cloud/ipfs/${market.transcriptCid}`,
+          `https://ipfs.io/ipfs/${market.transcriptCid}`,
+          `https://cloudflare-ipfs.com/ipfs/${market.transcriptCid}`,
+        ];
+
+        for (const url of gateways) {
+          try {
+            const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+            if (res.ok) {
+              const donData = await res.json();
+              /* Transform DON transcript format to frontend TrialTranscript type */
+              setTranscript({
+                question: {
+                  id: `market-${market.id}`,
+                  question: market.question,
+                  rubric: {
+                    criteria: [
+                      { name: "Data accuracy", description: "Are the cited numbers verifiable?", weight: 30 },
+                      { name: "Time period coverage", description: "Does evidence cover the full period?", weight: 25 },
+                      { name: "Source diversity", description: "Are multiple independent sources used?", weight: 20 },
+                      { name: "Logical coherence", description: "Is the argument internally consistent?", weight: 25 },
+                    ],
+                    evidenceSources: [donData.category || "dynamic"],
+                    confidenceThreshold: 20,
+                  },
+                  settlementDeadline: market.deadline,
+                },
+                evidence: {
+                  questionId: `market-${market.id}`,
+                  items: [{ source: "don", title: "DON Evidence", content: donData.evidence || "", retrievedAt: new Date(donData.executedAt) }],
+                  gatheredAt: new Date(donData.executedAt),
+                },
+                advocateYes: { ...donData.advocateYes, model: "claude-sonnet-4-20250514" },
+                advocateNo: { ...donData.advocateNo, model: "gpt-4o" },
+                judgeRuling: { ...donData.judgeRuling, model: "claude-sonnet-4-20250514" },
+                decision: donData.decision,
+                executedAt: new Date(donData.executedAt),
+                durationMs: 0,
+              } as TrialTranscriptType);
+              return;
+            }
+          } catch {
+            /* Try next gateway */
+          }
+        }
+      }
+
+      /* Fallback: local API server */
+      try {
+        const res = await fetch(`/api/transcript/${selectedId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setTranscript(data.transcript);
+          return;
+        }
+      } catch {
+        /* No transcript available */
+      }
+
+      setTranscript(null);
+    };
+
+    fetchTranscript().finally(() => setTranscriptLoading(false));
   }, [selectedId, markets]);
 
   /* Handle market creation with loading state */
