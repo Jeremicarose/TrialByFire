@@ -188,12 +188,12 @@ async function main() {
   }
 
   /* Also set CONTRACT_ADDRESS for the engine API server */
-  if (envContent.includes("CONTRACT_ADDRESS=") && !envContent.includes("VITE_CONTRACT_ADDRESS")) {
+  if (envContent.match(/^CONTRACT_ADDRESS=/m)) {
     envContent = envContent.replace(
-      /CONTRACT_ADDRESS=.*/,
+      /^CONTRACT_ADDRESS=.*/m,
       `CONTRACT_ADDRESS=${contractAddress}`
     );
-  } else if (!envContent.includes("CONTRACT_ADDRESS=")) {
+  } else {
     envContent += `CONTRACT_ADDRESS=${contractAddress}\n`;
   }
 
