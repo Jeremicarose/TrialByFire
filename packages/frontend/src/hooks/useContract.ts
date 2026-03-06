@@ -49,11 +49,12 @@ const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "";
  */
 const CONTRACT_ABI = [
   // View functions
-  "function getMarket(uint256 marketId) view returns (tuple(string question, string rubricHash, uint256 deadline, uint8 status, uint8 outcome, uint256 yesPool, uint256 noPool, bytes32 transcriptHash, address creator, uint256 creationDeposit))",
+  "function getMarket(uint256 marketId) view returns (tuple(string question, string rubricHash, uint256 deadline, uint8 status, uint8 outcome, uint256 yesPool, uint256 noPool, bytes32 transcriptHash, bytes32 transcriptCidA, bytes32 transcriptCidB, address creator, uint256 creationDeposit))",
   "function nextMarketId() view returns (uint256)",
   "function yesPositions(uint256 marketId, address user) view returns (uint256)",
   "function noPositions(uint256 marketId, address user) view returns (uint256)",
   "function getLatestEthUsdPrice() view returns (int256 price, uint256 updatedAt)",
+  "function getTranscriptCid(uint256 marketId) view returns (string)",
   "function owner() view returns (address)",
 
   // Write functions
@@ -61,8 +62,8 @@ const CONTRACT_ABI = [
   "function takePosition(uint256 marketId, uint8 side) payable",
   "function requestSettlement(uint256 marketId)",
   "function sendTrialRequest(uint256 marketId) returns (bytes32)",
-  "function settle(uint256 marketId, uint8 outcome, uint256 scoreYes, uint256 scoreNo, bytes32 transcriptHash)",
-  "function escalate(uint256 marketId, bytes32 transcriptHash)",
+  "function settle(uint256 marketId, uint8 outcome, uint256 scoreYes, uint256 scoreNo, bytes32 transcriptHash, bytes32 cidA, bytes32 cidB)",
+  "function escalate(uint256 marketId, bytes32 transcriptHash, bytes32 cidA, bytes32 cidB)",
   "function claimWinnings(uint256 marketId)",
   "function claimRefund(uint256 marketId)",
   "function claimCreationDeposit(uint256 marketId)",
