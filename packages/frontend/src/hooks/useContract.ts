@@ -119,6 +119,24 @@ const VERDICT_MAP: Record<number, MarketData["outcome"]> = {
  * The contract returns a tuple with numeric types; we convert
  * timestamps to Dates, wei to ETH strings, and enums to labels.
  */
+/**
+ * Reconstruct an IPFS CID string from two bytes32 hex values.
+ * The CID is stored as raw ASCII bytes split across cidA and cidB.
+ */
+function cidFromBytes32Pair(a: string, b: string): string {
+  const hexToAscii = (hex: string) => {
+    const clean = hex.startsWith("0x") ? hex.slice(2) : hex;
+    let str = "";
+    for (let i = 0; i < clean.length; i += 2) {
+      const code = parseInt(clean.substring(i, i + 2), 16);
+      if (code === 0) break;
+      str += String.fromCharCode(code);
+    }
+    return str;
+  };
+  return hexToAscii(a) + hexToAscii(b);
+}
+
 function parseMarket(id: number, raw: ethers.Result): MarketData {
   return {
     id,
@@ -130,6 +148,7 @@ function parseMarket(id: number, raw: ethers.Result): MarketData {
     yesPool: ethers.formatEther(raw.yesPool),
     noPool: ethers.formatEther(raw.noPool),
     transcriptHash: raw.transcriptHash,
+    transcriptCid: cidFromBytes32Pair(raw.transcriptCidA, raw.transcriptCidB),
     creator: raw.creator,
     creationDeposit: ethers.formatEther(raw.creationDeposit),
   };
