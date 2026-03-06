@@ -121,6 +121,40 @@ function buildPipelineConfig(): PipelineConfig {
 /* Transcript store (in-memory) */
 const transcriptStore = new Map<number, TrialTranscript>();
 
+/* IPFS CID store — maps marketId to Pinata CID */
+const cidStore = new Map<number, string>();
+
+/**
+ * Upload transcript JSON to Pinata IPFS.
+ * Returns the CID string on success, null on failure.
+ */
+async function uploadToIpfs(transcript: TrialTranscript, marketId: number): Promise<string | null> {
+  const jwt = process.env.PINATA_JWT;
+  if (!jwt) return null;
+
+  try {
+    const response = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        pinataContent: transcript,
+        pinataMetadata: { name: `trialbyfire-market-${marketId}` },
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json() as { IpfsHash: string };
+      return data.IpfsHash;
+    }
+  } catch (err) {
+    console.error("  [IPFS] Upload failed:", err instanceof Error ? err.message : err);
+  }
+  return null;
+}
+
 /* Track which markets are currently being processed to prevent double-runs */
 const processingMarkets = new Set<number>();
 
