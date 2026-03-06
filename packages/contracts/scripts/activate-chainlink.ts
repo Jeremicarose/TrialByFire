@@ -166,7 +166,7 @@ async function main() {
   if (currentSource.length === source.length) {
     console.log(`  Source already up-to-date (${source.length} bytes). Skipping.`);
   } else {
-    const tx2 = await contract.setFunctionsSource(source, { gasLimit: 30_000_000 });
+    const tx2 = await contract.setFunctionsSource(source, { gasLimit: 20_000_000 });
     await tx2.wait();
     console.log(`  Uploaded ${source.length} bytes (was ${currentSource.length})`);
     console.log(`  TX: ${tx2.hash}`);
