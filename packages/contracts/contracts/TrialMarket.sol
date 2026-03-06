@@ -537,6 +537,36 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
         }
     }
 
+    /**
+     * @notice Reconstruct the IPFS CID string from the two bytes32 fields.
+     * @dev The CID is stored as raw ASCII bytes split across cidA (first 32)
+     *      and cidB (remaining, zero-padded). Returns empty string if no CID.
+     */
+    function getTranscriptCid(uint256 marketId) external view returns (string memory) {
+        Market storage m = markets[marketId];
+        if (m.transcriptCidA == bytes32(0)) return "";
+
+        bytes memory cid = new bytes(64);
+        uint256 len = 0;
+
+        for (uint256 i = 0; i < 32; i++) {
+            bytes1 b = m.transcriptCidA[i];
+            if (b == 0) break;
+            cid[len++] = b;
+        }
+        for (uint256 i = 0; i < 32; i++) {
+            bytes1 b = m.transcriptCidB[i];
+            if (b == 0) break;
+            cid[len++] = b;
+        }
+
+        bytes memory trimmed = new bytes(len);
+        for (uint256 i = 0; i < len; i++) {
+            trimmed[i] = cid[i];
+        }
+        return string(trimmed);
+    }
+
     // ═══════════════════════════════════════════════════════════════
     //  CHAINLINK AUTOMATION — AUTO-TRIGGER SETTLEMENT
     // ═══════════════════════════════════════════════════════════════
