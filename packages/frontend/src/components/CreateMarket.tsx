@@ -33,7 +33,9 @@ export function CreateMarket({ onSubmit, isLoading }: CreateMarketProps) {
     e.preventDefault();
     if (!question.trim() || !deadlineStr) return;
 
-    const deadlineUnix = Math.floor(new Date(deadlineStr).getTime() / 1000);
+    const parsedTime = new Date(deadlineStr).getTime();
+    if (isNaN(parsedTime)) return;
+    const deadlineUnix = Math.floor(parsedTime / 1000);
 
     /*
      * Build a deterministic rubric JSON and hash it with keccak256.
