@@ -154,7 +154,7 @@ async function main() {
 
   if (fs.existsSync(sourcePath)) {
     const source = fs.readFileSync(sourcePath, "utf8");
-    const tx3 = await market.setFunctionsSource(source, { gasLimit: 30_000_000 });
+    const tx3 = await market.setFunctionsSource(source);
     await tx3.wait();
     console.log(`         Source: ${source.length} bytes uploaded`);
     console.log(`         TX: ${tx3.hash}`);
