@@ -302,6 +302,8 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
             yesPool: 0,
             noPool: 0,
             transcriptHash: bytes32(0),
+            transcriptCidA: bytes32(0),
+            transcriptCidB: bytes32(0),
             creator: msg.sender,
             creationDeposit: msg.value
         });
