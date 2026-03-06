@@ -305,34 +305,23 @@ async function automationLoop() {
          *
          * The trial runs entirely on the DON — not on this server.
          */
+        /*
+         * SETTLEMENT REQUESTED → run trial locally with IPFS upload, settle onchain.
+         *
+         * The local engine runs the full adversarial trial (evidence → advocates → judge),
+         * uploads the transcript to IPFS via Pinata, and settles the market onchain
+         * with the IPFS CID stored in the contract.
+         *
+         * This is the hybrid approach: the trial logic mirrors what trial-source.js
+         * does on the DON, but runs locally for reliability. The IPFS transcript
+         * is permanent and verifiable — anyone can fetch it using the onchain CID.
+         *
+         * When the DON secrets decryption issue is resolved, this can switch back
+         * to sendTrialRequest() for fully decentralized execution.
+         */
         if (status === STATUS.SettlementRequested) {
-          processingMarkets.add(i);
-          console.log(`  [AUTO] Market #${i} awaiting trial — triggering Chainlink Functions DON...`);
-          try {
-            const tx = await contract.sendTrialRequest(i);
-            const receipt = await tx.wait();
-            console.log(`  [AUTO] Market #${i} trial request sent to DON! TX: ${receipt.hash}`);
-            console.log(`  [AUTO] DON will execute trial-source.js and call _fulfillRequest() when done.`);
-          } catch (err) {
-            const msg = err instanceof Error ? err.message : String(err);
-            if (msg.includes("Settlement not requested")) {
-              /* Already processed — Chainlink Automation may have called it first */
-              console.log(`  [AUTO] Market #${i} already being processed by DON.`);
-            } else {
-              console.error(`  [AUTO] sendTrialRequest failed for #${i}: ${msg}`);
-
-              /*
-               * Fallback: if Chainlink Functions fails (e.g., subscription out of LINK,
-               * secrets expired, source not set), run the trial locally as backup.
-               */
-              console.log(`  [AUTO] Falling back to local trial for market #${i}...`);
-              runTrialAndSettle(i, raw.question);
-            }
-          } finally {
-            /* Remove from processing after a delay to avoid re-triggering
-             * while the DON is still executing (typically takes 30-60s) */
-            setTimeout(() => processingMarkets.delete(i), 120_000);
-          }
+          console.log(`  [AUTO] Market #${i} awaiting trial — running with IPFS upload...`);
+          runTrialAndSettle(i, raw.question);
         }
       }
     } catch (err) {
