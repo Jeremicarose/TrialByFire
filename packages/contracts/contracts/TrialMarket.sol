@@ -511,13 +511,16 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
 
         /*
          * Decode the trial result.
-         * The JavaScript source ABI-encodes these four values before
+         * The JavaScript source ABI-encodes these six values before
          * returning them to the DON for consensus.
+         * cidA/cidB contain the IPFS CID of the full transcript.
          */
-        (uint8 action, uint8 verdict, uint256 scoreYes, uint256 scoreNo) =
-            abi.decode(response, (uint8, uint8, uint256, uint256));
+        (uint8 action, uint8 verdict, uint256 scoreYes, uint256 scoreNo, bytes32 cidA, bytes32 cidB) =
+            abi.decode(response, (uint8, uint8, uint256, uint256, bytes32, bytes32));
 
         bytes32 transcriptHash = keccak256(response);
+        m.transcriptCidA = cidA;
+        m.transcriptCidB = cidB;
 
         if (action == 1) {
             // RESOLVE — the trial produced a clear verdict
