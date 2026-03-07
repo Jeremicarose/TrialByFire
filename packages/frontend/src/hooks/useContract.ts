@@ -457,9 +457,24 @@ export function useContract(
          * so we use an explicit fromBlock to stay within limits.
          */
         const currentBlock = await provider.getBlockNumber();
-        const fromBlock = Math.max(0, currentBlock - 4999);
         const filter = contract.filters.PositionTaken(marketId);
-        const events = await contract.queryFilter(filter, fromBlock, "latest");
+
+        /*
+         * Try progressively smaller block ranges to handle different
+         * RPC providers with varying eth_getLogs limits.
+         * Alchemy supports 100K+, publicnode.com (MetaMask default) caps at ~5000.
+         */
+        let events: ethers.Log[] = [];
+        const ranges = [50000, 10000, 4999];
+        for (const range of ranges) {
+          try {
+            const fromBlock = Math.max(0, currentBlock - range);
+            events = await contract.queryFilter(filter, fromBlock, "latest");
+            break; // success — use this result
+          } catch {
+            continue; // try smaller range
+          }
+        }
 
         /* Extract unique participant addresses */
         const addressSet = new Set<string>();
