@@ -20,7 +20,6 @@ import * as fs from "fs";
 import * as path from "path";
 import {
   SecretsManager,
-  createGist,
 } from "@chainlink/functions-toolkit";
 
 /* Chainlink Sepolia addresses */
