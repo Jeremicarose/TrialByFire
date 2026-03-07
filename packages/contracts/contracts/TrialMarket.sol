@@ -178,6 +178,14 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
     AggregatorV3Interface public s_priceFeed;
 
     /*
+     * CRE (Chainlink Runtime Environment) integration.
+     * The KeystoneForwarder delivers signed reports from CRE workflows
+     * to our onReport() function. Only this address is authorized.
+     * Sepolia: 0x15fc6ae953e024d975e77382eeec56a9101f9f88
+     */
+    address public s_keystoneForwarder;
+
+    /*
      * Market creation requires a minimum deposit to prevent spam.
      * 0.01 ETH is low enough to not be a barrier but high enough
      * to discourage frivolous market creation.
