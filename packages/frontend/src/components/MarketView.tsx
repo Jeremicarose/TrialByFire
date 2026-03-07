@@ -112,6 +112,12 @@ export function MarketView({
   /* Check if the user has any position */
   const hasYesPosition = userPosition && parseFloat(userPosition.yes) > 0;
   const hasNoPosition = userPosition && parseFloat(userPosition.no) > 0;
+  const hasAnyPosition = hasYesPosition || hasNoPosition;
+
+  /* Total user stake */
+  const userTotalStake =
+    (userPosition ? parseFloat(userPosition.yes) : 0) +
+    (userPosition ? parseFloat(userPosition.no) : 0);
 
   /* Determine if user won or lost */
   const userWon =
@@ -121,8 +127,12 @@ export function MarketView({
 
   const userLost =
     market.status === "Resolved" &&
-    (hasYesPosition || hasNoPosition) &&
+    hasAnyPosition &&
     !userWon;
+
+  /* Escalated = everyone gets refund */
+  const userRefundable =
+    market.status === "Escalated" && hasAnyPosition;
 
   /* Calculate expected payout for winners */
   const getExpectedPayout = () => {
@@ -137,7 +147,17 @@ export function MarketView({
     return { payout, profit };
   };
 
+  /* Calculate loss amount */
+  const getLossAmount = () => {
+    if (!userLost || !userPosition) return 0;
+    /* Loser forfeits their stake on the losing side */
+    if (market.outcome === "Yes") return parseFloat(userPosition.no);
+    if (market.outcome === "No") return parseFloat(userPosition.yes);
+    return 0;
+  };
+
   const payoutInfo = getExpectedPayout();
+  const lossAmount = getLossAmount();
 
   return (
     <section className="market-view reveal">
