@@ -274,6 +274,57 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
         s_callbackGasLimit = gasLimit;
     }
 
+    function setKeystoneForwarder(address forwarder) external onlyOwner {
+        s_keystoneForwarder = forwarder;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  CRE (CHAINLINK RUNTIME ENVIRONMENT) — REPORT ENTRY POINT
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * @notice Called by the KeystoneForwarder to deliver CRE workflow reports.
+     * @param metadata Workflow metadata (workflow ID, name, owner)
+     * @param report The settlement report encoded by the CRE workflow
+     *
+     * The CRE workflow listens for SettlementRequested events via Log Trigger,
+     * runs an adversarial AI trial via Anthropic, and writes back a signed
+     * report through the KeystoneForwarder. This function validates the
+     * caller and routes the report to _processReport.
+     */
+    function onReport(bytes calldata metadata, bytes calldata report) external {
+        require(msg.sender == s_keystoneForwarder, "Only forwarder");
+        _processReport(report);
+    }
+
+    /**
+     * @dev Processes a CRE settlement report.
+     * Report format: prefix byte (0x01) + ABI-encoded (uint256 marketId, uint8 outcome, uint16 confidence)
+     * outcome: 0 = Yes, 1 = No (matches the bootcamp's Prediction enum)
+     */
+    function _processReport(bytes calldata report) internal {
+        require(report.length > 0 && report[0] == 0x01, "Invalid report prefix");
+
+        (uint256 marketId, uint8 outcomeValue, uint16 confidence) =
+            abi.decode(report[1:], (uint256, uint8, uint16));
+
+        Market storage m = markets[marketId];
+        require(m.status == MarketStatus.SettlementRequested, "Settlement not requested");
+
+        Verdict v = outcomeValue == 0 ? Verdict.Yes : Verdict.No;
+        m.status = MarketStatus.Resolved;
+        m.outcome = v;
+        m.transcriptHash = keccak256(report);
+        emit MarketResolved(marketId, v, confidence, 0, m.transcriptHash);
+    }
+
+    /**
+     * @notice ERC165 interface support for IReceiver detection.
+     */
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == 0x805a1e24;
+    }
+
     // ═══════════════════════════════════════════════════════════════
     //  MARKET CREATION
     // ═══════════════════════════════════════════════════════════════
