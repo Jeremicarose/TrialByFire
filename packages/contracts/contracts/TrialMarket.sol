@@ -196,7 +196,7 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
      */
     event MarketCreated(uint256 indexed marketId, address indexed creator, string question, uint256 deadline);
     event PositionTaken(uint256 indexed marketId, address indexed participant, Verdict side, uint256 amount);
-    event SettlementRequested(uint256 indexed marketId, uint256 timestamp);
+    event SettlementRequested(uint256 indexed marketId, string question);
     event TrialRequested(uint256 indexed marketId, bytes32 indexed requestId);
     event MarketResolved(uint256 indexed marketId, Verdict outcome, uint256 scoreYes, uint256 scoreNo, bytes32 transcriptHash);
     event MarketEscalated(uint256 indexed marketId, bytes32 transcriptHash);
@@ -373,7 +373,7 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
         require(m.status == MarketStatus.Open, "Market not open");
         require(block.timestamp >= m.deadline, "Deadline not reached");
         m.status = MarketStatus.SettlementRequested;
-        emit SettlementRequested(marketId, block.timestamp);
+        emit SettlementRequested(marketId, m.question);
     }
 
     // ═══════════════════════════════════════════════════════════════
