@@ -305,23 +305,20 @@ async function automationLoop() {
          *
          * The trial runs entirely on the DON — not on this server.
          */
-        /*
-         * SETTLEMENT REQUESTED → run trial locally with IPFS upload, settle onchain.
-         *
-         * The local engine runs the full adversarial trial (evidence → advocates → judge),
-         * uploads the transcript to IPFS via Pinata, and settles the market onchain
-         * with the IPFS CID stored in the contract.
-         *
-         * This is the hybrid approach: the trial logic mirrors what trial-source.js
-         * does on the DON, but runs locally for reliability. The IPFS transcript
-         * is permanent and verifiable — anyone can fetch it using the onchain CID.
-         *
-         * When the DON secrets decryption issue is resolved, this can switch back
-         * to sendTrialRequest() for fully decentralized execution.
-         */
         if (status === STATUS.SettlementRequested) {
-          console.log(`  [AUTO] Market #${i} awaiting trial — running with IPFS upload...`);
-          runTrialAndSettle(i, raw.question);
+          try {
+            console.log(`  [AUTO] Market #${i} awaiting trial — triggering DON...`);
+            const tx = await contract.sendTrialRequest(i);
+            console.log(`  [AUTO] sendTrialRequest TX: ${tx.hash}`);
+            await tx.wait();
+            console.log(`  [AUTO] DON trial triggered for market #${i}!`);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            console.error(`  [AUTO] sendTrialRequest failed for #${i}: ${msg}`);
+            /* Fallback: run trial locally if DON fails */
+            console.log(`  [AUTO] Falling back to local trial for #${i}...`);
+            runTrialAndSettle(i, raw.question);
+          }
         }
       }
     } catch (err) {
