@@ -424,15 +424,20 @@ export function useContract(
   const getUserPosition = useCallback(
     async (marketId: number, userAddress: string) => {
       if (!provider || !CONTRACT_ADDRESS) return { yes: "0", no: "0" };
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-      const [yesPos, noPos] = await Promise.all([
-        contract.yesPositions(marketId, userAddress),
-        contract.noPositions(marketId, userAddress),
-      ]);
-      return {
-        yes: ethers.formatEther(yesPos),
-        no: ethers.formatEther(noPos),
-      };
+      try {
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+        const [yesPos, noPos] = await Promise.all([
+          contract.yesPositions(marketId, userAddress),
+          contract.noPositions(marketId, userAddress),
+        ]);
+        return {
+          yes: ethers.formatEther(yesPos),
+          no: ethers.formatEther(noPos),
+        };
+      } catch (err) {
+        console.warn("getUserPosition failed:", err);
+        return { yes: "0", no: "0" };
+      }
     },
     [provider]
   );

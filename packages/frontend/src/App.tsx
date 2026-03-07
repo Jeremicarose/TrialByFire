@@ -64,7 +64,12 @@ export default function App() {
    */
   useEffect(() => {
     if (selectedId !== null && account) {
-      getUserPosition(selectedId, account).then(setUserPosition);
+      getUserPosition(selectedId, account)
+        .then(setUserPosition)
+        .catch((err) => {
+          console.warn("Failed to load user position:", err);
+          setUserPosition(null);
+        });
     } else {
       setUserPosition(null);
     }
