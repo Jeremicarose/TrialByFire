@@ -29,10 +29,10 @@ const DON_ID = "fun-ethereum-sepolia-1";
 
 /* Contract ABI subset */
 const CONTRACT_ABI = [
-  "function setEncryptedSecretsReference(bytes calldata ref) external",
+  "function setDONHostedSecrets(uint8 slotId, uint64 version) external",
   "function setFunctionsSource(string calldata source) external",
   "function s_functionsSource() view returns (string)",
-  "function s_encryptedSecretsReference() view returns (bytes)",
+  "function s_donHostedSecretsVersion() view returns (uint64)",
   "function s_subscriptionId() view returns (uint64)",
 ];
 

@@ -257,8 +257,9 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
         s_functionsSource = source;
     }
 
-    function setEncryptedSecretsReference(bytes calldata ref) external onlyOwner {
-        s_encryptedSecretsReference = ref;
+    function setDONHostedSecrets(uint8 slotId, uint64 version) external onlyOwner {
+        s_donHostedSecretsSlotId = slotId;
+        s_donHostedSecretsVersion = version;
     }
 
     function setCallbackGasLimit(uint32 gasLimit) external onlyOwner {
@@ -446,8 +447,8 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
         req.initializeRequestForInlineJavaScript(s_functionsSource);
         req.setArgs(args);
 
-        if (s_encryptedSecretsReference.length > 0) {
-            req.addSecretsReference(s_encryptedSecretsReference);
+        if (s_donHostedSecretsVersion > 0) {
+            req.addDONHostedSecrets(s_donHostedSecretsSlotId, s_donHostedSecretsVersion);
         }
 
         requestId = _sendRequest(
