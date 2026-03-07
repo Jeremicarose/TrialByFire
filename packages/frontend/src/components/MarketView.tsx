@@ -189,7 +189,7 @@ export function MarketView({
       </div>
 
       {/* User's position */}
-      {account && userPosition && (hasYesPosition || hasNoPosition) && (
+      {account && userPosition && hasAnyPosition && (
         <div className="market-view__position">
           <div className="section-label">Your Position</div>
           <div className="market-view__position-row">
@@ -204,29 +204,53 @@ export function MarketView({
               </span>
             )}
           </div>
+        </div>
+      )}
 
-          {/* Payout info for winners */}
-          {userWon && payoutInfo && (
-            <div className="market-view__payout market-view__payout--win">
-              <span className="market-view__payout-icon">&#10003;</span>
-              <div>
-                <strong>You won!</strong> Claimable: {payoutInfo.payout.toFixed(4)} ETH{toUsd(payoutInfo.payout.toString())}
-                <span className="market-view__payout-profit mono">
-                  +{payoutInfo.profit.toFixed(4)} ETH profit
-                </span>
-              </div>
+      {/* ── Outcome Banner (WIN / LOSS / REFUND) ── */}
+      {account && hasAnyPosition && userWon && payoutInfo && (
+        <div className="market-view__outcome-banner market-view__outcome-banner--win">
+          <div className="outcome-banner__icon">W</div>
+          <div className="outcome-banner__content">
+            <div className="outcome-banner__title">You Won!</div>
+            <div className="outcome-banner__detail mono">
+              The trial resolved as <strong>{market.outcome}</strong> — your position was correct.
             </div>
-          )}
+            <div className="outcome-banner__amounts mono">
+              <span className="outcome-banner__payout">Claimable: {payoutInfo.payout.toFixed(4)} ETH{toUsd(payoutInfo.payout.toString())}</span>
+              <span className="outcome-banner__profit">+{payoutInfo.profit.toFixed(4)} ETH profit</span>
+            </div>
+          </div>
+        </div>
+      )}
 
-          {/* Loss message */}
-          {userLost && (
-            <div className="market-view__payout market-view__payout--loss">
-              <span className="market-view__payout-icon">&#10007;</span>
-              <div>
-                Market resolved as <strong>{market.outcome}</strong> — your stake was on the losing side.
-              </div>
+      {account && hasAnyPosition && userLost && (
+        <div className="market-view__outcome-banner market-view__outcome-banner--loss">
+          <div className="outcome-banner__icon">L</div>
+          <div className="outcome-banner__content">
+            <div className="outcome-banner__title">You Lost</div>
+            <div className="outcome-banner__detail mono">
+              The trial resolved as <strong>{market.outcome}</strong> — your stake was on the losing side.
             </div>
-          )}
+            <div className="outcome-banner__amounts mono">
+              <span className="outcome-banner__lost">-{lossAmount.toFixed(4)} ETH{toUsd(lossAmount.toString())}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {account && hasAnyPosition && userRefundable && (
+        <div className="market-view__outcome-banner market-view__outcome-banner--refund">
+          <div className="outcome-banner__icon">R</div>
+          <div className="outcome-banner__content">
+            <div className="outcome-banner__title">Market Escalated — Full Refund Available</div>
+            <div className="outcome-banner__detail mono">
+              The trial margin was too narrow to auto-resolve. All participants receive a full refund of their stakes.
+            </div>
+            <div className="outcome-banner__amounts mono">
+              <span className="outcome-banner__payout">Refundable: {userTotalStake.toFixed(4)} ETH{toUsd(userTotalStake.toString())}</span>
+            </div>
+          </div>
         </div>
       )}
 
