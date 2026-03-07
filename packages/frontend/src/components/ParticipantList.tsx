@@ -27,6 +27,7 @@ export function ParticipantList({
 }: ParticipantListProps) {
   const priceNum = ethUsdPrice ? parseFloat(ethUsdPrice) : 0;
   const isResolved = marketStatus === "Resolved";
+  const isEscalated = marketStatus === "Escalated";
 
   if (participants.length === 0) return null;
 
@@ -36,6 +37,18 @@ export function ParticipantList({
     if (Math.abs(value) < 0.000001) return "—";
     const sign = value >= 0 ? "+" : "";
     return `${sign}${value.toFixed(4)}`;
+  };
+
+  /* Determine if a participant won or lost */
+  const getParticipantResult = (p: Participant): "won" | "lost" | "refund" | null => {
+    if (isEscalated) return "refund";
+    if (!isResolved) return null;
+    const yesStake = parseFloat(p.yesStake);
+    const noStake = parseFloat(p.noStake);
+    if (marketOutcome === "Yes" && yesStake > 0) return "won";
+    if (marketOutcome === "No" && noStake > 0) return "won";
+    if (yesStake > 0 || noStake > 0) return "lost";
+    return null;
   };
 
   const formatUsd = (eth: number) => {
