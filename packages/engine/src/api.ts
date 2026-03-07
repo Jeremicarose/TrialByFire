@@ -263,7 +263,12 @@ async function automationLoop() {
   const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
   console.log("  [AUTO] Automation loop started (polling every 30s)...");
-  console.log("  [AUTO] Mode: DECENTRALIZED — triggering Chainlink Functions DON\n");
+  console.log("  [AUTO] Mode: HYBRID — local trial + onchain settlement via Chainlink\n");
+  console.log("  [AUTO] Architecture:");
+  console.log("         Chainlink Automation triggers requestSettlement()");
+  console.log("         Engine runs adversarial trial (evidence + advocates + judge)");
+  console.log("         Transcript uploaded to IPFS (permanent, verifiable)");
+  console.log("         Engine settles onchain with verdict + IPFS CID\n");
 
   const poll = async () => {
     try {
@@ -293,34 +298,28 @@ async function automationLoop() {
         }
 
         /*
-         * SETTLEMENT REQUESTED → trigger Chainlink Functions DON
+         * SETTLEMENT REQUESTED → run adversarial trial + settle onchain
          *
-         * This calls sendTrialRequest() on the contract, which:
-         *   1. Reads ETH/USD from Chainlink Data Feeds
-         *   2. Builds a Chainlink Functions request with the trial JS source
-         *   3. Sends it to the DON via the Functions Router
-         *   4. DON nodes execute trial-source.js independently
-         *   5. DON reaches consensus → calls _fulfillRequest()
-         *   6. Contract auto-resolves or escalates
+         * The full trial (evidence → advocates → judge → confidence check) runs
+         * on the engine server because it requires multiple LLM API calls that
+         * exceed the DON's 10-second execution limit.
          *
-         * The trial runs entirely on the DON — not on this server.
+         * The transcript is uploaded to IPFS (via Pinata) for permanent,
+         * decentralized storage. The IPFS CID is stored onchain alongside
+         * the verdict, so anyone can independently verify the full debate.
+         *
+         * Chainlink integration points:
+         *   - Chainlink Automation: triggers requestSettlement() after deadline
+         *   - Chainlink Data Feeds: ETH/USD price included as evidence
+         *   - Chainlink Functions: contract has sendTrialRequest() for future
+         *     use when DON supports longer execution times
          */
         if (status === STATUS.SettlementRequested) {
           processingMarkets.add(i);
-          try {
-            console.log(`  [AUTO] Market #${i} awaiting trial — triggering DON...`);
-            const tx = await contract.sendTrialRequest(i);
-            console.log(`  [AUTO] sendTrialRequest TX: ${tx.hash}`);
-            await tx.wait();
-            console.log(`  [AUTO] DON trial triggered for market #${i}! Waiting for fulfillment...`);
-          } catch (err) {
-            const msg = err instanceof Error ? err.message : String(err);
-            console.error(`  [AUTO] sendTrialRequest failed for #${i}: ${msg}`);
-            /* Fallback: run trial locally if DON fails */
-            console.log(`  [AUTO] Falling back to local trial for #${i}...`);
-            runTrialAndSettle(i, raw.question);
+          console.log(`  [AUTO] Market #${i} awaiting trial — running adversarial trial...`);
+          runTrialAndSettle(i, raw.question).finally(() => {
             processingMarkets.delete(i);
-          }
+          });
         }
       }
     } catch (err) {
