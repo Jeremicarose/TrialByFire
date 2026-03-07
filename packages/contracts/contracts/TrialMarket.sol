@@ -151,8 +151,9 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
      *   advocate arguments, judge scoring, and confidence evaluation.
      *   Stored on-chain so it's immutable and auditable.
      *
-     * s_encryptedSecretsReference: Encrypted reference to API keys (OpenAI,
-     *   Anthropic) stored off-chain. Only DON nodes can decrypt these.
+     * s_donHostedSecretsSlotId / s_donHostedSecretsVersion: Reference to
+     *   encrypted API keys (OpenAI, Anthropic) hosted on the DON gateway.
+     *   Only DON nodes can decrypt these.
      *
      * s_callbackGasLimit: Gas budget for the _fulfillRequest() callback.
      *   Must be enough to decode the result and update market state.
@@ -163,7 +164,8 @@ contract TrialMarket is Ownable, ReentrancyGuard, FunctionsClient, AutomationCom
     bytes32 public s_donId;
     uint64 public s_subscriptionId;
     string public s_functionsSource;
-    bytes public s_encryptedSecretsReference;
+    uint8 public s_donHostedSecretsSlotId;
+    uint64 public s_donHostedSecretsVersion;
     uint32 public s_callbackGasLimit = 300_000;
     mapping(bytes32 => uint256) public s_requestIdToMarketId;
 
