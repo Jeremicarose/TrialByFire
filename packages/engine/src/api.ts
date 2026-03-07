@@ -306,18 +306,20 @@ async function automationLoop() {
          * The trial runs entirely on the DON — not on this server.
          */
         if (status === STATUS.SettlementRequested) {
+          processingMarkets.add(i);
           try {
             console.log(`  [AUTO] Market #${i} awaiting trial — triggering DON...`);
             const tx = await contract.sendTrialRequest(i);
             console.log(`  [AUTO] sendTrialRequest TX: ${tx.hash}`);
             await tx.wait();
-            console.log(`  [AUTO] DON trial triggered for market #${i}!`);
+            console.log(`  [AUTO] DON trial triggered for market #${i}! Waiting for fulfillment...`);
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             console.error(`  [AUTO] sendTrialRequest failed for #${i}: ${msg}`);
             /* Fallback: run trial locally if DON fails */
             console.log(`  [AUTO] Falling back to local trial for #${i}...`);
             runTrialAndSettle(i, raw.question);
+            processingMarkets.delete(i);
           }
         }
       }
