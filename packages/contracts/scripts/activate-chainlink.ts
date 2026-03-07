@@ -137,22 +137,12 @@ async function main() {
 
   console.log(`  Secrets uploaded! Version: ${uploadResult.version}`);
 
-  // ── Step 2: Set Encrypted Secrets Reference ─────────────────────
+  // ── Step 2: Set DON-Hosted Secrets Reference ───────────────────
 
-  console.log("\n  [2/3] Setting encrypted secrets reference on contract...");
+  console.log("\n  [2/3] Setting DON-hosted secrets on contract...");
+  console.log(`  Slot: 0, Version: ${uploadResult.version}`);
 
-  /*
-   * Build the secrets reference bytes.
-   * This encodes the slotId and version so the contract can pass
-   * them to the Functions request. The DON uses these to look up
-   * and decrypt the correct secrets.
-   */
-  const secretsRef = secretsManager.buildDONHostedEncryptedSecretsReference({
-    slotId: 0,
-    version: uploadResult.version,
-  });
-
-  const tx1 = await contract.setEncryptedSecretsReference(secretsRef);
+  const tx1 = await contract.setDONHostedSecrets(0, uploadResult.version);
   await tx1.wait();
   console.log(`  TX: ${tx1.hash}`);
 
