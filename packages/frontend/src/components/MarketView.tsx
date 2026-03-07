@@ -341,7 +341,7 @@ export function MarketView({
         {/* RESOLVED + WINNER → Claim Winnings */}
         {market.status === "Resolved" && account && userWon && (
           <button
-            className="run-trial-btn market-view__claim-btn"
+            className="run-trial-btn market-view__claim-btn market-view__claim-btn--big"
             disabled={actionLoading}
             onClick={() => handleAction(() => onClaimWinnings(market.id))}
           >
@@ -349,14 +349,21 @@ export function MarketView({
           </button>
         )}
 
+        {/* RESOLVED + LOSER → No action available */}
+        {market.status === "Resolved" && account && userLost && (
+          <div className="market-view__no-action mono">
+            No claimable funds — your stake went to the winners.
+          </div>
+        )}
+
         {/* ESCALATED → Claim Refund */}
-        {market.status === "Escalated" && account && (hasYesPosition || hasNoPosition) && (
+        {userRefundable && (
           <button
-            className="run-trial-btn market-view__refund-btn"
+            className="run-trial-btn market-view__refund-btn market-view__refund-btn--big"
             disabled={actionLoading}
             onClick={() => handleAction(() => onClaimRefund(market.id))}
           >
-            {actionLoading ? "Claiming..." : "Claim Refund"}
+            {actionLoading ? "Claiming..." : `Claim Refund — ${userTotalStake.toFixed(4)} ETH`}
           </button>
         )}
 
