@@ -47,6 +47,7 @@ export default function App() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [transcript, setTranscript] = useState<TrialTranscriptType | null>(null);
   const [transcriptLoading, setTranscriptLoading] = useState(false);
+  const transcriptCacheRef = React.useRef<Map<number, TrialTranscriptType>>(new Map());
 
   /* Auto-select the first market when data loads */
   useEffect(() => {
