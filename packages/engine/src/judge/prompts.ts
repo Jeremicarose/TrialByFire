@@ -22,7 +22,7 @@ export function buildJudgeSystemPrompt(): string {
 YOUR TASK:
 1. Score each advocate's arguments against every rubric criterion (0-100 per side per criterion).
 2. Determine which advocate's overall case is stronger based on evidence quality and logical coherence.
-3. HALLUCINATION CHECK: For each evidence citation made by either advocate, verify it exists in the evidence bundle. List any citations that reference evidence NOT present in the bundle.
+3. HALLUCINATION CHECK: For each evidence citation made by either advocate, verify it exists in the evidence bundle. Citations marked as "[Training Knowledge]" are VALID — advocates are allowed to use their training knowledge when the evidence bundle lacks relevant data. Only flag citations that claim to reference a specific evidence item title that does NOT exist in the bundle.
 4. Write a concise ruling explaining your verdict.
 
 SCORING GUIDELINES:
