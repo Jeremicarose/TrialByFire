@@ -95,8 +95,8 @@ function sendJson(res: http.ServerResponse, status: number, data: unknown) {
  * prices, DeFiLlama for DeFi yields, Treasury for economics,
  * Wikipedia for general knowledge, sports APIs, etc.
  *
- * We keep DeFiLlama and Treasury as fallbacks in case the dynamic
- * source fails or returns no data (defense in depth).
+ * The dynamic source reads the question and picks relevant APIs —
+ * no hardcoded fallbacks that pollute evidence with irrelevant data.
  *
  * This is the local equivalent of what trial-source.js does on
  * the Chainlink DON — both dynamically select APIs based on the question.
@@ -104,7 +104,7 @@ function sendJson(res: http.ServerResponse, status: number, data: unknown) {
 const dynamicLLMClient = createLLMClient(useMocks ? "mock" : "anthropic");
 const evidenceSources: EvidenceSource[] = useMocks
   ? [new MockEvidenceSource()]
-  : [new DynamicEvidenceSource(dynamicLLMClient), new DeFiLlamaSource(), new TreasurySource()];
+  : [new DynamicEvidenceSource(dynamicLLMClient)];
 
 function buildPipelineConfig(): PipelineConfig {
   return {
