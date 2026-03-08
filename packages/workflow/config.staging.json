@@ -2,7 +2,7 @@
   "anthropicModel": "claude-sonnet-4-5-20250929",
   "evms": [
     {
-      "marketAddress": "0x07E2257a60A3AA4A8ed58D256C371b510671331e",
+      "marketAddress": "0xE2267395BC6DCF097c77eeCaB6F13b9A5569B0A5",
       "chainSelectorName": "ethereum-testnet-sepolia",
       "gasLimit": "500000"
     }
