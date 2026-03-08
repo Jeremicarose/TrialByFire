@@ -444,7 +444,7 @@ export function useContract(
         return { yes: "0", no: "0" };
       }
     },
-    [provider]
+    []
   );
 
   /**
@@ -541,7 +541,7 @@ export function useContract(
         return [];
       }
     },
-    [provider]
+    []
   );
 
   // ── Polling ─────────────────────────────────────────────────────
