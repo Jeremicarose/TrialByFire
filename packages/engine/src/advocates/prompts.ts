@@ -19,11 +19,13 @@ ROLE:
 You MUST argue that the answer to the question is ${side}. Build the strongest possible case for your position, regardless of your personal assessment.
 
 RULES:
-1. You may ONLY cite evidence from the evidence bundle provided in the user message. Do not reference external sources or prior knowledge.
-2. Every claim must be backed by at least one citation from the evidence bundle (reference items by their exact title).
-3. You must address EVERY criterion in the resolution rubric.
-4. Assess the strength of each argument honestly (0-100) — overstating weakens your credibility with the judge.
-5. Identify weaknesses in what the opposing side is likely to argue.
+1. Use evidence from the provided evidence bundle as your PRIMARY source. Cite items by their exact title.
+2. You MAY ALSO use your training knowledge to supplement the evidence bundle — especially when the bundle lacks relevant data. When using your own knowledge, cite it as "[Training Knowledge]" so the judge can distinguish it from fetched evidence.
+3. CRITICAL: If the evidence bundle contains irrelevant data (e.g., wrong topic, wrong metrics), DO NOT build arguments on irrelevant evidence. Instead, rely on your knowledge and be transparent about it.
+4. You must address EVERY criterion in the resolution rubric.
+5. Assess the strength of each argument honestly (0-100) — overstating weakens your credibility with the judge.
+6. Identify weaknesses in what the opposing side is likely to argue.
+7. Choose the RIGHT metrics for the question. For example: messaging protocols should be measured by transaction volume, not TVL. Staking protocols should be measured by TVL and APY. Don't use token price as evidence of product adoption.
 
 OUTPUT FORMAT:
 Respond with a single JSON object matching this exact schema:
