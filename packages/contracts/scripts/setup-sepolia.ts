@@ -139,6 +139,14 @@ async function main() {
     console.log("         4. Run: cast send <contract> 'setSubscriptionId(uint64)' <id>");
   }
 
+  // ── Step 3b: Set KeystoneForwarder (CRE) ──────────────────────
+
+  console.log("\n  [3b/5] Setting KeystoneForwarder for CRE...");
+  const tx3b = await market.setKeystoneForwarder(KEYSTONE_FORWARDER);
+  await tx3b.wait();
+  console.log(`         Forwarder: ${KEYSTONE_FORWARDER}`);
+  console.log(`         TX: ${tx3b.hash}`);
+
   // ── Step 4: Upload Functions Source Code ────────────────────────
 
   /*
