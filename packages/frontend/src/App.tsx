@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useWallet } from "./hooks/useWallet";
 import { useContract } from "./hooks/useContract";
 import { HowItWorks } from "./components/HowItWorks";
@@ -47,7 +47,7 @@ export default function App() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [transcript, setTranscript] = useState<TrialTranscriptType | null>(null);
   const [transcriptLoading, setTranscriptLoading] = useState(false);
-  const transcriptCacheRef = React.useRef<Map<number, TrialTranscriptType>>(new Map());
+  const transcriptCacheRef = useRef<Map<number, TrialTranscriptType>>(new Map());
 
   /* Auto-select the first market when data loads */
   useEffect(() => {
@@ -103,6 +103,13 @@ export default function App() {
       return;
     }
 
+    /* Return cached transcript immediately if available */
+    const cached = transcriptCacheRef.current.get(selectedId);
+    if (cached) {
+      setTranscript(cached);
+      return;
+    }
+
     setTranscriptLoading(true);
 
     const fetchTranscript = async () => {
@@ -120,7 +127,7 @@ export default function App() {
             if (res.ok) {
               const donData = await res.json();
               /* Transform DON transcript format to frontend TrialTranscript type */
-              setTranscript({
+              const t = {
                 question: {
                   id: `market-${market.id}`,
                   question: market.question,
@@ -147,7 +154,9 @@ export default function App() {
                 decision: donData.decision,
                 executedAt: new Date(donData.executedAt),
                 durationMs: 0,
-              } as TrialTranscriptType);
+              } as TrialTranscriptType;
+              transcriptCacheRef.current.set(selectedId, t);
+              setTranscript(t);
               return;
             }
           } catch {
@@ -161,6 +170,7 @@ export default function App() {
         const res = await fetch(`/api/transcript/${selectedId}`);
         if (res.ok) {
           const data = await res.json();
+          transcriptCacheRef.current.set(selectedId, data.transcript);
           setTranscript(data.transcript);
           return;
         }
