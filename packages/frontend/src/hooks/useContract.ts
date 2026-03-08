@@ -466,7 +466,7 @@ export function useContract(
          * all stakes. Some RPC providers limit queryFilter range,
          * so we use an explicit fromBlock to stay within limits.
          */
-        const currentBlock = await provider.getBlockNumber();
+        const currentBlock = await readProvider.getBlockNumber();
         const filter = contract.filters.PositionTaken(marketId);
 
         /*
