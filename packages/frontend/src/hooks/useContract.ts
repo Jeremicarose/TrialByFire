@@ -220,7 +220,7 @@ export function useContract(
     } finally {
       setLoading(false);
     }
-  }, [provider]);
+  }, []);
 
   /**
    * Fetch the ETH/USD price from Chainlink Data Feeds via the contract.
