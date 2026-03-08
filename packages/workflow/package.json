@@ -1,14 +1,18 @@
 {
   "name": "@trialbyfire/workflow",
   "version": "1.0.0",
+  "main": "dist/main.js",
   "private": true,
-  "type": "module",
   "scripts": {
+    "postinstall": "bunx cre-setup",
     "simulate": "cre workflow simulate . --broadcast",
     "deploy": "cre workflow deploy . --target staging-settings"
   },
   "dependencies": {
-    "@chainlink/cre-sdk": "latest",
+    "@chainlink/cre-sdk": "^1.0.1",
     "viem": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "1.2.21"
   }
 }
