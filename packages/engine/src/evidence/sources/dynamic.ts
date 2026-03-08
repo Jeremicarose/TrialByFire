@@ -58,6 +58,13 @@ IMPORTANT RULES:
   - A comparison question needs data for ALL entities being compared
   - A policy question benefits from Wikipedia context and factual background
 
+COMMON MISTAKES TO AVOID:
+- Wikipedia "chainlink" returns data about metal fences. Use "Chainlink_(blockchain)" for the crypto protocol.
+- Wikipedia disambiguation: always use the specific article name (e.g., "Ethereum", "Bitcoin", "Uniswap")
+- CoinGecko coin IDs: use "chainlink" for LINK, "ethereum" for ETH, "bitcoin" for BTC
+- DeFiLlama TVL is ZERO for messaging protocols (CCIP, LayerZero, Wormhole) — this is by design, not a failure. Don't use TVL for these.
+- Token price ≠ product adoption. Don't use price data to argue about a specific product's market leadership.
+
 EXAMPLES of good public APIs (but use ANY free API that fits):
   CoinGecko, DeFiLlama, US Treasury, Wikipedia, Open-Meteo, GitHub API,
   restcountries.com, exchange rate APIs, sports APIs, etc.
