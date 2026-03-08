@@ -38,8 +38,11 @@ import { ethers } from "ethers";
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "";
 const RPC_URL = import.meta.env.VITE_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com";
 
-/* Dedicated read-only provider — bypasses wallet RPC limits for event queries */
+/* Dedicated read-only provider — bypasses wallet RPC limits */
 const readProvider = new ethers.JsonRpcProvider(RPC_URL);
+
+/* Public RPC for event queries — Alchemy free tier limits eth_getLogs to tiny ranges */
+const eventProvider = new ethers.JsonRpcProvider("https://ethereum-sepolia-rpc.publicnode.com");
 
 /*
  * ABI for all functions we call from the frontend.
@@ -461,28 +464,23 @@ export function useContract(
         const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
 
         /*
-         * Query PositionTaken events for this market.
-         * We look back ~50,000 blocks (~1 week on Sepolia) to catch
-         * all stakes. Some RPC providers limit queryFilter range,
-         * so we use an explicit fromBlock to stay within limits.
+         * Query PositionTaken events using a public RPC that supports
+         * large eth_getLogs ranges. Alchemy free tier only allows ~10 blocks,
+         * making event queries impractical. publicnode.com supports ~5000.
          */
-        const currentBlock = await readProvider.getBlockNumber();
-        const filter = contract.filters.PositionTaken(marketId);
+        const evContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, eventProvider);
+        const currentBlock = await eventProvider.getBlockNumber();
+        const filter = evContract.filters.PositionTaken(marketId);
 
-        /*
-         * Try progressively smaller block ranges to handle different
-         * RPC providers with varying eth_getLogs limits.
-         * Alchemy supports 100K+, publicnode.com (MetaMask default) caps at ~5000.
-         */
         let events: ethers.Log[] = [];
         const ranges = [50000, 10000, 4999];
         for (const range of ranges) {
           try {
             const fromBlock = Math.max(0, currentBlock - range);
-            events = await contract.queryFilter(filter, fromBlock, "latest");
-            break; // success — use this result
+            events = await evContract.queryFilter(filter, fromBlock, "latest");
+            break;
           } catch {
-            continue; // try smaller range
+            continue;
           }
         }
 
