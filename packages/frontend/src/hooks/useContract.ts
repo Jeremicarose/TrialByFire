@@ -72,7 +72,7 @@ const CONTRACT_ABI = [
   // Events
   "event MarketCreated(uint256 indexed marketId, address indexed creator, string question, uint256 deadline)",
   "event PositionTaken(uint256 indexed marketId, address indexed participant, uint8 side, uint256 amount)",
-  "event SettlementRequested(uint256 indexed marketId, uint256 timestamp)",
+  "event SettlementRequested(uint256 indexed marketId, string question)",
   "event TrialRequested(uint256 indexed marketId, bytes32 indexed requestId)",
   "event MarketResolved(uint256 indexed marketId, uint8 outcome, uint256 scoreYes, uint256 scoreNo, bytes32 transcriptHash)",
   "event MarketEscalated(uint256 indexed marketId, bytes32 transcriptHash)",
