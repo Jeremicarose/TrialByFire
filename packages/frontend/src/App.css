@@ -145,6 +145,43 @@
   gap: var(--space-sm);
 }
 
+/* ── On-Chain Verdict (when transcript unavailable) ── */
+.onchain-verdict {
+  margin: var(--space-lg) 0;
+  padding: var(--space-lg);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--accent);
+}
+
+.onchain-verdict__header {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: var(--space-md);
+  font-weight: 600;
+}
+
+.onchain-verdict__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.onchain-verdict__details strong {
+  color: var(--text-primary);
+}
+
+.onchain-verdict__hash {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
 @media (max-width: 640px) {
   .app-header__row {
     flex-direction: column;

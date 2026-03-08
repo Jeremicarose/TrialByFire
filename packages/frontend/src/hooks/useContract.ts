@@ -36,6 +36,10 @@ import { ethers } from "ethers";
  * Set via VITE_CONTRACT_ADDRESS in .env or at build time.
  */
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "";
+const RPC_URL = import.meta.env.VITE_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com";
+
+/* Dedicated read-only provider — bypasses wallet RPC limits for event queries */
+const readProvider = new ethers.JsonRpcProvider(RPC_URL);
 
 /*
  * ABI for all functions we call from the frontend.
@@ -196,11 +200,11 @@ export function useContract(
    * pagination to avoid O(n) RPC calls.
    */
   const loadMarkets = useCallback(async () => {
-    if (!provider || !CONTRACT_ADDRESS) return;
+    if (!CONTRACT_ADDRESS) return;
 
     setLoading(true);
     try {
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
       const count = await contract.nextMarketId();
       const total = Number(count);
 
@@ -224,16 +228,16 @@ export function useContract(
    * and returns the price with 8 decimals.
    */
   const loadEthPrice = useCallback(async () => {
-    if (!provider || !CONTRACT_ADDRESS) return;
+    if (!CONTRACT_ADDRESS) return;
     try {
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
       const [price] = await contract.getLatestEthUsdPrice();
       const formatted = (Number(price) / 1e8).toFixed(2);
       setEthUsdPrice(formatted);
     } catch (err) {
       console.warn("Failed to load ETH price:", err);
     }
-  }, [provider]);
+  }, []);
 
   // ── Write Operations ──────────────────────────────────────────
 
@@ -424,9 +428,9 @@ export function useContract(
    */
   const getUserPosition = useCallback(
     async (marketId: number, userAddress: string) => {
-      if (!provider || !CONTRACT_ADDRESS) return { yes: "0", no: "0" };
+      if (!CONTRACT_ADDRESS) return { yes: "0", no: "0" };
       try {
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
         const [yesPos, noPos] = await Promise.all([
           contract.yesPositions(marketId, userAddress),
           contract.noPositions(marketId, userAddress),
@@ -452,9 +456,9 @@ export function useContract(
    */
   const getMarketParticipants = useCallback(
     async (marketId: number): Promise<Participant[]> => {
-      if (!provider || !CONTRACT_ADDRESS) return [];
+      if (!CONTRACT_ADDRESS) return [];
       try {
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
 
         /*
          * Query PositionTaken events for this market.

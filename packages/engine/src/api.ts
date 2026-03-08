@@ -161,13 +161,6 @@ const processingMarkets = new Set<number>();
 /* ── Core: Run trial + settle for a market ── */
 
 async function runTrialAndSettle(marketId: number, questionText: string): Promise<void> {
-  if (processingMarkets.has(marketId)) {
-    console.log(`  [AUTO] Market #${marketId} already being processed, skipping.`);
-    return;
-  }
-
-  processingMarkets.add(marketId);
-
   try {
     console.log(`\n${"=".repeat(60)}`);
     console.log(`  Running trial for market #${marketId}`);
@@ -228,8 +221,6 @@ async function runTrialAndSettle(marketId: number, questionText: string): Promis
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`  [AUTO] Trial/settlement failed for market #${marketId}: ${msg}`);
-  } finally {
-    processingMarkets.delete(marketId);
   }
 }
 
@@ -315,11 +306,26 @@ async function automationLoop() {
          *     use when DON supports longer execution times
          */
         if (status === STATUS.SettlementRequested) {
+          if (processingMarkets.has(i)) continue;
           processingMarkets.add(i);
           console.log(`  [AUTO] Market #${i} awaiting trial — running adversarial trial...`);
-          runTrialAndSettle(i, raw.question).finally(() => {
-            processingMarkets.delete(i);
-          });
+
+          /* Wrap in a 120s timeout so a hung LLM call doesn't block forever */
+          const trialWithTimeout = Promise.race([
+            runTrialAndSettle(i, raw.question),
+            new Promise<void>((_, reject) =>
+              setTimeout(() => reject(new Error("Trial timed out after 120s")), 120_000)
+            ),
+          ]);
+
+          trialWithTimeout
+            .catch((err) => {
+              const msg = err instanceof Error ? err.message : String(err);
+              console.error(`  [AUTO] Market #${i} trial failed: ${msg}`);
+            })
+            .finally(() => {
+              processingMarkets.delete(i);
+            });
         }
       }
     } catch (err) {

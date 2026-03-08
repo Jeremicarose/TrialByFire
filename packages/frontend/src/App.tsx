@@ -295,9 +295,17 @@ export default function App() {
             </>
           )}
 
-          {!transcriptLoading && !transcript && (
-            <div className="trial-loading mono">
-              Trial results not available (server may have restarted).
+          {!transcriptLoading && !transcript && selectedMarket && (
+            <div className="onchain-verdict mono">
+              <div className="onchain-verdict__header">Settlement Record (On-Chain)</div>
+              <div className="onchain-verdict__details">
+                <div><strong>Verdict:</strong> {selectedMarket.outcome === "Yes" ? "YES" : selectedMarket.outcome === "No" ? "NO" : "Escalated"}</div>
+                <div><strong>Status:</strong> {selectedMarket.status}</div>
+                <div><strong>Method:</strong> Settled via CRE Workflow (Chainlink Runtime Environment)</div>
+                {selectedMarket.transcriptHash && selectedMarket.transcriptHash !== "0x" + "0".repeat(64) && (
+                  <div><strong>Proof:</strong> <span className="onchain-verdict__hash">{selectedMarket.transcriptHash.slice(0, 18)}...</span></div>
+                )}
+              </div>
             </div>
           )}
         </>

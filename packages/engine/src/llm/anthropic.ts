@@ -30,23 +30,35 @@ export class AnthropicClient implements LLMClient {
 
     const model = request.model || "claude-sonnet-4-20250514";
 
-    const response = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": this.apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model,
-        // Anthropic's API takes system prompt as a top-level field,
-        // not as a message with role "system"
-        system: request.systemPrompt,
-        messages: [{ role: "user", content: request.userPrompt }],
-        max_tokens: request.maxTokens || 4096,
-        temperature: request.temperature ?? 0.3,
-      }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60_000);
+
+    let response: Response;
+    try {
+      response = await fetch(this.baseUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": this.apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model,
+          system: request.systemPrompt,
+          messages: [{ role: "user", content: request.userPrompt }],
+          max_tokens: request.maxTokens || 4096,
+          temperature: request.temperature ?? 0.3,
+        }),
+        signal: controller.signal,
+      });
+    } catch (err: unknown) {
+      clearTimeout(timeout);
+      if (err instanceof Error && err.name === "AbortError") {
+        throw new Error("Anthropic API call timed out after 60s");
+      }
+      throw err;
+    }
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const errorBody = await response.text();
