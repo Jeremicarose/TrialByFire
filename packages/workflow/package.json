@@ -1,0 +1,14 @@
+{
+  "name": "@trialbyfire/workflow",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "simulate": "cre workflow simulate . --broadcast",
+    "deploy": "cre workflow deploy . --target staging-settings"
+  },
+  "dependencies": {
+    "@chainlink/cre-sdk": "latest",
+    "viem": "^2.0.0"
+  }
+}

@@ -1,0 +1,18 @@
+# CRE Workflow Settings for TrialByFire
+# Defines workflow name, entry point, config, and secrets paths
+
+staging-settings:
+  user-workflow:
+    workflow-name: "trialbyfire-staging"
+  workflow-artifacts:
+    workflow-path: "./main.ts"
+    config-path: "./config.staging.json"
+    secrets-path: "./secrets.yaml"
+
+production-settings:
+  user-workflow:
+    workflow-name: "trialbyfire-production"
+  workflow-artifacts:
+    workflow-path: "./main.ts"
+    config-path: "./config.staging.json"
+    secrets-path: "./secrets.yaml"
