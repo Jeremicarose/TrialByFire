@@ -48,6 +48,7 @@ import * as path from "path";
 const FUNCTIONS_ROUTER = "0xb83E47C2bC239B3bf370bc41e1459A34b41238D0";
 const ETH_USD_FEED = "0x694AA1769357215DE4FAC081bf1f309aDC325306";
 const DON_ID = "fun-ethereum-sepolia-1";
+const KEYSTONE_FORWARDER = "0x15fc6ae953e024d975e77382eeec56a9101f9f88";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
